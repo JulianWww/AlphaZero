@@ -62,9 +62,9 @@ namespace AlphaZero {
 		public: static std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> getBatch(std::shared_ptr<Memory> memory, unsigned int batchSize);
 		public: void fit(const std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>& batch, const unsigned short& run, const unsigned short& trainingLoop);
 
-		private: ResNet register_custom_module(ResNet& net, std::string layer);
-		private: Value_head register_custom_module(Value_head& net);
-		private: Policy_head register_custom_module(Policy_head& net);
+		private: ResNet register_custom_module(ResNet net, std::string layer);
+		private: Value_head register_custom_module(Value_head net);
+		private: Policy_head register_custom_module(Policy_head net);
 
 		};
 	}
@@ -202,20 +202,20 @@ inline void AlphaZero::ai::Model::fit(const std::tuple<torch::Tensor, torch::Ten
 #endif
 }
 
-inline AlphaZero::ai::ResNet AlphaZero::ai::Model::register_custom_module(ResNet& net, std::string layer)
+inline AlphaZero::ai::ResNet AlphaZero::ai::Model::register_custom_module(ResNet net, std::string layer)
 {
 	register_module(layer + "_conv1", net.conv1);
 	register_module(layer + "_conv2", net.conv2);
 	return net;
 }
-inline AlphaZero::ai::Value_head AlphaZero::ai::Model::register_custom_module(Value_head& net)
+inline AlphaZero::ai::Value_head AlphaZero::ai::Model::register_custom_module(Value_head net)
 {
 	register_module("value_conv", net.conv);
 	register_module("value_lin1", net.lin1);
 	register_module("value_lin2", net.lin2);
 	return net;
 }
-inline AlphaZero::ai::Policy_head AlphaZero::ai::Model::register_custom_module(Policy_head& net)
+inline AlphaZero::ai::Policy_head AlphaZero::ai::Model::register_custom_module(Policy_head net)
 {
 	register_module("policy_conv", net.conv);
 	register_module("policy_linear", net.lin1);
