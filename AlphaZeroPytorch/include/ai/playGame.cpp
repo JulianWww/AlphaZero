@@ -76,17 +76,14 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 #if ProfileLogger
 	debug::Profiler::profiler.switchOperation(3);
 #endif
-	std::cout << "checkpoint" << std::endl;
 	std::unordered_map<int, int> scores;
-	std::cout << "checkpoint 2" << std::endl;
 	if (!agent1->identity == agent2->identity) {
-		std::cout << "checkpoint 3" << std::endl;
 		scores.insert({ agent1->identity, 0 });
 		scores.insert({ agent2->identity, 0 });
 	}
-	std::cout << "playing game ";
+	std::cout << "playing game " << std::endl;
 	for (int epoch = 0; epoch < Epochs; epoch++) {
-		std::cout << epoch + 1 << " ";
+		std::cout << epoch + 1 << std::endl;
 #if ProfileLogger
 		debug::Profiler::profiler.switchOperation(3);
 #endif
