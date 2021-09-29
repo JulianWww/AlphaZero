@@ -26,6 +26,9 @@ void AlphaZero::ai::train(int version)
 	std::shared_ptr<Game::Game> game = std::make_shared<Game::Game>();
 	std::shared_ptr<Agent> currentAgent = std::make_shared<Agent>(game, version);
 	std::shared_ptr<Agent> bestAgent = std::make_shared<Agent>(game, version);
+
+	currentAgent->identity = 0;
+	bestAgent->identity = 1;
 #if loadVersion >= 0
 	bestAgent->model->load(loadVersion);
 	currentAgent->model->load(loadVersion);
@@ -54,7 +57,7 @@ void AlphaZero::ai::train(int version)
 			memory->active = false;
 			auto score = playGames(game, bestAgent, currentAgent, memory, Turnement_probabiliticMoves, TurneyEpochs);
 
-			if (score[currentAgent] > score[bestAgent] * scoringThreshold) {
+			if (score[currentAgent->identity] > score[bestAgent->identity] * scoringThreshold) {
 				version++;
 				/*TODO bestAgent->model->setWeights(currentAgent->model->getWeights());
 				bestAgent->model->save(version);*/
@@ -68,15 +71,16 @@ void AlphaZero::ai::train(int version)
 	}
 }
 
-std::unordered_map<std::shared_ptr<AlphaZero::ai::Agent>, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game> game, std::shared_ptr<Agent> agent1, std::shared_ptr<Agent> agent2, std::shared_ptr<Memory> memory, int probMoves, int Epochs, int goesFist)
+std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game> game, std::shared_ptr<Agent> agent1, std::shared_ptr<Agent> agent2, std::shared_ptr<Memory> memory, int probMoves, int Epochs, int goesFist)
 {
 #if ProfileLogger
 	debug::Profiler::profiler.switchOperation(3);
 #endif
-	std::unordered_map<std::shared_ptr<Agent>, int> scores = {
-		{agent1, 0},
-		{agent2, 0}
-	};
+	std::unordered_map<int, int> scores;
+	if (!agent1->identity == agent2->identity) {
+		scores.insert({ agent1->identity, 0 });
+		scores.insert({ agent2->identity, 0 });
+	}
 	std::cout << "playing game ";
 	for (int epoch = 0; epoch < Epochs; epoch++) {
 		std::cout << epoch + 1 << " ";
@@ -121,7 +125,9 @@ std::unordered_map<std::shared_ptr<AlphaZero::ai::Agent>, int> AlphaZero::ai::pl
 		debug::Profiler::profiler.switchOperation(4);
 #endif
 		memory->updateMemory(game->state->player, std::get<0>(game->state->val));
-		scores[players[game->state->player * std::get<0>(game->state->val)]] += 1;
+		if (!agent1->identity == agent2->identity) {
+			scores[players[game->state->player * std::get<0>(game->state->val)]->identity] += 1;
+		}
 #if ProfileLogger
 		debug::Profiler::profiler.stop();
 		debug::Profiler::profiler.log();

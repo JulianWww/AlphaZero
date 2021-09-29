@@ -10,6 +10,7 @@ namespace AlphaZero {
 		public: std::shared_ptr<MCTS> tree;
 		public: std::shared_ptr<Model> model;
 		public: Agent(std::shared_ptr<Game::Game> game, int version);
+		public: int identity;
 #if Training
 		public: std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::Game> game, bool proabilistic);
 #else

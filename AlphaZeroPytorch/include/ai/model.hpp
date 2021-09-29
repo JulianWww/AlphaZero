@@ -4,7 +4,7 @@
 #pragma once
 
 #include <iostream>
-#include <game\game.hpp>
+#include <game/game.hpp>
 #include "memory.hpp"
 #include <tuple>
 
