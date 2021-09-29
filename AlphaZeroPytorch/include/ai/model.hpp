@@ -7,6 +7,8 @@
 #include <game/game.hpp>
 #include "memory.hpp"
 #include <tuple>
+#include <jce/string.hpp>
+
 
 namespace AlphaZero {
 	namespace ai {
@@ -45,7 +47,7 @@ namespace AlphaZero {
 		typedef torch::optim::SGD Optimizer;
 		typedef torch::optim::SGDOptions OptimizerOptions;
 		
-		class Model : torch::nn::Module {
+		class Model : public torch::nn::Module {
 		//private: torch::nn::Conv2d headLayer;
 		private: ResNet res1, res2;
 		private: Value_head value_head;
@@ -61,6 +63,10 @@ namespace AlphaZero {
 		public: std::pair<float, torch::Tensor>predict(std::shared_ptr<Game::GameState> state);
 		public: static std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> getBatch(std::shared_ptr<Memory> memory, unsigned int batchSize);
 		public: void fit(const std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>& batch, const unsigned short& run, const unsigned short& trainingLoop);
+
+		public: void save(unsigned int version);
+		public: void load(unsigned int version);
+		public: void copy(std::shared_ptr<Model>);
 
 		private: ResNet register_custom_module(ResNet net, std::string layer);
 		private: Value_head register_custom_module(Value_head net);
@@ -200,6 +206,17 @@ inline void AlphaZero::ai::Model::fit(const std::tuple<torch::Tensor, torch::Ten
 #if ModelLogger
 	debug::log::modelLogger->info("model error in iteration {} on batch {} had valueError of {} and polyError of {}", run, trainingLoop, std::get<0>(error), std::get<1>(error));
 #endif
+}
+
+inline void AlphaZero::ai::Model::save(unsigned int version)
+{
+	std::cout << "saved model to: " << jce::string_format("models/run{}/V_{}.torch", runVersion, version) << std::endl;
+	torch::save(this, jce::string_format("models/run{}/V_{}.torch", runVersion, version));
+}
+
+inline void AlphaZero::ai::Model::load(unsigned int version)
+{
+	torch::load(*this, jce::string_format("models/run{}/V_{}.torch", runVersion, version));
 }
 
 inline AlphaZero::ai::ResNet AlphaZero::ai::Model::register_custom_module(ResNet net, std::string layer)

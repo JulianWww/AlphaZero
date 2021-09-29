@@ -1,6 +1,8 @@
 #include "log.hpp"
 #include <stdio.h>
 
+
+
 #if MainLogger
 std::shared_ptr<spdlog::logger> debug::log::mainLogger = debug::log::createLogger("mainLogger", "logs/c++/mainLogger.log");
 #endif

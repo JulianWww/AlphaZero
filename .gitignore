@@ -348,3 +348,24 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+AlphaZeroPytorch/CMakeLists.txt
+AlphaZeroPytorch/CMakeSettings.json
+*.json
+AlphaZeroPytorch/out/build/x64-Debug/.ninja_deps
+AlphaZeroPytorch/out/build/x64-Debug/.ninja_log
+*.exe
+*.exp
+*.lib
+*.dll
+*.ninja
+*.cmake
+*.txt
+*.bin
+AlphaZeroPytorch/out/build/x64-Debug/CMakeFiles/3.19.20122902-MSVC_2/CompilerIdC/CMakeCCompilerId.c
+AlphaZeroPytorch/out/build/x64-Debug/CMakeFiles/3.19.20122902-MSVC_2/CompilerIdCXX/CMakeCXXCompilerId.cpp
+*.manifest
+AlphaZeroPytorch/out/build/x64-Debug/CMakeFiles/AlphaZeroPytorch.dir/manifest.rc
+*.res
+*.check_cache
+AlphaZeroPytorch/out/build/x64-Debug/CMakeFiles/ShowIncludes/foo.h
+AlphaZeroPytorch/out/build/x64-Debug/CMakeFiles/ShowIncludes/main.c

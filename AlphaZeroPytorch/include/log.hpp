@@ -1,28 +1,33 @@
 #pragma once
-#include <spdlog/sinks/basic_file_sink.h>
-#include <memory>
-#include <stdio.h>
-#include <chrono>
-
 //logging
 #define MainLogger false
 #define MCTSLogger false
 #define MemoryLogger false
-#define ProfileLogger false
+#define ProfileLogger true
 #define ModelLogger false
 
-using std::chrono::duration_cast;
-using std::chrono::milliseconds;
-using std::chrono::microseconds;
+
+#if (MainLogger || MCTSLogger || MemoryLogger || ProfileLogger || ModelLogger)
+#include <spdlog/sinks/basic_file_sink.h>
+//#include <memory>
+#include <unordered_map>
+#if ProfileLogger
+#include "timer.hpp"
+#endif
+#include <stdio.h>
+#include <chrono>
+
+
+
 
 namespace debug {
 #if ProfileLogger
 	namespace Profiler {
 		class MCTSProfiler {
-		public: std::unordered_map<unsigned int, unsigned long long > times;
-		private: unsigned long long rest;
+		private: utils::Timer timer;
+		public: std::unordered_map<unsigned int, double> times;
+		private: double rest;
 
-		private: std::chrono::steady_clock::time_point lastTime;
 		private: bool first = true;
 		private: bool toRest = false;
 		private: unsigned int currentTime;
@@ -81,25 +86,25 @@ inline void debug::Profiler::MCTSProfiler::switchOperation(unsigned int id)
 	this->stop();
 	this->first = false;
 	this->toRest = false;
-	this->lastTime = std::chrono::high_resolution_clock::now();
+	this->timer.reset();
 	this->currentTime = id;
 }
 
 inline void debug::Profiler::MCTSProfiler::stop()
 {
-	auto time_now = std::chrono::high_resolution_clock::now();
+	
 	if (!this->first) {
 		if (toRest) {
-			this->rest = this->rest + duration_cast<microseconds>(time_now - this->lastTime).count();
+			this->rest = this->rest + this->timer.elapsed();
 		}
-		unsigned long long currentNum;
+		double currentNum;
 		if (this->times.count(currentTime) == 0) {
 			currentNum = 0.0f;
 		}
 		else {
 			currentNum = this->times.at(this->currentTime);
 		}
-		unsigned long long res = currentNum + duration_cast<microseconds>(time_now - this->lastTime).count();
+		double res = currentNum + this->timer.elapsed();
 		this->times.insert_or_assign( currentTime, res);
 	}
 	this->toRest = true;
@@ -113,9 +118,10 @@ inline void debug::Profiler::MCTSProfiler::log(std::shared_ptr<spdlog::logger> l
 {
 	logger->info("================================================================================");
 	for (auto const& pair : this->times) {
-		logger->info("Profiler time id {} took {} ms", pair.first, pair.second);
+		logger->info("Profiler time id {} took {} s", pair.first, pair.second);
 	}
 	logger->info("everything else took: {}", this->rest);
 }
+#endif
 #endif
 

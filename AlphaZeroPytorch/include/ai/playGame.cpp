@@ -59,8 +59,8 @@ void AlphaZero::ai::train(int version)
 
 			if (score[currentAgent->identity] > score[bestAgent->identity] * scoringThreshold) {
 				version++;
-				/*TODO bestAgent->model->setWeights(currentAgent->model->getWeights());
-				bestAgent->model->save(version);*/
+				//TODO copy model weights
+				bestAgent->model->save(version);
 				std::printf("new version saved");
 			}
 			else {
