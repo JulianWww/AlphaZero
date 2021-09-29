@@ -76,6 +76,7 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 #if ProfileLogger
 	debug::Profiler::profiler.switchOperation(3);
 #endif
+	std::cout << "checkpoint" << std::endl;
 	std::unordered_map<int, int> scores;
 	if (!agent1->identity == agent2->identity) {
 		scores.insert({ agent1->identity, 0 });
