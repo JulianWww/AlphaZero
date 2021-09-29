@@ -13,7 +13,7 @@ namespace AlphaZero {
 
 template<typename T>
 inline void AlphaZero::ai::softmax(T& inp){
-	typedef T::value_type number;
+	typedef float number;
 
 	number m = -10e100;
 	for (number const& z : inp){
