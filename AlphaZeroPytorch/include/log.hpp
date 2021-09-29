@@ -8,8 +8,8 @@
 #define MainLogger false
 #define MCTSLogger false
 #define MemoryLogger false
-#define ProfileLogger true
-#define ModelLogger true
+#define ProfileLogger false
+#define ModelLogger false
 
 using std::chrono::duration_cast;
 using std::chrono::milliseconds;
