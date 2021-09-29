@@ -87,7 +87,7 @@ inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::s
 {
 	auto preds = this->model->predict(state);
 	float& val = preds.first;
-	std::vector<float>& polys = std::vector<float>(action_count);
+	std::vector<float> polys = std::vector<float>(action_count);
 
 	for (unsigned short idx = 0; idx < action_count; idx++) {
 		polys[idx] = preds.second[0][idx].item<float>();
