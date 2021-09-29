@@ -24,7 +24,7 @@
 #define MCTSSimulations 50
 #define cpuct_ 0.4f
 #define ProbabiliticMoves 3
-#define threads 1				// replace the predict method with C++ tensorflow predict or find a way to allow for multithreading
+#define threads 0				// replace the predict method with C++ tensorflow predict or find a way to allow for multithreading
 
 // memory setting
 #define memory_size 1
