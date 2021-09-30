@@ -29,5 +29,8 @@ int main()
 	}
 	
 	train(-1);
+#if ProfileLogger
+	debug::Profiler::profiler.log();
+#endif 
 	return 0;
 }
