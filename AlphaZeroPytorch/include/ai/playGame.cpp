@@ -113,9 +113,6 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 #endif
 		game->reset();
 		int turn = 0;
-		if (!memory->active) {
-			std::cout << "successfully reset" << std::endl;
-		}
 		while (!game->state->done) {
 			turn++;
 			auto actionData = players[game->state->player]->getAction(game, probMoves > turn);
