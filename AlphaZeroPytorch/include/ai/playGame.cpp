@@ -66,8 +66,11 @@ void AlphaZero::ai::train(int version)
 			if (true){//(score[currentAgent->identity] > score[bestAgent->identity] * scoringThreshold) {
 				version++;
 				//TODO copy model weightsk
+				std::cout << "save as current" << std::endl;
 				currentAgent->model->save_as_current();
+				std::cout << "load current" << std::endl;
 				bestAgent->model->load_current();
+				std::cout << "save as best" << std::endl;
 				bestAgent->model->save_version(version);
 				std::printf("new version saved");
 			}
@@ -125,13 +128,7 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 		}
 		while (!game->state->done) {
 			turn++;
-			if (!memory->active) {
-				std::cout << "started turn: " << turn << std::endl;
-			}
 			auto actionData = players[game->state->player]->getAction(game, probMoves > turn);
-			if (!memory->active) {
-				std::cout << "got data" << std::endl;
-			}
 			memory->commit(game->state, actionData.second);
 #if MainLogger
 			game->state->render(debug::log::mainLogger);
@@ -139,10 +136,6 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 			debug::log::mainLogger->info("selected action is: {}", actionData.first);
 #endif
 			game->takeAction(actionData.first);
-			if (!memory->active) {
-				std::cout << "took action: " << turn << std::endl;
-				game->render();
-			}
 		}
 #if MainLogger
 		game->state->render(debug::log::mainLogger);
@@ -150,17 +143,12 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 #if ProfileLogger
 		debug::Profiler::profiler.switchOperation(4);
 #endif
-		if (!memory->active) {
-			std::cout << "update memory" << std::endl;
-		}
 		memory->updateMemory(game->state->player, std::get<0>(game->state->val));
-		if (!memory->active) {
-			std::cout << "updated Memory" << std::endl;
-		}
 		if (!agent1->identity == agent2->identity) {
 			scores[players[game->state->player * std::get<0>(game->state->val)]->identity] += 1;
 		}
 		if (!memory->active) {
+			std::cout << "hi" << std::endl;
 		}
 #if ProfileLogger
 		debug::Profiler::profiler.stop();
