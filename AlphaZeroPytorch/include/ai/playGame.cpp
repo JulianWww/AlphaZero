@@ -111,14 +111,27 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 		};
 		agent1->tree->reset();
 		agent2->tree->reset();
+
+		if (!memory->active) {
+			std::cout << "successfully reset" << std::endl;
+		}
 #if MainLogger
 		debug::log::mainLogger->info("player {} will start", goesFist);
 #endif
 		game->reset();
 		int turn = 0;
+		if (!memory->active) {
+			std::cout << "successfully reset" << std::endl;
+		}
 		while (!game->state->done) {
 			turn++;
+			if (!memory->active) {
+				std::cout << "started turn: " << turn << std::endl;
+			}
 			auto actionData = players[game->state->player]->getAction(game, probMoves > turn);
+			if (!memory->active) {
+				std::cout << "got data" << std::endl;
+			}
 			memory->commit(game->state, actionData.second);
 #if MainLogger
 			game->state->render(debug::log::mainLogger);
@@ -126,6 +139,9 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 			debug::log::mainLogger->info("selected action is: {}", actionData.first);
 #endif
 			game->takeAction(actionData.first);
+			if (!memory->active) {
+				std::cout << "took action" << turn << std::endl;
+			}
 		}
 #if MainLogger
 		game->state->render(debug::log::mainLogger);
