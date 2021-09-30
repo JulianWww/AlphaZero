@@ -1,6 +1,8 @@
 ﻿# CMakeList.txt : CMake project for AlphaZeroPytorch, include source and define
 # project specific logic here.
 #
+project(AlphaZero)
+
 set (CMAKE_CXX_STANDARD 17)
 cmake_minimum_required (VERSION 3.8)
 
