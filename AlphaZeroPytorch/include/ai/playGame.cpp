@@ -140,8 +140,9 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 #endif
 			game->takeAction(actionData.first);
 			if (!memory->active) {
-				std::cout << "took action" << turn << std::endl;
+				std::cout << "took action: " << turn << std::endl;
 			}
+			game->render();
 		}
 #if MainLogger
 		game->state->render(debug::log::mainLogger);
@@ -149,9 +150,17 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 #if ProfileLogger
 		debug::Profiler::profiler.switchOperation(4);
 #endif
+		if (!memory->active) {
+			std::cout << "update memory" << std::endl;
+		}
 		memory->updateMemory(game->state->player, std::get<0>(game->state->val));
+		if (!memory->active) {
+			std::cout << "updated Memory" << std::endl;
+		}
 		if (!agent1->identity == agent2->identity) {
 			scores[players[game->state->player * std::get<0>(game->state->val)]->identity] += 1;
+		}
+		if (!memory->active) {
 		}
 #if ProfileLogger
 		debug::Profiler::profiler.stop();
@@ -164,3 +173,5 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 #endif
 	return scores;
 }
+
+// https://github.com/JulianWww/AlphaZero/
