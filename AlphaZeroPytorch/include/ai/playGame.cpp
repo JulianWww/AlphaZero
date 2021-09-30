@@ -144,6 +144,7 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 		if (!agent1->identity == agent2->identity) {
 			std::cout << std::get<0>(game->state->val) << std::endl;
 			scores[players[game->state->player * std::get<0>(game->state->val)]->identity] += 1;
+			std::cout << "assigned scores" << std::endl;
 		}
 		if (!memory->active) {
 			std::cout << "hi" << std::endl;
