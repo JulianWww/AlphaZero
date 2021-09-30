@@ -141,8 +141,8 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 			game->takeAction(actionData.first);
 			if (!memory->active) {
 				std::cout << "took action: " << turn << std::endl;
+				game->render();
 			}
-			game->render();
 		}
 #if MainLogger
 		game->state->render(debug::log::mainLogger);
