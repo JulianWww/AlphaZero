@@ -25,7 +25,7 @@ message("linking libs ...")
 target_link_libraries(AlphaZeroPytorch "${TORCH_LIBRARIES}")
 
 message("adding includes ...")
-target_include_directories(AlphaZeroPytorch PUBLIC "D:/MyCode/CppLibs/include")
+target_include_directories(AlphaZeroPytorch PUBLIC "/spdlog/spdlog/include")
 
 target_include_directories(AlphaZeroPytorch PUBLIC "${CMAKE_SOURCE_DIR}/include")
 
