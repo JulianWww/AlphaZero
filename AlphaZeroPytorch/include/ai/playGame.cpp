@@ -141,10 +141,12 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 		debug::Profiler::profiler.switchOperation(4);
 #endif
 		memory->updateMemory(game->state->player, std::get<0>(game->state->val));
-		if (!agent1->identity == agent2->identity) {
-			std::cout << std::get<0>(game->state->val) << std::endl;
-			scores[players[game->state->player * std::get<0>(game->state->val)]->identity] += 1;
-			std::cout << "assigned scores" << std::endl;
+		if (!agent1->identity == agent2->identity)
+		{
+			if (std::get<0>(game->state->val) != 0)
+			{
+				scores[players[game->state->player * std::get<0>(game->state->val)]->identity] += 1;
+			}
 		}
 		if (!memory->active) {
 			std::cout << "hi" << std::endl;
