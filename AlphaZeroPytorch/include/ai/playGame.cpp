@@ -66,16 +66,9 @@ void AlphaZero::ai::train(int version)
 			if (true){//(score[currentAgent->identity] > score[bestAgent->identity] * scoringThreshold) {
 				version++;
 				//TODO copy model weightsk
-				std::cout << "save as current" << std::endl;
 				currentAgent->model->save_as_current();
-				std::cout << "load current" << std::endl;
 				bestAgent->model->load_current();
-				std::cout << "save as best" << std::endl;
 				bestAgent->model->save_version(version);
-				std::printf("new version saved");
-			}
-			else {
-				std::printf("retaining ___________________________________________________________________________________________");
 			}
 		}
 		iteration++;
@@ -147,9 +140,6 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 			{
 				scores[players[game->state->player * std::get<0>(game->state->val)]->identity] += 1;
 			}
-		}
-		if (!memory->active) {
-			std::cout << "hi" << std::endl;
 		}
 #if ProfileLogger
 		debug::Profiler::profiler.stop();

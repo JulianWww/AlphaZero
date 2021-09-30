@@ -207,7 +207,7 @@ inline std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> AlphaZero::ai::Mo
 inline void AlphaZero::ai::Model::fit(const std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>& batch, const unsigned short& run, const unsigned short& trainingLoop)
 {
 	std::pair<torch::Tensor, torch::Tensor> trueVals = this->forward(std::get<0>(batch));
-	std::pair<float, float> error = this->train(trueVals, { std::get<1>(batch), std::get<2>(batch) });
+	std::pair<float, float> error = this->train(trueVals, { std::get<2>(batch), std::get<1>(batch) });
 #if ModelLogger
 	debug::log::modelLogger->info("model error in iteration {} on batch {} had valueError of {} and polyError of {}", run, trainingLoop, std::get<0>(error), std::get<1>(error));
 #endif
