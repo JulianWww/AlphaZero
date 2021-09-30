@@ -151,7 +151,7 @@ inline void AlphaZero::Game::GameState::toTensor(torch::Tensor& tensor, unsigned
 	for (unsigned short z = 0; z < input_snape_z; z++) {
 		for (unsigned short y = 0; y < input_shape_y; y++) {
 			for (unsigned short x = 0; x < input_shape_x; x++) {
-				tensor[0][z][y][z] = (float)this->gameBoard[pos];
+				tensor[idx][z][y][z] = (float)this->gameBoard[pos];
 			}
 		}
 	}

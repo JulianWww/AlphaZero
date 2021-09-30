@@ -39,11 +39,13 @@ void AlphaZero::ai::train(int version)
 #if MainLogger
 		debug::log::mainLogger->info("playing generational Games");
 #endif
-		std::cout << "hello this is working -------------------------------------------------------------------------" << std::endl;
+#if RenderGenAndTurneyProgress
+		std::cout << "Playing Generational Games" << std::endl;
+#endif
+
 		playGames(game, bestAgent, bestAgent, memory, probabilitic_moves, EPOCHS);
 		std::cout << "memory size is: " << memory->memory.size() << std::endl;
 		if (memory->memory.size() > memory_size) {
-			std::cout << "training" << std::endl;
 #if ProfileLogger
 			debug::Profiler::profiler.switchOperation(5);
 			debug::log::profileLogger->info("performing Training of model");
@@ -55,12 +57,18 @@ void AlphaZero::ai::train(int version)
 			debug::Profiler::profiler.log();
 #endif
 			memory->active = false;
+
+#if RenderGenAndTurneyProgress
+			std::cout << "Playing Turney" << std::endl;
+#endif
 			auto score = playGames(game, bestAgent, currentAgent, memory, Turnement_probabiliticMoves, TurneyEpochs);
 
-			if (score[currentAgent->identity] > score[bestAgent->identity] * scoringThreshold) {
+			if (true){//(score[currentAgent->identity] > score[bestAgent->identity] * scoringThreshold) {
 				version++;
-				//TODO copy model weights
-				bestAgent->model->save(version);
+				//TODO copy model weightsk
+				currentAgent->model->save_as_current();
+				bestAgent->model->load_current();
+				bestAgent->model->save_version(version);
 				std::printf("new version saved");
 			}
 			else {
@@ -81,9 +89,10 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 		scores.insert({ agent1->identity, 0 });
 		scores.insert({ agent2->identity, 0 });
 	}
-	std::cout << "playing game " << std::endl;
 	for (int epoch = 0; epoch < Epochs; epoch++) {
-		std::cout << epoch + 1 << std::endl;
+#if RenderGenAndTurneyProgress
+		jce::consoleUtils::render_progress_bar((float)epoch / (float)Epochs);
+#endif
 #if ProfileLogger
 		debug::Profiler::profiler.switchOperation(3);
 #endif
@@ -133,6 +142,9 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 		debug::Profiler::profiler.log();
 #endif
 	}
-	std::cout << std::endl;
+
+#if RenderGenAndTurneyProgress
+	jce::consoleUtils::render_progress_bar(1.0f, true);
+#endif
 	return scores;
 }

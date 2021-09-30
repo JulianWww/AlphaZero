@@ -16,7 +16,7 @@ file(GLOB SOURCES_Files
 file(GLOB HEADER_Files 
 	"include/*.hpp"
 	"include/ai/*.hpp"
-	"include"game/*.hpp)
+	"include/game/*.hpp")
 
 # Add source to this project's executable.
 add_executable (AlphaZeroPytorch "AlphaZeroPytorch.cpp" "AlphaZeroPytorch.h" ${SOURCES_Files} ${HEADER_Files})

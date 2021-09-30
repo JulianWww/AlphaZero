@@ -77,10 +77,17 @@ inline float AlphaZero::ai::Agent::evaluateLeaf(std::shared_ptr<Node>& node)
 
 inline void AlphaZero::ai::Agent::fit(std::shared_ptr<Memory> memory, unsigned short run)
 {
+	std::cout << "\33[35;1mretraining\33[0m" << std::endl;
 	for (int idx = 0; idx < Training_loops ; idx++) {
+#if RenderTrainingProgress
+		jce::consoleUtils::render_progress_bar((float)idx / (float)Training_loops);
+#endif
 		auto batch = Model::getBatch(memory, Training_batch);
 		this->model->fit(batch, run, idx);
 	}
+#if RenderTrainingProgress
+	jce::consoleUtils::render_progress_bar(1.0f, true);
+#endif
 }
 
 inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::shared_ptr<Game::GameState> state)

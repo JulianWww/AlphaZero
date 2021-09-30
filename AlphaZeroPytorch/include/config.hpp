@@ -21,7 +21,7 @@
 #define learningRage 0.1
 
 // simulation setting
-#define MCTSSimulations 50
+#define MCTSSimulations 5
 #define cpuct_ 0.4f
 #define ProbabiliticMoves 3
 #define threads 0				// replace the predict method with C++ tensorflow predict or find a way to allow for multithreading
@@ -30,7 +30,7 @@
 #define memory_size 1
 
 // self play
-#define EPOCHS 30
+#define EPOCHS 3
 #define probabilitic_moves 2 // how manny moves are prabilistic in the begining of the game to aid in exploration
 
 // training
@@ -40,8 +40,13 @@
 
 // turney
 #define Turnement_probabiliticMoves 2
-#define TurneyEpochs 20
+#define TurneyEpochs 2
 #define scoringThreshold 1.3
+
+// console
+#define RenderTrainingProgress true
+#define RenderGenAndTurneyProgress true
+//#define RenderGameProgress true;
 
 
 typedef std::bitset<stateSize> IDType;

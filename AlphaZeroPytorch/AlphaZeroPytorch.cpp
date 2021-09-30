@@ -3,9 +3,21 @@
 
 #include "AlphaZeroPytorch.h"
 #include <ai/playGame.hpp>
+#include <jce/string.hpp>
+#include <chrono>
+#include <thread>
 
 
-using namespace std;
+inline void wait(int time)
+{
+	std::chrono::seconds dura(time);
+	std::this_thread::sleep_for(dura);
+}
+void inline train(int arg)
+{
+	std::cout << "started training" << std::endl;
+	AlphaZero::ai::train(arg);
+}
 
 int main()
 {
@@ -15,7 +27,7 @@ int main()
 	else {
 		std::cout << "\33[1;31mWarning: cuDNN is unavailable, consider using a CUDA enabled GPU\33[0m" << std::endl;
 	}
-	std::cout << "started training" << std::endl;
-	AlphaZero::ai::train(-1);
+	
+	train(-1);
 	return 0;
 }

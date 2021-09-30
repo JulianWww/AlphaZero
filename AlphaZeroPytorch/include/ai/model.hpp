@@ -8,6 +8,7 @@
 #include "memory.hpp"
 #include <tuple>
 #include <jce/string.hpp>
+#include <string>
 
 
 namespace AlphaZero {
@@ -64,9 +65,14 @@ namespace AlphaZero {
 		public: static std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> getBatch(std::shared_ptr<Memory> memory, unsigned int batchSize);
 		public: void fit(const std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>& batch, const unsigned short& run, const unsigned short& trainingLoop);
 
-		public: void save(unsigned int version);
-		public: void load(unsigned int version);
-		public: void copy(std::shared_ptr<Model>);
+		public: void save_version(unsigned int version);
+		public: void save_as_current();
+		private: void save_to_file(char* filename);
+
+		public: void load_version(unsigned int version);
+		public: void load_current();
+		private: void load_from_file(char* filename);
+		//public: void copy(std::shared_ptr<Model>);
 
 		private: ResNet register_custom_module(ResNet net, std::string layer);
 		private: Value_head register_custom_module(Value_head net);
@@ -200,7 +206,6 @@ inline std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> AlphaZero::ai::Mo
 
 inline void AlphaZero::ai::Model::fit(const std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>& batch, const unsigned short& run, const unsigned short& trainingLoop)
 {
-	std::cout << std::get<0>(batch).sizes() << std::endl;
 	std::pair<torch::Tensor, torch::Tensor> trueVals = this->forward(std::get<0>(batch));
 	std::pair<float, float> error = this->train(trueVals, { std::get<1>(batch), std::get<2>(batch) });
 #if ModelLogger
@@ -208,15 +213,49 @@ inline void AlphaZero::ai::Model::fit(const std::tuple<torch::Tensor, torch::Ten
 #endif
 }
 
-inline void AlphaZero::ai::Model::save(unsigned int version)
+inline void AlphaZero::ai::Model::save_version(unsigned int version)
 {
-	std::cout << "saved model to: " << jce::string_format("models/run{}/V_{}.torch", runVersion, version) << std::endl;
-	torch::save(this, jce::string_format("models/run{}/V_{}.torch", runVersion, version));
+	char buffer[50];
+	std::sprintf(buffer, "models/run_%d/V_%d.torch", runVersion, version);
+	std::cout << buffer << std::endl;
+	this->save_to_file(buffer);
 }
 
-inline void AlphaZero::ai::Model::load(unsigned int version)
+inline void AlphaZero::ai::Model::save_as_current()
 {
-	torch::load(*this, jce::string_format("models/run{}/V_{}.torch", runVersion, version));
+	char buffer[50];
+	std::sprintf(buffer, "models/run_%d/currentModel.torch", runVersion);
+	this->save_to_file(buffer);
+}
+
+inline void AlphaZero::ai::Model::save_to_file(char* filename)
+{
+	torch::serialize::OutputArchive out;
+	this->save(out);
+	std::string model_path = std::string(filename);
+	out.save_to(model_path);
+}
+
+inline void AlphaZero::ai::Model::load_version(unsigned int version)
+{
+	char buffer[50];
+	std::sprintf(buffer, "models/run_%d/V_%d.torch", runVersion, version);
+	this->load_from_file(buffer);
+}
+
+inline void AlphaZero::ai::Model::load_current()
+{
+	char buffer[50];
+	std::sprintf(buffer, "models/run_%d/currentModel.torch", runVersion);
+	this->load_from_file(buffer);
+}
+
+inline void AlphaZero::ai::Model::load_from_file(char* filename)
+{
+	torch::serialize::InputArchive inp;
+	std::string model_path = std::string(filename);
+	inp.load_from(model_path);
+	this->load(inp);
 }
 
 inline AlphaZero::ai::ResNet AlphaZero::ai::Model::register_custom_module(ResNet net, std::string layer)
