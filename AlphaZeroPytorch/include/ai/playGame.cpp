@@ -115,9 +115,6 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 		agent1->tree->reset();
 		agent2->tree->reset();
 
-		if (!memory->active) {
-			std::cout << "successfully reset" << std::endl;
-		}
 #if MainLogger
 		debug::log::mainLogger->info("player {} will start", goesFist);
 #endif
@@ -145,6 +142,7 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 #endif
 		memory->updateMemory(game->state->player, std::get<0>(game->state->val));
 		if (!agent1->identity == agent2->identity) {
+			std::cout << std::get<0>(game->state->val) << std::endl;
 			scores[players[game->state->player * std::get<0>(game->state->val)]->identity] += 1;
 		}
 		if (!memory->active) {
