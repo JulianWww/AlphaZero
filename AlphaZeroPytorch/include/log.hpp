@@ -119,6 +119,18 @@ inline void debug::Profiler::MCTSProfiler::log(std::shared_ptr<spdlog::logger> l
 	logger->info("run Info:");
 	logger->info("");
 
+	// this is only true on the computers im using as im just entering the infomation here to save time
+#ifdef WIN32
+	logger->info("os: Windows 10");
+	logger->info("CPU: Intel(R) Core(TM) i5-8350U CPU @ 1.70 GHz ");
+	logger->info("GPU: None");
+	logger->info("memory: 8 GB");
+#else
+	logger->info("OS: Ubuntu 18.04");
+	logger->info("CPU: ??");
+	logger->info("GPU: Nvidia P4 cuda 11.4");
+#endif
+
 	logger->info("================================================================================");
 	for (auto const& pair : this->times) {
 		logger->info("Profiler time id {} took {} s", pair.first, pair.second);
