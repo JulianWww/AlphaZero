@@ -16,8 +16,8 @@ namespace AlphaZero {
 #else
 		public: virtual std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::Game> game, bool proabilistic);
 #endif
-		public: void runSimulations(std::shared_ptr<Game::GameState>);
-		private: float evaluateLeaf(std::shared_ptr<Node>&);
+		public: void runSimulations(Node*);
+		private: float evaluateLeaf(Node*);
 		public: void fit(std::shared_ptr<Memory> memory, unsigned short iteration);
 		private: std::pair<float, std::vector<float>> predict(std::shared_ptr<Game::GameState> state);
 		private: std::pair<int, std::vector<float>> derministicAction(std::shared_ptr<Node>const& node);
@@ -28,37 +28,26 @@ namespace AlphaZero {
 		public: virtual std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::Game> game, bool proabilistic);
 		};
 #endif
-		void runSimulationsCaller(AlphaZero::ai::Agent* agent, std::shared_ptr<Game::GameState>);
+		void runSimulationsCaller(AlphaZero::ai::Agent* agent, Node*);
 	}
 }
-inline void AlphaZero::ai::Agent::runSimulations(std::shared_ptr<Game::GameState> state)
+inline void AlphaZero::ai::Agent::runSimulations(Node* node)
 {
-#if ProfileLogger
-	debug::Profiler::profiler.switchOperation(0);
-#endif
-	std::shared_ptr<Node> node = this->tree->addNode(state);
 	auto serchResults = this->tree->moveToLeaf(node, ProbabiliticMoves);
-#if ProfileLogger
-	debug::Profiler::profiler.switchOperation(1);
-#endif
 	auto val = this->evaluateLeaf(serchResults.first);
-#if ProfileLogger
-	debug::Profiler::profiler.switchOperation(2);
-#endif
 	this->tree->backFill(serchResults.second, serchResults.first, val);
+
+	this->tree->addMCTSIter();
 }
 
-inline void AlphaZero::ai::runSimulationsCaller(AlphaZero::ai::Agent* agent, std::shared_ptr<Game::GameState> state)
+inline void AlphaZero::ai::runSimulationsCaller(AlphaZero::ai::Agent* agent, Node* node)
 {
-	for (int i = 0; i < MCTSSimulations; i++) {
-		agent->runSimulations(state);
+	while (agent->tree->MCTSIter < MCTSSimulations) {
+		agent->runSimulations(node);
 	}
-#if ProfileLogger
-	debug::Profiler::profiler.switchOperation(3);
-#endif
 }
 
-inline float AlphaZero::ai::Agent::evaluateLeaf(std::shared_ptr<Node>& node)
+inline float AlphaZero::ai::Agent::evaluateLeaf(Node* node)
 {
 	if (!node->state->done){
 		std::shared_ptr<Game::GameState> nextState;
@@ -68,7 +57,7 @@ inline float AlphaZero::ai::Agent::evaluateLeaf(std::shared_ptr<Node>& node)
 			nextState = node->state->takeAction(action);
 			nextNode = this->tree->addNode(nextState);
 			std::shared_ptr<Edge> newEdge = std::make_shared<Edge>(nextNode, node, action, NNvals.second[action]); //the last is the prob
-			node->edges.insert({ action, newEdge });
+			node->addEdge( action, newEdge);
 		}
 		return NNvals.first;
 	}

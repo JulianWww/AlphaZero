@@ -23,27 +23,37 @@ AlphaZero::ai::Agent::Agent(std::shared_ptr<Game::Game> game, int version) // TO
 
 std::pair<int, std::vector<float>> AlphaZero::ai::Agent::getAction(std::shared_ptr<Game::Game> game, bool proabilistic)
 {
-#if threads > 0
-	std::vector<std::thread> threadvec;
-	for (int i = 0; i < threads; i++) {
-		threadvec.push_back(std::thread(runSimulationsCaller, this, game->state));
-	}
+#if ProfileLogger
+	debug::Profiler::profiler.switchOperation(0);
 #endif
-	runSimulationsCaller(this, game->state);
+	this->tree->MCTSIter = 0;
+	std::shared_ptr<Node> node = this->tree->addNode(game->state);
+	try {
 #if threads > 0
-	for (auto& thread : threadvec) {
-		thread.join();
-	}
+		std::vector<std::thread> threadvec;
+		for (int i = 0; i < threads; i++) {
+			threadvec.push_back(std::thread(runSimulationsCaller, this, node.get()));
+		}
+#endif
+		runSimulationsCaller(this, node.get());
+#if threads > 0
+		for (auto& thread : threadvec) {
+			thread.join();
+		}
 #endif
 #if ProfileLogger
-	debug::Profiler::profiler.switchOperation(3);
+		debug::Profiler::profiler.switchOperation(3);
 #endif
-	std::pair<int, std::vector<float>> actionVals;
-	if (proabilistic) {
-		actionVals = this->prabilisticAction(this->tree->getNode(game->state->id()));
+		std::pair<int, std::vector<float>> actionVals;
+		if (proabilistic) {
+			actionVals = this->prabilisticAction(node);
+		}
+		else {
+			actionVals = this->derministicAction(node);
+		}
+		return actionVals;
 	}
-	else {
-		 actionVals = this->derministicAction(this->tree->getNode(game->state->id()));
+	catch (const std::exception& ex) {
+		std::cerr << ex.what() << std::endl;
 	}
-	return actionVals;
 }

@@ -54,7 +54,6 @@ void AlphaZero::ai::train(int version)
 			currentAgent->fit(memory, iteration);
 #if ProfileLogger
 			debug::Profiler::profiler.stop();
-			debug::Profiler::profiler.log();
 #endif
 			memory->active = false;
 
@@ -140,7 +139,6 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 		}
 #if ProfileLogger
 		debug::Profiler::profiler.stop();
-		debug::Profiler::profiler.log();
 #endif
 	}
 

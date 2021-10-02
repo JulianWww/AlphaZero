@@ -116,11 +116,20 @@ inline void debug::Profiler::MCTSProfiler::log() {
 
 inline void debug::Profiler::MCTSProfiler::log(std::shared_ptr<spdlog::logger> logger)
 {
+	logger->info("run Info:");
+	logger->info("");
+
 	logger->info("================================================================================");
 	for (auto const& pair : this->times) {
 		logger->info("Profiler time id {} took {} s", pair.first, pair.second);
 	}
 	logger->info("everything else took: {}", this->rest);
+
+	logger->info("");
+	logger->info("0 : MCTS and NN forward");
+	logger->info("3 : Game Stuff");
+	logger->info("4 : Memory shuffeling");
+	logger->info("5 : NN Backward");
 }
 #endif
 #endif
