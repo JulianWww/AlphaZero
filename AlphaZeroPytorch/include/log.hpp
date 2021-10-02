@@ -1,4 +1,6 @@
 #pragma once
+#define threads 16
+
 //logging
 #define MainLogger false
 #define MCTSLogger false
@@ -13,7 +15,6 @@
 #include <unordered_map>
 #if ProfileLogger
 #include "timer.hpp"
-#include "config.hpp"
 #endif
 #include <stdio.h>
 #include <chrono>
