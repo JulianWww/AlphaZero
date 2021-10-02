@@ -13,6 +13,7 @@
 #include <unordered_map>
 #if ProfileLogger
 #include "timer.hpp"
+#include "config.hpp"
 #endif
 #include <stdio.h>
 #include <chrono>
@@ -116,6 +117,7 @@ inline void debug::Profiler::MCTSProfiler::log() {
 
 inline void debug::Profiler::MCTSProfiler::log(std::shared_ptr<spdlog::logger> logger)
 {
+	logger->info("using {} threads", threads);
 	logger->info("run Info:");
 	logger->info("");
 
