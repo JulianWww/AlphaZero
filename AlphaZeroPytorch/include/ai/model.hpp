@@ -107,7 +107,7 @@ inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(tor
 
 	// compute individual heads
 	torch::Tensor value = this->value_head.forward(x);
-	std::cout << "value computed" << std:endl;
+	std::cout << "value computed" << std::endl;
 	torch::Tensor poly = this->policy_head.forward(x);
 	std::cout << "poly computed" << std::endl;
 	return { value, poly };
