@@ -23,7 +23,10 @@ void inline train(int arg)
 int main()
 {
 	if (torch::cuda::cudnn_is_available()) {
-		std::cout << "\33[1;32mcuDNN is available\33[0m" << std::endl;	
+		std::cout << "\33[1;32mcuDNN is available\33[0m" << std::endl;
+		auto device = c10::Device("cuda:0");
+		std::cout << "got device" << std::endl;
+		std::cout << device << std::endl;
 	}
 	else {
 		std::cout << "\33[1;31mWarning: cuDNN is unavailable, consider using a CUDA enabled GPU\33[0m" << std::endl;
