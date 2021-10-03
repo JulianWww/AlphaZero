@@ -99,7 +99,7 @@ inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(tor
 	if (!x.is_cuda() && torch::cuda::cudnn_is_available()) {
 		x = x.cuda();
 	}
-	std::cout << "pres start" << std::endl;
+	std::cout << "pred start" << std::endl;
 	x = this->res1.forward(x);
 	std::cout << "res1 ended" << std::endl;
 	x = this->res2.forward(x);
@@ -134,7 +134,11 @@ inline torch::Tensor AlphaZero::ai::ResNet::forward(torch::Tensor x)
 #if modelTest
 	std::cout << x.sizes() << std::endl;
 #endif 
+	std::cout << "inserted padding" << std::endl;
+	std::cout << "x is a CUDA Tensor " << x.is_cuda() << std::endl;
 	x = torch::nn::functional::pad(x, torch::nn::functional::PadFuncOptions({ kernel1 / 2, kernel1 / 2, kernel1 / 2, kernel1 / 2 }));
+	std::cout << "res ran con 1" << std::endl;
+	std::cout << "x is a CUDA Tensor " << x.is_cuda() << std::endl;
 	x = this->conv1(x);
 	torch::Tensor y = torch::nn::functional::pad(x, torch::nn::functional::PadFuncOptions({ kernel2 / 2, kernel2 / 2, kernel2 / 2, kernel2 / 2 }));
 	y = this->conv2(y);
