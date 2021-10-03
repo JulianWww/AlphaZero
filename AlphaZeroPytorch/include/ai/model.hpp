@@ -123,7 +123,7 @@ inline AlphaZero::ai::ResNet::ResNet(int inp, int out, int kernelsize1, int kern
 {
 	if (torch::cuda::is_available()) {
 		this->conv1->to(c10::Device("cuda:0"), true);
-		this->conv1->to(c10::Device("cuda:0"), true);
+		this->conv2->to(c10::Device("cuda:0"), true);
 		this->batch->to(c10::Device("cuda:0"), true);
 		this->activ->to(c10::Device("cuda:0"), true);
 	}
