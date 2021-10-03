@@ -39,9 +39,6 @@ void AlphaZero::ai::train(int version)
 #if MainLogger
 		debug::log::mainLogger->info("playing generational Games");
 #endif
-#if RenderGenAndTurneyProgress
-		std::cout << "Playing Generational Games" << std::endl;
-#endif
 
 		playGames(game, bestAgent, bestAgent, memory, probabilitic_moves, EPOCHS);
 		std::cout << "memory size is: " << memory->memory.size() << std::endl;
@@ -54,10 +51,6 @@ void AlphaZero::ai::train(int version)
 			debug::Profiler::profiler.stop();
 #endif
 			memory->active = false;
-
-#if RenderGenAndTurneyProgress
-			std::cout << "Playing Turney" << std::endl;
-#endif
 			auto score = playGames(game, bestAgent, currentAgent, memory, Turnement_probabiliticMoves, TurneyEpochs);
 
 			if (true){//(score[currentAgent->identity] > score[bestAgent->identity] * scoringThreshold) {
@@ -90,7 +83,6 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 		debug::Profiler::profiler.switchOperation(3);
 #endif
 #if MainLogger
-		std::cout << "playing game: " << epoch << std::endl;
 		debug::log::mainLogger->info("================================================================");
 		debug::log::mainLogger->info("====================== playing Next match ======================");
 		debug::log::mainLogger->info("================================================================");
