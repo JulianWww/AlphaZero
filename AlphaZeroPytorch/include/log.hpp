@@ -75,12 +75,12 @@ inline std::shared_ptr<spdlog::logger> debug::log::createLogger(const char* name
 template<typename T>
 inline void debug::log::logVector(std::shared_ptr<spdlog::logger> logger, std::vector<T> vec)
 {
-	logger->info("Action vals are: {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}", Mround(vec[0]),  Mround(vec[1]),  Mround(vec[2]),  Mround(vec[3]),  Mround(vec[4]),  Mround(vec[5]),  Mround(vec[6]));
-	logger->info("Action vals are: {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}", Mround(vec[7]),  Mround(vec[8]),  Mround(vec[9]),  Mround(vec[10]), Mround(vec[11]), Mround(vec[12]), Mround(vec[13]));
-	logger->info("Action vals are: {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}", Mround(vec[14]), Mround(vec[15]), Mround(vec[16]), Mround(vec[17]), Mround(vec[18]), Mround(vec[19]), Mround(vec[20]));
-	logger->info("Action vals are: {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}", Mround(vec[21]), Mround(vec[22]), Mround(vec[23]), Mround(vec[24]), Mround(vec[25]), Mround(vec[26]), Mround(vec[27]));
-	logger->info("Action vals are: {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}", Mround(vec[28]), Mround(vec[29]), Mround(vec[30]), Mround(vec[31]), Mround(vec[32]), Mround(vec[33]), Mround(vec[34]));
-	logger->info("Action vals are: {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}", Mround(vec[35]), Mround(vec[36]), Mround(vec[37]), Mround(vec[38]), Mround(vec[39]), Mround(vec[40]), Mround(vec[41]));
+	logger->info("Action vals are: {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}", (vec[0]),  (vec[1]),  (vec[2]),  (vec[3]),  (vec[4]),  (vec[5]),  (vec[6]));
+	logger->info("Action vals are: {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}", (vec[7]),  (vec[8]),  (vec[9]),  (vec[10]), (vec[11]), (vec[12]), (vec[13]));
+	logger->info("Action vals are: {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}", (vec[14]), (vec[15]), (vec[16]), (vec[17]), (vec[18]), (vec[19]), (vec[20]));
+	logger->info("Action vals are: {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}", (vec[21]), (vec[22]), (vec[23]), (vec[24]), (vec[25]), (vec[26]), (vec[27]));
+	logger->info("Action vals are: {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}", (vec[28]), (vec[29]), (vec[30]), (vec[31]), (vec[32]), (vec[33]), (vec[34]));
+	logger->info("Action vals are: {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}, {:03.2f}", (vec[35]), (vec[36]), (vec[37]), (vec[38]), (vec[39]), (vec[40]), (vec[41]));
 }
 #if ProfileLogger
 inline void debug::Profiler::MCTSProfiler::switchOperation(unsigned int id)
