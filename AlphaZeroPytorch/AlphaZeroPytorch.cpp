@@ -23,7 +23,7 @@ void inline train(int arg)
 int main()
 {
 	torch::enableRecordFunction();
-	torch::autograd::profiler::RecordProfile("log/C++/pytorchProfiler.trace");
+	torch::autograd::profiler::RecordProfile("log/c++/pytorchProfiler.trace");
 	if (torch::cuda::cudnn_is_available()) {
 		std::cout << "\33[1;32mcuDNN is available\33[0m" << std::endl;
 		auto device = c10::Device("cuda:0");
