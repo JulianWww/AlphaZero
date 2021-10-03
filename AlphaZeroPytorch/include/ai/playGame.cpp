@@ -37,7 +37,7 @@ void AlphaZero::ai::train(int version)
 	if (true) { // TODO revert to while !!!
 		memory->active = true;
 #if MainLogger
-		debug::log::mainLogger->info("playing generational Games");
+		debug::log::mainLogger->info("playing version: {}", version);
 #endif
 
 		playGames(game, bestAgent, bestAgent, memory, probabilitic_moves, EPOCHS);
@@ -83,9 +83,11 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 		debug::Profiler::profiler.switchOperation(3);
 #endif
 #if MainLogger
-		debug::log::mainLogger->info("================================================================");
-		debug::log::mainLogger->info("====================== playing Next match ======================");
-		debug::log::mainLogger->info("================================================================");
+		if (epoch == 0) {
+			debug::log::mainLogger->info("================================================================");
+			debug::log::mainLogger->info("====================== playing Next match ======================");
+			debug::log::mainLogger->info("================================================================");
+		}
 #endif
 		if (goesFist == 0) {
 			goesFist = rand() % 2 * 2 - 1;
@@ -107,14 +109,18 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 			auto actionData = players[game->state->player]->getAction(game, probMoves > turn);
 			memory->commit(game->state, actionData.second);
 #if MainLogger
-			game->state->render(debug::log::mainLogger);
-			debug::log::logVector(debug::log::mainLogger, actionData.second);
-			debug::log::mainLogger->info("selected action is: {}", actionData.first);
+			if (epoch == 0) {
+				game->state->render(debug::log::mainLogger);
+				debug::log::logVector(debug::log::mainLogger, actionData.second);
+				debug::log::mainLogger->info("selected action is: {}", actionData.first);
+			}
 #endif
 			game->takeAction(actionData.first);
 		}
 #if MainLogger
-		game->state->render(debug::log::mainLogger);
+		if (epoch == 0) {
+			game->state->render(debug::log::mainLogger);
+		}
 #endif
 #if ProfileLogger
 		debug::Profiler::profiler.switchOperation(4);
