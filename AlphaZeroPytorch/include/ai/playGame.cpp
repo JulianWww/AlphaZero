@@ -34,7 +34,7 @@ void AlphaZero::ai::train(int version)
 	currentAgent->model->load(loadVersion);
 #endif
 	// TODO bestAgent->model->save(0);
-	if (true) { // TODO revert to while !!!
+	while (true) { // TODO revert to while !!!
 		memory->active = true;
 #if MainLogger
 		debug::log::mainLogger->info("playing version: {}", version);
@@ -53,7 +53,8 @@ void AlphaZero::ai::train(int version)
 			memory->active = false;
 			auto score = playGames(game, bestAgent, currentAgent, memory, Turnement_probabiliticMoves, TurneyEpochs);
 
-			if (true){//(score[currentAgent->identity] > score[bestAgent->identity] * scoringThreshold) {
+			std::cout << "Turney ended with: " << score[currentAgent->identity] << " : " << score[bestAgent->identity] << std::endl;
+			if (score[currentAgent->identity] > score[bestAgent->identity] * scoringThreshold) {
 				version++;
 				//TODO copy model weightsk
 				currentAgent->model->save_as_current();
