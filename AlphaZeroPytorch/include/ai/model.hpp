@@ -204,22 +204,10 @@ inline std::pair<float, float> AlphaZero::ai::Model::train(const std::pair<torch
 inline std::pair<float, torch::Tensor> AlphaZero::ai::Model::predict(std::shared_ptr<Game::GameState> state)
 {
 	torch::Tensor NNInput = state->toTensor();
-#if ProfileLogger
-	debug::Profiler::profiler.switchOperation(11);
-#endif
 	NNInput = NNInput.cuda();
-#if ProfileLogger
-	debug::Profiler::profiler.switchOperation(12);
-#endif
 	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
-#if ProfileLogger
-	debug::Profiler::profiler.switchOperation(13);
-#endif
 	float value = NNOut.first[0].item<float>();
-	NNOut.second = NNOut.second.cpu(); // only if cuda is available ??
-#if ProfileLogger
-	debug::Profiler::profiler.stop();
-#endif
+	//NNOut.second = NNOut.second.cpu(); // only if cuda is available ??
 	return {value, NNOut.second };
 }
 
