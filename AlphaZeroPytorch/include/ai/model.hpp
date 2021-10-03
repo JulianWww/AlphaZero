@@ -99,17 +99,12 @@ inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(tor
 	if (!x.is_cuda() && torch::cuda::cudnn_is_available()) {
 		x = x.cuda();
 	}
-	std::cout << "pred start" << std::endl;
 	x = this->res1.forward(x);
-	std::cout << "res1 ended" << std::endl;
 	x = this->res2.forward(x);
-	std::cout << "res2 ended" << std::endl;
 
 	// compute individual heads
 	torch::Tensor value = this->value_head.forward(x);
-	std::cout << "value computed" << std::endl;
 	torch::Tensor poly = this->policy_head.forward(x);
-	std::cout << "poly computed" << std::endl;
 	return { value, poly };
 };
 // end of cutimizable section
@@ -134,18 +129,10 @@ inline torch::Tensor AlphaZero::ai::ResNet::forward(torch::Tensor x)
 #if modelTest
 	std::cout << x.sizes() << std::endl;
 #endif 
-	std::cout << "inserted padding" << std::endl;
-	std::cout << "x is a CUDA Tensor " << x.is_cuda() << std::endl;
 	x = torch::nn::functional::pad(x, torch::nn::functional::PadFuncOptions({ kernel1 / 2, kernel1 / 2, kernel1 / 2, kernel1 / 2 }));
-	std::cout << "res ran con 1" << std::endl;
-	std::cout << "x is a CUDA Tensor " << x.is_cuda() << 
-		" bias tensor CUDA is " << this->conv1->bias.is_cuda() <<
-		" weight tensor CUDA is " << this->conv1->weight.is_cuda() << std::endl;
 	x = this->conv1(x);
-	std::cout << "conv 1 computed" << std::endl;
 	torch::Tensor y = torch::nn::functional::pad(x, torch::nn::functional::PadFuncOptions({ kernel2 / 2, kernel2 / 2, kernel2 / 2, kernel2 / 2 }));
 	y = this->conv2(y);
-	std::cout << "conv 2 computed" << std::endl;
 	y = this->batch(y);
 	return x + y;
 }
@@ -217,9 +204,7 @@ inline std::pair<float, float> AlphaZero::ai::Model::train(const std::pair<torch
 inline std::pair<float, torch::Tensor> AlphaZero::ai::Model::predict(std::shared_ptr<Game::GameState> state)
 {
 	torch::Tensor NNInput = state->toTensor();
-	std::cout << "prediction started" << std::endl;
 	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput.cuda());
-	std::cout << "predition ended" << std::endl;
 	float value = NNOut.first[0].item<float>();
 	NNOut.second = NNOut.second.cpu(); // only if cuda is available ??
 	return {value, NNOut.second };
