@@ -117,15 +117,10 @@ inline AlphaZero::ai::ResNet::ResNet(int inp, int out, int kernelsize1, int kern
 	activ(torch::nn::LeakyReLU(torch::nn::LeakyReLU()))
 {
 	if (torch::cuda::is_available()) {
-		std::cout << "conv1 moved" << std::endl;
 		this->conv1->to(c10::Device("cuda:0"), true);
-		std::cout << "conv2 moved" << std::endl;
 		this->conv1->to(c10::Device("cuda:0"), true);
-		std::cout << "batch moved" << std::endl;
 		this->batch->to(c10::Device("cuda:0"), true);
-		std::cout << "activ moved" << std::endl;
 		this->activ->to(c10::Device("cuda:0"), true);
-		std::cout << "activ actually moved" << std::endl;
 	}
 }
 
@@ -209,7 +204,7 @@ inline std::pair<float, float> AlphaZero::ai::Model::train(const std::pair<torch
 inline std::pair<float, torch::Tensor> AlphaZero::ai::Model::predict(std::shared_ptr<Game::GameState> state)
 {
 	torch::Tensor NNInput = state->toTensor();
-	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
+	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput.cuda());
 	float value = NNOut.first[0].item<float>();
 	NNOut.second = NNOut.second.cpu(); // only if cuda is available ??
 	return {value, NNOut.second };
