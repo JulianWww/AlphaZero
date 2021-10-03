@@ -96,6 +96,9 @@ inline AlphaZero::ai::Model::Model() :
 
 inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(torch::Tensor x)
 {
+	if (!x.is_cuda() && torch::cuda::cudnn_is_available()) {
+		x = x.cuda();
+	}
 	x = this->res1.forward(x);
 	x = this->res2.forward(x);
 
@@ -113,6 +116,12 @@ inline AlphaZero::ai::ResNet::ResNet(int inp, int out, int kernelsize1, int kern
 	batch(torch::nn::BatchNorm2d(torch::nn::BatchNorm2dOptions(out))),
 	activ(torch::nn::LeakyReLU(torch::nn::LeakyReLU()))
 {
+	if (torch::cuda::is_available()) {
+		this->conv1->to(c10::Device("cuda:0"), true);
+		this->conv1->to(c10::Device("cuda:0"), true);
+		this->batch->to(c10::Device("cuda:0"), true);
+		this->activ->to(c10::Device("cuda:0"), true);
+	}
 }
 
 inline torch::Tensor AlphaZero::ai::ResNet::forward(torch::Tensor x)
@@ -135,6 +144,13 @@ inline AlphaZero::ai::Value_head::Value_head(int inp, int hidden_size, int out, 
 	relu(torch::nn::ReLU()), tanh(torch::nn::Tanh())
 {
 	this->size = hidden_size;
+
+	if (torch::cuda::is_available()) {
+		this->conv->to(c10::Device("cuda:0"), true);
+		this->lin1->to(c10::Device("cuda:0"), true);
+		this->lin2->to(c10::Device("cuda:0"), true);
+		this->relu->to(c10::Device("cuda:0"), true);
+	}
 }
 
 inline torch::Tensor AlphaZero::ai::Value_head::forward(torch::Tensor x)
@@ -157,6 +173,12 @@ inline AlphaZero::ai::Policy_head::Policy_head(int inp, int hidden, int out) :
 	softmax(torch::nn::Softmax(torch::nn::SoftmaxOptions(1)))
 {
 	this->size = hidden;
+
+	if (torch::cuda::is_available()) {
+		this->conv->to(c10::Device("cuda:0"), true);
+		this->lin1->to(c10::Device("cuda:0"), true);
+		this->softmax->to(c10::Device("cuda:0"), true);
+	}
 }
 
 inline torch::Tensor AlphaZero::ai::Policy_head::forward(torch::Tensor x)
@@ -184,6 +206,7 @@ inline std::pair<float, torch::Tensor> AlphaZero::ai::Model::predict(std::shared
 	torch::Tensor NNInput = state->toTensor();
 	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
 	float value = NNOut.first[0].item<float>();
+	NNOut.second = NNOut.second.cpu(); // only if cuda is available ??
 	return {value, NNOut.second };
 }
 
