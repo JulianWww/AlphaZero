@@ -33,7 +33,7 @@
 #define probabilitic_moves 2 // how manny moves are prabilistic in the begining of the game to aid in exploration
 
 // training
-#define Training_loops 10
+#define Training_loops 15
 #define Training_batch 256
 #define Training_epochs 10
 
