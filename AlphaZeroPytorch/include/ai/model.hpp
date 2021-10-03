@@ -50,7 +50,7 @@ namespace AlphaZero {
 		
 		class Model : public torch::nn::Module {
 		//private: torch::nn::Conv2d headLayer;
-		private: ResNet res1, res2;
+		private: ResNet res1, res2, res3, res4, res5, res6;
 		private: Value_head value_head;
 		private: Policy_head policy_head;
 
@@ -86,8 +86,12 @@ namespace AlphaZero {
 
 inline AlphaZero::ai::Model::Model() :
 	//headLayer(register_module("conv", torch::nn::Conv2d()))
-	res1(this->register_custom_module(ResNet(2, 75, 5, 5), "Residual_1")),
+	res1(this->register_custom_module(ResNet( 2, 75, 5, 5), "Residual_1")),
 	res2(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_2")),
+	res3(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_3")),
+	res4(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_4")),
+	res5(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_5")),
+	res6(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_6")),
 	value_head(this->register_custom_module(Value_head(75, 420, 210, 10))),
 	policy_head(this->register_custom_module(Policy_head(75, 84, 42))),
 	optim(Optimizer(this->parameters(), OptimizerOptions(0.0001).momentum(0.9)))

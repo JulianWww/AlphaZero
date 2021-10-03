@@ -16,24 +16,24 @@
 
 // Net settings
 #define MaxQuDefault -99999
-#define reg_const 0.000001
-#define Alpha 0.9
+#define reg_const 0.0001
+#define Alpha 0.8
 #define learningRage 0.1
 
 // simulation setting
 #define MCTSSimulations 50
-#define cpuct_ 0.4f
+#define cpuct_ 1.0f
 #define ProbabiliticMoves 3
 
 // memory setting
-#define memory_size 1
+#define memory_size 30000
 
 // self play
 #define EPOCHS 30
 #define probabilitic_moves 2 // how manny moves are prabilistic in the begining of the game to aid in exploration
 
 // training
-#define Training_loops 5
+#define Training_loops 10
 #define Training_batch 256
 #define Training_epochs 10
 
