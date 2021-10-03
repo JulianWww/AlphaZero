@@ -142,8 +142,10 @@ inline torch::Tensor AlphaZero::ai::ResNet::forward(torch::Tensor x)
 		" bias tensor CUDA is " << this->conv1->bias.is_cuda() <<
 		" weight tensor CUDA is " << this->conv1->weight.is_cuda() << std::endl;
 	x = this->conv1(x);
+	std::cout << "conv 1 computed" << std::endl;
 	torch::Tensor y = torch::nn::functional::pad(x, torch::nn::functional::PadFuncOptions({ kernel2 / 2, kernel2 / 2, kernel2 / 2, kernel2 / 2 }));
 	y = this->conv2(y);
+	std::cout << "conv 2 computed" << std::endl;
 	y = this->batch(y);
 	return x + y;
 }
