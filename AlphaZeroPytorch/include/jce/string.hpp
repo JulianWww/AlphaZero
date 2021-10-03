@@ -11,6 +11,7 @@ namespace jce
 
 inline void jce::consoleUtils::render_progress_bar(float progress, bool persistant)
 {
+#if false
     if (progress <= 1.0) {
         int barWidth = 70;
 
@@ -31,4 +32,7 @@ inline void jce::consoleUtils::render_progress_bar(float progress, bool persista
         }
         std::cout.flush();
     }
+#else
+    return;
+#endif
 }
