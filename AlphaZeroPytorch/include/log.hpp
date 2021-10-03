@@ -132,6 +132,7 @@ inline void debug::Profiler::MCTSProfiler::log(std::shared_ptr<spdlog::logger> l
 	logger->info("OS: Ubuntu 18.04");
 	logger->info("CPU: ??");
 	logger->info("GPU: Nvidia P4 cuda 11.4");
+	logger->info("memory: 7.8 Gb");
 #endif
 
 	logger->info("================================================================================");

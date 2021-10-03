@@ -19,6 +19,7 @@ void inline train(int arg)
 	AlphaZero::ai::train(arg);
 }
 
+
 int main()
 {
 	if (torch::cuda::cudnn_is_available()) {
