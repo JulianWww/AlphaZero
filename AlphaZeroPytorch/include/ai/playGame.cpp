@@ -100,7 +100,9 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 		agent2->tree->reset();
 
 #if MainLogger
-		debug::log::mainLogger->info("player {} will start", goesFist);
+		if (epoch == 0) {
+			debug::log::mainLogger->info("player {} will start", goesFist);
+		}
 #endif
 		game->reset();
 		int turn = 0;
