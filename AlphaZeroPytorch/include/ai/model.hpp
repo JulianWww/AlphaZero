@@ -117,10 +117,15 @@ inline AlphaZero::ai::ResNet::ResNet(int inp, int out, int kernelsize1, int kern
 	activ(torch::nn::LeakyReLU(torch::nn::LeakyReLU()))
 {
 	if (torch::cuda::is_available()) {
+		std::cout << "conv1 moved" << std::endl;
 		this->conv1->to(c10::Device("cuda:0"), true);
+		std::cout << "conv2 moved" << std::endl;
 		this->conv1->to(c10::Device("cuda:0"), true);
+		std::cout << "batch moved" << std::endl;
 		this->batch->to(c10::Device("cuda:0"), true);
+		std::cout << "activ moved" << std::endl;
 		this->activ->to(c10::Device("cuda:0"), true);
+		std::cout << "activ actually moved" << std::endl;
 	}
 }
 
