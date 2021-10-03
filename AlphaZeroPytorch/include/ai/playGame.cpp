@@ -34,7 +34,7 @@ void AlphaZero::ai::train(int version)
 	currentAgent->model->load(loadVersion);
 #endif
 	// TODO bestAgent->model->save(0);
-	if (true) { // TODO revert to while !!!
+	while (true) { // TODO revert to while !!!
 		memory->active = true;
 #if MainLogger
 		debug::log::mainLogger->info("playing generational Games");
