@@ -40,6 +40,7 @@ void AlphaZero::ai::train(int version)
 		debug::log::mainLogger->info("playing version: {}", version);
 #endif
 
+		std::cout << "playing Generational Games:" << std::endl;
 		playGames(game, bestAgent, bestAgent, memory, probabilitic_moves, EPOCHS);
 		std::cout << "memory size is: " << memory->memory.size() << std::endl;
 		if (memory->memory.size() > memory_size) {
@@ -51,6 +52,7 @@ void AlphaZero::ai::train(int version)
 			debug::Profiler::profiler.stop();
 #endif
 			memory->active = false;
+			std::cout << "playing Tournement Games:" << std::endl;
 			auto score = playGames(game, bestAgent, currentAgent, memory, Turnement_probabiliticMoves, TurneyEpochs);
 
 			std::cout << "Turney ended with: " << score[currentAgent->identity] << " : " << score[bestAgent->identity] << std::endl;
