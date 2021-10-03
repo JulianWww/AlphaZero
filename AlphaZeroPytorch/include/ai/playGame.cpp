@@ -48,8 +48,6 @@ void AlphaZero::ai::train(int version)
 		if (memory->memory.size() > memory_size) {
 #if ProfileLogger
 			debug::Profiler::profiler.switchOperation(5);
-			debug::log::profileLogger->info("performing Training of model");
-			debug::log::profileLogger->info("----------------------------------------------------------------------------------");
 #endif
 			currentAgent->fit(memory, iteration);
 #if ProfileLogger
