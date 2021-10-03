@@ -41,7 +41,9 @@ namespace AlphaZero {
 		public: int IdIndex(int id);
 		public: IDType id();
 		public: void render();
+#if (MainLogger || MCTSLogger || MemoryLogger || ProfileLogger || ModelLogger)
 		public: void render(std::shared_ptr<spdlog::logger> logger);
+#endif
 		public: void static IdIndex(int id, int val, IDType& b);
 		public: torch::Tensor toTensor();
 		public: void toTensor(torch::Tensor& tensor, unsigned short idx=0);

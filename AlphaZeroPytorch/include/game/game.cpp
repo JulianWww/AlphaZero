@@ -210,6 +210,7 @@ void AlphaZero::Game::GameState::render()
 	std::cout << std::endl;
 }
 
+#if (MainLogger || MCTSLogger || MemoryLogger || ProfileLogger || ModelLogger)
 void AlphaZero::Game::GameState::render(std::shared_ptr<spdlog::logger> logger)
 {
 	for (int idx = 0; idx < 6; idx++) {
@@ -225,6 +226,7 @@ void AlphaZero::Game::GameState::render(std::shared_ptr<spdlog::logger> logger)
 		logger->info(line1);
 	}
 }
+#endif
 
 AlphaZero::Game::Game::Game()
 {
