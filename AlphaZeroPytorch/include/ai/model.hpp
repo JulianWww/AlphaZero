@@ -325,16 +325,15 @@ inline void AlphaZero::ai::Model::load_from_file(char* filename)
 
 inline void AlphaZero::ai::Model::copyModel(std::shared_ptr<AlphaZero::ai::Model> model)
 {
-	COPY(res1);
-	COPY(res2);
-	COPY(res3);
-	COPY(res4);
-	COPY(res5);
-	COPY(res6);
-
-	COPY(value_head);
-
-	COPY(policy_head);
+	this->res1.copyModel(&model->res1);
+	this->res2.copyModel(&model->res2);
+	this->res3.copyModel(&model->res3);
+	this->res4.copyModel(&model->res4);
+	this->res5.copyModel(&model->res5);
+	this->res6.copyModel(&model->res6);
+	
+	this->value_head.copyModel(&model->value_head);
+	this->policy_head.copyModel(&model->policy_head);
 }
 
 inline AlphaZero::ai::ResNet AlphaZero::ai::Model::register_custom_module(ResNet net, std::string layer)
