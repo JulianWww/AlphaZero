@@ -10,8 +10,7 @@
 #include <jce/string.hpp>
 #include <string>
 
-#define COPY(x) this-> ## x ## .copyModel(&(model->  ## x))
-#define COPY_MOD(x) this-> ## x ## ->weight = net-> ## x ## ->weight.clone(); this-> ## x ## ->bias = net-> ## x ## ->bias.clone()
+#define COPY(x) this-> ## x ## .copyModel(&model->  ## x)
 
 
 namespace AlphaZero {
@@ -123,8 +122,10 @@ inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(tor
 
 inline void AlphaZero::ai::ResNet::copyModel(ResNet* net)
 {
-	COPY_MOD(conv1);
-	COPY_MOD(conv2);
+	this->conv1->weight = net->conv1->weight.clone();
+	this->conv1->bias = net->conv1->bias.clone();
+	this->conv2->weight = net->conv2->weight.clone();
+	this->conv2->bias = net->conv2->bias.clone();
 }
 
 inline AlphaZero::ai::ResNet::ResNet(int inp, int out, int kernelsize1, int kernelsize2) :
@@ -187,10 +188,15 @@ inline torch::Tensor AlphaZero::ai::Value_head::forward(torch::Tensor x)
 
 inline void AlphaZero::ai::Value_head::copyModel(Value_head* net)
 {
-	COPY_MOD(conv);
+	this->conv->weight = net->conv->weight.clone();
+	this->conv->bias = net->conv->bias.clone();
 
-	COPY_MOD(lin1);
-	COPY_MOD(lin2);
+	this->lin1->weight = net->lin1->weight.clone();
+	this->lin1->bias = net->lin1->bias.clone();
+
+	this->lin2->weight = net->lin2->weight.clone();
+	this->lin2->bias = net->lin2->bias.clone();
+
 }
 
 inline AlphaZero::ai::Policy_head::Policy_head(int inp, int hidden, int out) :
@@ -220,8 +226,11 @@ inline torch::Tensor AlphaZero::ai::Policy_head::forward(torch::Tensor x)
 
 inline void AlphaZero::ai::Policy_head::copyModel(Policy_head* net)
 {
-	COPY_MOD(conv);
-	COPY_MOD(lin1);
+	this->conv->weight = net->conv->weight.clone();
+	this->conv->bias = net->conv->bias.clone();
+
+	this->lin1->weight = net->lin1->weight.clone();
+	this->lin1->bias = net->lin1->bias.clone();
 }
 
 inline std::pair<float, float> AlphaZero::ai::Model::train(const std::pair<torch::Tensor, torch::Tensor>& x, const std::pair<torch::Tensor, torch::Tensor>& y)
@@ -351,4 +360,4 @@ inline AlphaZero::ai::Policy_head AlphaZero::ai::Model::register_custom_module(P
 
 #undef COPY
 #undef COPY_CONV
-#undef COPY_LIN
+#undef C
