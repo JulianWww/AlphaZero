@@ -10,7 +10,7 @@
 #include <jce/string.hpp>
 #include <string>
 
-#define COPY(x) this-> ## x ## .copyModel(&model->  ## x)
+#define COPY(x) this-> ## x ## .copyModel(&(model->  ## x))
 #define COPY_MOD(x) this-> ## x ## ->weight = net-> ## x ## ->weight.clone(); this-> ## x ## ->bias = net-> ## x ## ->bias.clone()
 
 
