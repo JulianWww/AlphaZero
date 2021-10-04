@@ -10,6 +10,9 @@
 #include <jce/string.hpp>
 #include <string>
 
+#define COPY(x) this-> ## x ## .copyModel(&model->  ## x)
+#define COPY_MOD(x) this-> ## x ## ->weight = net-> ## x ## ->weight.clone(); this-> ## x ## ->bias = net-> ## x ## ->bias.clone()
+
 
 namespace AlphaZero {
 	namespace ai {
@@ -21,6 +24,7 @@ namespace AlphaZero {
 
 		public: ResNet(int inp, int out, int kernelsize1, int kernelsize2);
 		public: torch::Tensor forward(torch::Tensor);
+		public: void copyModel(ResNet* net);
 		};
 
 		class Value_head : torch::nn::Module {
@@ -32,6 +36,7 @@ namespace AlphaZero {
 
 		public: Value_head(int inp, int hidden_size, int out, int kernels);
 		public: torch::Tensor forward(torch::Tensor);
+		public: void copyModel(Value_head* net);
 		};
 
 		class Policy_head : torch::nn::Module {
@@ -42,6 +47,8 @@ namespace AlphaZero {
 
 		public: Policy_head(int inp, int hidden, int out);
 		public: torch::Tensor forward(torch::Tensor);
+
+		public: void copyModel(Policy_head* net);
 		};
 
 		typedef torch::nn::MSELoss Loss;
@@ -72,7 +79,8 @@ namespace AlphaZero {
 		public: void load_version(unsigned int version);
 		public: void load_current();
 		private: void load_from_file(char* filename);
-		//public: void copy(std::shared_ptr<Model>);
+
+		public: void copyModel(std::shared_ptr<Model>);
 
 		private: ResNet register_custom_module(ResNet net, std::string layer);
 		private: Value_head register_custom_module(Value_head net);
@@ -112,6 +120,12 @@ inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(tor
 	return { value, poly };
 };
 // end of cutimizable section
+
+inline void AlphaZero::ai::ResNet::copyModel(ResNet* net)
+{
+	COPY_MOD(conv1);
+	COPY_MOD(conv2);
+}
 
 inline AlphaZero::ai::ResNet::ResNet(int inp, int out, int kernelsize1, int kernelsize2) :
 	kernel1(kernelsize1), kernel2(kernelsize2),
@@ -171,6 +185,14 @@ inline torch::Tensor AlphaZero::ai::Value_head::forward(torch::Tensor x)
 	return x;
 }
 
+inline void AlphaZero::ai::Value_head::copyModel(Value_head* net)
+{
+	COPY_MOD(conv);
+
+	COPY_MOD(lin1);
+	COPY_MOD(lin2);
+}
+
 inline AlphaZero::ai::Policy_head::Policy_head(int inp, int hidden, int out) :
 	conv(torch::nn::Conv2d(torch::nn::Conv2dOptions(inp, 2, 1))),
 	lin1(torch::nn::Linear(hidden, out)),
@@ -194,6 +216,12 @@ inline torch::Tensor AlphaZero::ai::Policy_head::forward(torch::Tensor x)
 	x = this->conv(x);
 	x = this->lin1(x.reshape({ x.size(0), this->size }));
 	return this->softmax(x);
+}
+
+inline void AlphaZero::ai::Policy_head::copyModel(Policy_head* net)
+{
+	COPY_MOD(conv);
+	COPY_MOD(lin1);
 }
 
 inline std::pair<float, float> AlphaZero::ai::Model::train(const std::pair<torch::Tensor, torch::Tensor>& x, const std::pair<torch::Tensor, torch::Tensor>& y)
@@ -286,6 +314,20 @@ inline void AlphaZero::ai::Model::load_from_file(char* filename)
 	this->load(inp);
 }
 
+inline void AlphaZero::ai::Model::copyModel(std::shared_ptr<AlphaZero::ai::Model> model)
+{
+	COPY(res1);
+	COPY(res2);
+	COPY(res3);
+	COPY(res4);
+	COPY(res5);
+	COPY(res6);
+
+	COPY(value_head);
+
+	COPY(policy_head);
+}
+
 inline AlphaZero::ai::ResNet AlphaZero::ai::Model::register_custom_module(ResNet net, std::string layer)
 {
 	register_module(layer + "_conv1", net.conv1);
@@ -306,3 +348,7 @@ inline AlphaZero::ai::Policy_head AlphaZero::ai::Model::register_custom_module(P
 	return net;
 }
 // TODO: Reference additional headers your program requires here.
+
+#undef COPY
+#undef COPY_CONV
+#undef COPY_LIN

@@ -60,7 +60,7 @@ void AlphaZero::ai::train(int version)
 				version++;
 				//TODO copy model weightsk
 				currentAgent->model->save_as_current();
-				bestAgent->model->load_current();
+				bestAgent->model->copyModel(currentAgent->model);
 				bestAgent->model->save_version(version);
 			}
 		}
