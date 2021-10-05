@@ -2,6 +2,18 @@
 #include <log.hpp>
 #include <bitset>
 
+#define OPSMode 1
+
+/*
++---------+-------------+
+| OPSMode | Description |
++---------+-------------+
+| 0       | Train an AI |
++---------+-------------+
+| 1       | Run Server  |
++---------+-------------+
+*/
+
 #define GameChecksLegalMoved true // the game will check if a move is legal not neded for training
 #define stateSize 84
 #define Training true

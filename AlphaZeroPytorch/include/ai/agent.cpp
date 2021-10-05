@@ -15,19 +15,19 @@ std::pair<int, std::vector<float>> AlphaZero::ai::User::getAction(std::shared_pt
 }
 #endif
 
-AlphaZero::ai::Agent::Agent(std::shared_ptr<Game::Game> game, int version) // TODO remove int version from this function
+AlphaZero::ai::Agent::Agent(std::shared_ptr<Game::Game> game) // TODO remove int version from this function
 {
 	this->model = std::make_shared<AlphaZero::ai::Model>();
 	this->tree = std::make_shared<MCTS>(game->state);
 }
 
-std::pair<int, std::vector<float>> AlphaZero::ai::Agent::getAction(std::shared_ptr<Game::Game> game, bool proabilistic)
+std::pair<int, std::vector<float>> AlphaZero::ai::Agent::getAction(std::shared_ptr<Game::GameState> state, bool proabilistic)
 {
 #if ProfileLogger
 	debug::Profiler::profiler.switchOperation(0);
 #endif
 	this->tree->MCTSIter = 0;
-	std::shared_ptr<Node> node = this->tree->addNode(game->state);
+	std::shared_ptr<Node> node = this->tree->addNode(state);
 	try {
 #if threads > 0
 		std::vector<std::thread> threadvec;

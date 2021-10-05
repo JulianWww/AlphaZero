@@ -9,12 +9,12 @@ namespace AlphaZero {
 		class Agent {
 		public: std::shared_ptr<MCTS> tree;
 		public: std::shared_ptr<Model> model;
-		public: Agent(std::shared_ptr<Game::Game> game, int version);
+		public: Agent(std::shared_ptr<Game::Game> game);
 		public: int identity;
 #if Training
-		public: std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::Game> game, bool proabilistic);
+		public: std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
 #else
-		public: virtual std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::Game> game, bool proabilistic);
+		public: virtual std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
 #endif
 		public: void runSimulations(Node*);
 		private: float evaluateLeaf(Node*);
@@ -31,6 +31,7 @@ namespace AlphaZero {
 		void runSimulationsCaller(AlphaZero::ai::Agent* agent, Node*);
 	}
 }
+
 inline void AlphaZero::ai::Agent::runSimulations(Node* node)
 {
 	auto serchResults = this->tree->moveToLeaf(node, ProbabiliticMoves);

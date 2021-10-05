@@ -1,5 +1,5 @@
 #pragma once
-#define threads 15
+#define threads 31
 
 //logging
 #define MainLogger true

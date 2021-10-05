@@ -39,22 +39,25 @@ if (WIN32)
 endif (WIN32)
 if (UNIX)
 	target_include_directories(AlphaZeroPytorch PUBLIC "/spdlog/spdlog/include")
+	target_inlcude_directories(AlphaZeroPytorch PUBLIC "/sockpp/include")
+	target_link_libraries(AlphaZeroPytorch "/sockpp/include/build/sockpp.so")
 endif(UNIX)
 
 target_include_directories(AlphaZeroPytorch PUBLIC "${CMAKE_SOURCE_DIR}/include")
 
 message("done")
-message("building cuda2cpu")
 
-add_executable (cuda2cpu "toCPU.cpp")
-target_link_libraries(cuda2cpu "${TORCH_LIBRARIES}")
-target_include_directories(cuda2cpu PUBLIC "${CMAKE_SOURCE_DIR}/include")
+#message("building cuda2cpu")
 
-if (WIN32)
-	target_include_directories(cuda2cpu PUBLIC "D:/MyCode/CppLibs/include")
-endif (WIN32)
-if (UNIX)
-	target_include_directories(cuda2cpu PUBLIC "/spdlog/spdlog/include")
-endif(UNIX)
+#add_executable (cuda2cpu "toCPU.cpp")
+#target_link_libraries(cuda2cpu "${TORCH_LIBRARIES}")
+#target_include_directories(cuda2cpu PUBLIC "${CMAKE_SOURCE_DIR}/include")
+
+#if (WIN32)
+#	target_include_directories(cuda2cpu PUBLIC "D:/MyCode/CppLibs/include")
+#endif (WIN32)
+#if (UNIX)
+#	target_include_directories(cuda2cpu PUBLIC "/spdlog/spdlog/include")
+#endif(UNIX)
 
 # TODO: Add tests and install targets if needed.

@@ -14,7 +14,7 @@ void AlphaZero::test::playGame(std::shared_ptr<Game::Game> game, std::shared_ptr
 	std::unordered_map<int, std::shared_ptr<ai::Agent>> players = { {goesFirst, player1},{-goesFirst, player2} };
 	int action;
 	while (!game->state->done) {
-		action = players[game->state->player]->getAction(game, false).first;
+		action = players[game->state->player]->getAction(game->state, false).first;
 		game->takeAction(action);
 	}
 }
@@ -24,8 +24,8 @@ void AlphaZero::ai::train(int version)
 	unsigned short iteration = 0;
 	std::shared_ptr<Memory> memory = std::make_shared<Memory>();
 	std::shared_ptr<Game::Game> game = std::make_shared<Game::Game>();
-	std::shared_ptr<Agent> currentAgent = std::make_shared<Agent>(game, version);
-	std::shared_ptr<Agent> bestAgent = std::make_shared<Agent>(game, version);
+	std::shared_ptr<Agent> currentAgent = std::make_shared<Agent>(game);
+	std::shared_ptr<Agent> bestAgent = std::make_shared<Agent>(game);
 
 	currentAgent->identity = 0;
 	bestAgent->identity = 1;
@@ -111,7 +111,7 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 		int turn = 0;
 		while (!game->state->done) {
 			turn++;
-			auto actionData = players[game->state->player]->getAction(game, probMoves > turn);
+			auto actionData = players[game->state->player]->getAction(game->state, probMoves > turn);
 			memory->commit(game->state, actionData.second);
 #if MainLogger
 			if (epoch == 0) {

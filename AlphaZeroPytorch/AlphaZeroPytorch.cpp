@@ -6,6 +6,9 @@
 #include <jce/string.hpp>
 #include <chrono>
 #include <thread>
+#if OPSMode == 1
+#include <Server/server.hpp>
+#endif
 
 
 inline void wait(int time)
@@ -22,6 +25,10 @@ void inline train(int arg)
 
 int main()
 {
+	/*std::ofstream out("out.txt");
+	std::streambuf* coutbuf = std::cout.rdbuf(); //save old buf
+	std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!*/
+
 	if (torch::cuda::cudnn_is_available()) {
 		std::cout << "\33[1;32mcuDNN is available\33[0m" << std::endl;
 		auto device = c10::Device("cuda:0");
@@ -31,8 +38,20 @@ int main()
 	else {
 		std::cout << "\33[1;31mWarning: cuDNN is unavailable, consider using a CUDA enabled GPU\33[0m" << std::endl;
 	}
-	
+#if OPSMode == 0
 	train(-1);
+#elif OPSMode == 1
+	//TODO remove game from initialization || its not technicly neded
+	std::shared_ptr<AlphaZero::Game::Game> game = std::make_shared<AlphaZero::Game::Game>();
+
+	std::shared_ptr<AlphaZero::ai::Agent> agent = std::make_shared<AlphaZero::ai::Agent>(game);
+	agent->model->load_version(2);
+
+	AlphaZero::Server::TCPServer server (agent);
+	server.mainLoop();
+
+
+#endif
 #if ProfileLogger
 	debug::Profiler::profiler.log();
 #endif 
