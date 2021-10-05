@@ -373,3 +373,4 @@ AlphaZeroPytorch/out/build/x64-Debug/models/run_1/currentModel.torch
 AlphaZeroPytorch/out/build/x64-Debug/models/run_1/V_0.torch
 *.torch
 Clients/ConsoleClient/out/build/x64-Debug/.ninja_deps
+AlphaZeroPytorch/enc_temp_folder/f8108be5203dc8f8b0301f5c9e7e152d/model.hpp

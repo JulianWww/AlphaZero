@@ -144,8 +144,10 @@ inline void AlphaZero::ai::ResNet::copyModel(ResNet* net)
 
 inline void AlphaZero::ai::ResNet::toCPU()
 {
-	this->conv1->to(c10::Device("cpu"));
-	this->conv2->to(c10::Device("cpu"));
+	this->conv1->to(c10::Device("cpu"), true);
+	this->conv2->to(c10::Device("cpu"), true);
+	this->batch->to(c10::Device("cpu"), true);
+	this->activ->to(c10::Device("cpu"), true);
 }
 
 inline AlphaZero::ai::ResNet::ResNet(int inp, int out, int kernelsize1, int kernelsize2) :
@@ -221,9 +223,10 @@ inline void AlphaZero::ai::Value_head::copyModel(Value_head* net)
 
 inline void AlphaZero::ai::Value_head::toCPU()
 {
-	this->conv->to(c10::Device("cpu"));
-	this->lin1->to(c10::Device("cpu"));
-	this->lin2->to(c10::Device("cpu"));
+	this->conv->to(c10::Device("cpu"), true);
+	this->lin1->to(c10::Device("cpu"), true);
+	this->lin2->to(c10::Device("cpu"), true);
+	this->relu->to(c10::Device("cpu"), true);
 }
 
 inline AlphaZero::ai::Policy_head::Policy_head(int inp, int hidden, int out) :
@@ -262,8 +265,9 @@ inline void AlphaZero::ai::Policy_head::copyModel(Policy_head* net)
 
 inline void AlphaZero::ai::Policy_head::toCPU()
 {
-	this->conv->to(c10::Device("cpu"));
-	this->lin1->to(c10::Device("cpu"));
+	this->conv->to(c10::Device("cpu"), true);
+	this->lin1->to(c10::Device("cpu"), true);
+	this->softmax->to(c10::Device("cpu"), true);
 }
 
 inline std::pair<float, float> AlphaZero::ai::Model::train(const std::pair<torch::Tensor, torch::Tensor>& x, const std::pair<torch::Tensor, torch::Tensor>& y)
