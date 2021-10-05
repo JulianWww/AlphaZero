@@ -40,7 +40,7 @@ endif (WIN32)
 if (UNIX)
 	target_include_directories(AlphaZeroPytorch PUBLIC "/spdlog/spdlog/include")
 	target_include_directories(AlphaZeroPytorch PUBLIC "/sockpp/include")
-	target_link_libraries(AlphaZeroPytorch "/sockpp/include/build/sockpp.so")
+	#target_link_libraries(AlphaZeroPytorch "/sockpp/include/build/sockpp.so")
 endif(UNIX)
 
 target_include_directories(AlphaZeroPytorch PUBLIC "${CMAKE_SOURCE_DIR}/include")

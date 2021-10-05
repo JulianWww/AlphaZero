@@ -45,7 +45,7 @@ int main()
 	std::shared_ptr<AlphaZero::Game::Game> game = std::make_shared<AlphaZero::Game::Game>();
 
 	std::shared_ptr<AlphaZero::ai::Agent> agent = std::make_shared<AlphaZero::ai::Agent>(game);
-	agent->model->load_version(2);
+	agent->model->load_version(60);
 
 	AlphaZero::Server::TCPServer server (agent);
 	server.mainLoop();
