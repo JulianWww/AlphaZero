@@ -42,7 +42,7 @@ if (UNIX)
 	target_include_directories(AlphaZeroPytorch PUBLIC "/sockpp/include")
 	find_library(sockpp_location sockpp)
 	message("Lib1 is at: ${sockpp_location}")
-	target_link_libraries(AlphaZeroPytorch LINK_PUBLIC "${sockpp_location}")
+	target_link_libraries(AlphaZeroPytorch "${sockpp_location}")
 endif(UNIX)
 
 target_include_directories(AlphaZeroPytorch PUBLIC "${CMAKE_SOURCE_DIR}/include")
