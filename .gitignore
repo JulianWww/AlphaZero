@@ -352,7 +352,7 @@ AlphaZeroPytorch/CMakeLists.txt
 AlphaZeroPytorch/CMakeSettings.json
 *.json
 AlphaZeroPytorch/out/build/x64-Debug/.ninja_deps
-AlphaZeroPytorch/out/build/x64-Debug/.ninja_log
+AlphaZeroPytorch/out/*
 *.exe
 *.exp
 *.lib
@@ -371,3 +371,5 @@ AlphaZeroPytorch/out/build/x64-Debug/CMakeFiles/ShowIncludes/foo.h
 AlphaZeroPytorch/out/build/x64-Debug/CMakeFiles/ShowIncludes/main.c
 AlphaZeroPytorch/out/build/x64-Debug/models/run_1/currentModel.torch
 AlphaZeroPytorch/out/build/x64-Debug/models/run_1/V_0.torch
+*.torch
+Clients/ConsoleClient/out/build/x64-Debug/.ninja_deps

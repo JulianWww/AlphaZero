@@ -24,6 +24,7 @@ namespace AlphaZero {
 		public: ResNet(int inp, int out, int kernelsize1, int kernelsize2);
 		public: torch::Tensor forward(torch::Tensor);
 		public: void copyModel(ResNet* net);
+		public: void toCPU();
 		};
 
 		class Value_head : torch::nn::Module {
@@ -36,6 +37,7 @@ namespace AlphaZero {
 		public: Value_head(int inp, int hidden_size, int out, int kernels);
 		public: torch::Tensor forward(torch::Tensor);
 		public: void copyModel(Value_head* net);
+		public: void toCPU();
 		};
 
 		class Policy_head : torch::nn::Module {
@@ -48,6 +50,7 @@ namespace AlphaZero {
 		public: torch::Tensor forward(torch::Tensor);
 
 		public: void copyModel(Policy_head* net);
+		public: void toCPU();
 		};
 
 		typedef torch::nn::MSELoss Loss;
@@ -59,6 +62,8 @@ namespace AlphaZero {
 		private: ResNet res1, res2, res3, res4, res5, res6;
 		private: Value_head value_head;
 		private: Policy_head policy_head;
+
+		private: bool CUDA;
 
 		private: Loss loss;
 		private: Optimizer optim;
@@ -80,6 +85,7 @@ namespace AlphaZero {
 		private: void load_from_file(char* filename);
 
 		public: void copyModel(std::shared_ptr<Model>);
+		public: void toCPU();
 
 		private: ResNet register_custom_module(ResNet net, std::string layer);
 		private: Value_head register_custom_module(Value_head net);
@@ -103,6 +109,14 @@ inline AlphaZero::ai::Model::Model() :
 	policy_head(this->register_custom_module(Policy_head(75, 84, 42))),
 	optim(Optimizer(this->parameters(), OptimizerOptions(0.0001).momentum(0.9)))
 {
+	if (torch::cuda::cudnn_is_available())
+	{
+		this->CUDA = true;
+	}
+	else
+	{
+		this->CUDA = false;
+	}
 }
 
 inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(torch::Tensor x)
@@ -126,6 +140,12 @@ inline void AlphaZero::ai::ResNet::copyModel(ResNet* net)
 	this->conv1->bias = net->conv1->bias.clone();
 	this->conv2->weight = net->conv2->weight.clone();
 	this->conv2->bias = net->conv2->bias.clone();
+}
+
+inline void AlphaZero::ai::ResNet::toCPU()
+{
+	this->conv1->to(c10::Device("CPU"));
+	this->conv2->to(c10::Device("CPU"));
 }
 
 inline AlphaZero::ai::ResNet::ResNet(int inp, int out, int kernelsize1, int kernelsize2) :
@@ -199,6 +219,13 @@ inline void AlphaZero::ai::Value_head::copyModel(Value_head* net)
 
 }
 
+inline void AlphaZero::ai::Value_head::toCPU()
+{
+	this->conv->to(c10::Device("CPU"));
+	this->lin1->to(c10::Device("CPU"));
+	this->lin2->to(c10::Device("CPU"));
+}
+
 inline AlphaZero::ai::Policy_head::Policy_head(int inp, int hidden, int out) :
 	conv(torch::nn::Conv2d(torch::nn::Conv2dOptions(inp, 2, 1))),
 	lin1(torch::nn::Linear(hidden, out)),
@@ -233,6 +260,12 @@ inline void AlphaZero::ai::Policy_head::copyModel(Policy_head* net)
 	this->lin1->bias = net->lin1->bias.clone();
 }
 
+inline void AlphaZero::ai::Policy_head::toCPU()
+{
+	this->conv->to(c10::Device("CPU"));
+	this->lin1->to(c10::Device("CPU"));
+}
+
 inline std::pair<float, float> AlphaZero::ai::Model::train(const std::pair<torch::Tensor, torch::Tensor>& x, const std::pair<torch::Tensor, torch::Tensor>& y)
 {
 	auto valLoss = torch::mse_loss(x.first, y.first);
@@ -245,7 +278,8 @@ inline std::pair<float, float> AlphaZero::ai::Model::train(const std::pair<torch
 inline std::pair<float, torch::Tensor> AlphaZero::ai::Model::predict(std::shared_ptr<Game::GameState> state)
 {
 	torch::Tensor NNInput = state->toTensor();
-	NNInput = NNInput.cuda();
+	if (torch::cuda::cudnn_is_available())
+		NNInput = NNInput.cuda();
 	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
 	float value = NNOut.first[0].item<float>();
 	NNOut.second = NNOut.second.cpu(); // only if cuda is available ??
@@ -281,7 +315,10 @@ inline void AlphaZero::ai::Model::fit(const std::tuple<torch::Tensor, torch::Ten
 inline void AlphaZero::ai::Model::save_version(unsigned int version)
 {
 	char buffer[50];
-	std::sprintf(buffer, "models/run_%d/V_%d.torch", runVersion, version);
+	if (this->CUDA)
+		std::sprintf(buffer, "models/run_%d/V_%d.torch", runVersion, version);
+	else
+		std::sprintf(buffer, "models/run_%d/CPU_%d.torch", runVersion, version);
 	std::cout << buffer << std::endl;
 	this->save_to_file(buffer);
 }
@@ -289,7 +326,10 @@ inline void AlphaZero::ai::Model::save_version(unsigned int version)
 inline void AlphaZero::ai::Model::save_as_current()
 {
 	char buffer[50];
-	std::sprintf(buffer, "models/run_%d/currentModel.torch", runVersion);
+	if (this->CUDA)
+		std::sprintf(buffer, "models/run_%d/currentModel.torch", runVersion);
+	else
+		std::sprintf(buffer, "models/run_%d/CPU_currentModel.torch", runVersion);
 	this->save_to_file(buffer);
 }
 
@@ -303,15 +343,23 @@ inline void AlphaZero::ai::Model::save_to_file(char* filename)
 
 inline void AlphaZero::ai::Model::load_version(unsigned int version)
 {
+	std::cout << "loading ...";
 	char buffer[50];
-	std::sprintf(buffer, "models/run_%d/V_%d.torch", runVersion, version);
+	if (this->CUDA)
+		std::sprintf(buffer, "models/run_%d/V_%d.torch", runVersion, version);
+	else
+		std::sprintf(buffer, "models/run_%d/CPU_%d.torch", runVersion, version);
 	this->load_from_file(buffer);
+	std::cout << " loaded Version " << version << std::endl;
 }
 
 inline void AlphaZero::ai::Model::load_current()
 {
 	char buffer[50];
-	std::sprintf(buffer, "models/run_%d/currentModel.torch", runVersion);
+	if (this->CUDA)
+		std::sprintf(buffer, "models/run_%d/currentModel.torch", runVersion);
+	else
+		std::sprintf(buffer, "models/run_%d/CPU_currentModel.torch", runVersion);
 	this->load_from_file(buffer);
 }
 
@@ -334,6 +382,21 @@ inline void AlphaZero::ai::Model::copyModel(std::shared_ptr<AlphaZero::ai::Model
 	
 	this->value_head.copyModel(&model->value_head);
 	this->policy_head.copyModel(&model->policy_head);
+}
+
+inline void AlphaZero::ai::Model::toCPU()
+{
+	this->res1.toCPU();
+	this->res2.toCPU();
+	this->res3.toCPU();
+	this->res4.toCPU();
+	this->res5.toCPU();
+	this->res6.toCPU();
+
+	this->value_head.toCPU();
+	this->policy_head.toCPU();
+
+	this->CUDA = false;
 }
 
 inline AlphaZero::ai::ResNet AlphaZero::ai::Model::register_custom_module(ResNet net, std::string layer)

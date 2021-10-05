@@ -15,11 +15,14 @@ file(GLOB SOURCES_Files
 	"include/*.cpp" 
 	"include/ai/*.cpp"
 	"include/game/*.cpp"
+	"include/Server/*.cpp"
 )
 file(GLOB HEADER_Files 
 	"include/*.hpp"
 	"include/ai/*.hpp"
-	"include/game/*.hpp")
+	"include/game/*.hpp"
+	"include/Server/*.hpp"
+)
 
 # Add source to this project's executable.
 add_executable (AlphaZeroPytorch "AlphaZeroPytorch.cpp" "AlphaZeroPytorch.h" ${SOURCES_Files} ${HEADER_Files})
@@ -31,6 +34,8 @@ message("adding includes ...")
 
 if (WIN32)
 	target_include_directories(AlphaZeroPytorch PUBLIC "D:/MyCode/CppLibs/include")
+
+	target_link_libraries (AlphaZeroPytorch "D:/MyCode/CppLibs/x64/sockpp-static_d.lib")
 endif (WIN32)
 if (UNIX)
 	target_include_directories(AlphaZeroPytorch PUBLIC "/spdlog/spdlog/include")
@@ -39,5 +44,17 @@ endif(UNIX)
 target_include_directories(AlphaZeroPytorch PUBLIC "${CMAKE_SOURCE_DIR}/include")
 
 message("done")
+message("building cuda2cpu")
+
+add_executable (cuda2cpu "toCPU.cpp")
+target_link_libraries(cuda2cpu "${TORCH_LIBRARIES}")
+target_include_directories(cuda2cpu PUBLIC "${CMAKE_SOURCE_DIR}/include")
+
+if (WIN32)
+	target_include_directories(cuda2cpu PUBLIC "D:/MyCode/CppLibs/include")
+endif (WIN32)
+if (UNIX)
+	target_include_directories(cuda2cpu PUBLIC "/spdlog/spdlog/include")
+endif(UNIX)
 
 # TODO: Add tests and install targets if needed.
