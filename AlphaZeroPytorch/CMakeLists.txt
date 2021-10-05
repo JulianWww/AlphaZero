@@ -39,7 +39,7 @@ if (WIN32)
 endif (WIN32)
 if (UNIX)
 	target_include_directories(AlphaZeroPytorch PUBLIC "/spdlog/spdlog/include")
-	target_inlcude_directories(AlphaZeroPytorch PUBLIC "/sockpp/include")
+	target_include_directories(AlphaZeroPytorch PUBLIC "/sockpp/include")
 	target_link_libraries(AlphaZeroPytorch "/sockpp/include/build/sockpp.so")
 endif(UNIX)
 
