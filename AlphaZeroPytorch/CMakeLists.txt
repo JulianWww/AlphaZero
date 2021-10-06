@@ -31,16 +31,6 @@ message("searching for Pytorch ...")
 #find_package(Torch REQUIRED)
 #target_link_libraries(AlphaZeroPytorch "${TORCH_LIBRARIES}")
 
-
-# For Raspberry py server
-
-target_link_libraries(AlphaZeroPytorch PUBLIC
-	"/media/A/Pytorc/torch/torch/lib/libc10.so"
-	"/media/A/Pytorc/torch/torch/lib/libcaffe2_dectron_ops.so"
-	"/media/A/Pytorc/torch/torch/lib/libcaffe2_observers.so"
-	"/media/A/Pytorc/torch/torch/lib/libtorch.so"
-	"/media/A/Pytorc/torch/torch/lib/libtorch_python.so"
-)
 target_include_directories(AlphaZeroPytorch PUBLIC "/media/A/PyTorch/torch/torch/include/torch/csrc/api/include")
 
 message("adding includes ...")
@@ -55,7 +45,20 @@ if (UNIX)
 	target_include_directories(AlphaZeroPytorch PUBLIC "/sockpp/include")
 	find_library(sockpp_location sockpp)
 	message("Lib1 is at: ${sockpp_location}")
-	target_link_libraries(AlphaZeroPytorch ${sockpp_location})
+
+	target_link_libraries(AlphaZeroPytorch PUBLIC
+
+	# For Raspberry py server
+		"/media/A/Pytorc/torch/torch/lib/libc10.so"
+		"/media/A/Pytorc/torch/torch/lib/libcaffe2_dectron_ops.so"
+		"/media/A/Pytorc/torch/torch/lib/libcaffe2_observers.so"
+		"/media/A/Pytorc/torch/torch/lib/libtorch.so"
+		"/media/A/Pytorc/torch/torch/lib/libtorch_python.so"
+	#end for Raspberry py server
+
+		${sockpp_location}
+	)
+
 endif(UNIX)
 
 target_include_directories(AlphaZeroPytorch PUBLIC "${CMAKE_SOURCE_DIR}/include")
