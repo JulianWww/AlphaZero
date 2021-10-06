@@ -30,7 +30,7 @@ int main()
 {
 	auto game = std::make_shared<AlphaZero::Game::Game>();
 	auto user = std::make_shared<Agents::User>();
-	auto AI = std::make_shared<Agents::RemoteAgent>("localhost", 12345);
+	auto AI = std::make_shared<Agents::RemoteAgent>("35.240.231.50", 12345);
 	playGame(user, AI, game);
 	return 0;
 }

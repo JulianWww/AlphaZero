@@ -34,6 +34,11 @@ namespace Agents
 
 inline int Agents::User::getAction(std::shared_ptr<AlphaZero::Game::Game> game)
 {
+#if WIN32
+	system("cls");
+#else
+	system("clear");
+#endif
 	game->render();
 	modifications::bottomLable();
 	return this->subGetAction(game);
@@ -53,7 +58,12 @@ inline int Agents::User::subGetAction(std::shared_ptr<AlphaZero::Game::Game> gam
 {
 	std::cout << std::endl << "Move for " << currentPlayerIcon(game->state->player) << ": ";
 	int res;
-	std::cin >> res;
+	try {
+		std::cin >> res;
+	}
+	catch (...){
+		return this->subGetAction(game);
+	}
 	for (auto const& val : game->state->allowedActions)
 	{
 		if (res == modifications::allowedActionModification(val))
@@ -61,6 +71,8 @@ inline int Agents::User::subGetAction(std::shared_ptr<AlphaZero::Game::Game> gam
 			return val;
 		}
 	}
+	std::cin.clear();
+	std::cin.ignore(INT_MAX);
 	std::cout << std::endl << "\33[31;1mIllegal Move try again\33[0m" << std::endl;
 	return this->subGetAction(game);
 }
