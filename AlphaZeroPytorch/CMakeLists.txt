@@ -31,12 +31,7 @@ message("searching for Pytorch ...")
 #find_package(Torch REQUIRED)
 #target_link_libraries(AlphaZeroPytorch "${TORCH_LIBRARIES}")
 
-#for raspberry pi
-target_include_directories(AlphaZeroPytorch PUBLIC 
-	"/media/A/PyTorch/torch/torch/include/torch/csrc/api/include"
-	"/media/A/PyTorch/torch/torch/include"
-)
-#end for raspberry pi
+
 
 message("adding includes ...")
 
@@ -46,8 +41,14 @@ if (WIN32)
 	target_link_libraries (AlphaZeroPytorch "D:/MyCode/CppLibs/x64/sockpp-static_d.lib")
 endif (WIN32)
 if (UNIX)
-	target_include_directories(AlphaZeroPytorch PUBLIC "/spdlog/spdlog/include")
-	target_include_directories(AlphaZeroPytorch PUBLIC "/sockpp/include")
+	target_include_directories(AlphaZeroPytorch PUBLIC 
+		"/spdlog/spdlog/include"
+		"/sockpp/include"
+	#for raspberry pi
+		"/media/A/PyTorch/torch/torch/include/torch/csrc/api/include"
+		"/media/A/PyTorch/torch/torch/include"
+	#end for raspberry pi
+	)
 	find_library(sockpp_location sockpp)
 	message("Lib1 is at: ${sockpp_location}")
 
@@ -66,6 +67,7 @@ if (UNIX)
 
 endif(UNIX)
 
+message(${CMAKE_SOURCE_DIR})
 target_include_directories(AlphaZeroPytorch PUBLIC "${CMAKE_SOURCE_DIR}/include")
 
 message("done")
