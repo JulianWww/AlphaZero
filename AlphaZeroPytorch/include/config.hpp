@@ -2,7 +2,7 @@
 #include <log.hpp>
 #include <bitset>
 
-#define OPSMode 1
+#define OPSMode 0
 
 /*
 +---------+-------------+

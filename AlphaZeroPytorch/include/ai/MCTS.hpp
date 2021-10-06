@@ -36,6 +36,7 @@ namespace AlphaZero {
 		public: std::shared_ptr<Node> outNode;
 		public: Node* inNode;
 		public: Edge(std::shared_ptr<Node>outNode, Node* inNode, int action, float p);
+		public: void traverse();
 		};
 
 		class MCTS {
@@ -104,4 +105,12 @@ inline void AlphaZero::ai::MCTS::reset()
 inline std::shared_ptr<AlphaZero::ai::Node> AlphaZero::ai::MCTS::getNode(IDType key)
 {
 	return this->MCTS_tree[key];
+}
+
+
+inline void AlphaZero::ai::Edge::traverse()
+{
+	this->inNode->lock.lock();
+	this->N++;
+	this->inNode->lock.unlock();
 }

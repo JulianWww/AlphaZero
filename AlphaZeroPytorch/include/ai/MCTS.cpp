@@ -66,6 +66,7 @@ std::pair<AlphaZero::ai::Node*, std::list<AlphaZero::ai::Edge*>> AlphaZero::ai::
 					maxQu = U + iter.second->Q;
 				}
 			}
+			opsEdge->traverse();
 			backTrackList.push_back(opsEdge);
 			node = opsEdge->outNode.get();
 		}
@@ -79,7 +80,6 @@ void AlphaZero::ai::MCTS::backFill(std::list<Edge*>& backTrace, Node* leaf, floa
 	for (auto const& edge : backTrace) {
 		edge->inNode->lock.lock();
 
-		edge->N++;
 		edge->W = edge->W + val * currentPlayer * edge->inNode->state->player;
 		edge->Q = edge->W / edge->N;
 
