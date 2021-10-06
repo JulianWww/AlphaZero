@@ -23,7 +23,7 @@
 
 
 // runn setting
-#define runVersion 1
+#define runVersion 2
 #define loadVersion -1
 
 // Net settings
