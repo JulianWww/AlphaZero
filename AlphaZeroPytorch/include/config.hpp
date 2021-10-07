@@ -35,7 +35,7 @@
 // simulation setting
 #define MCTSSimulations 50
 #define cpuct_ 2.0f
-#define ProbabiliticMoves 3
+#define ProbabiliticMoves 15
 
 // memory setting
 #define memory_size 30000

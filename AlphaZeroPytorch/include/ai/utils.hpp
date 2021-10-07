@@ -10,7 +10,7 @@ namespace AlphaZero {
 		void softmax(T& inp);
 
 		template<typename T>
-		void linmax(const T& inp);
+		void linmax(T& inp);
 	}
 }
 
@@ -39,7 +39,7 @@ inline void AlphaZero::ai::softmax(T& inp){
 }
 
 template<typename T>
-void AlphaZero::ai::linmax(const T& inp)
+void AlphaZero::ai::linmax(T& inp)
 {
 	float sum = 0;
 	for (auto const& idx : inp)
