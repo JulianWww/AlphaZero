@@ -135,8 +135,13 @@ inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(tor
 	if (!x.is_cuda() && torch::cuda::cudnn_is_available()) {
 		x = x.cuda();
 	}
+	x = this->top.forward(x);
 	x = this->res1.forward(x);
 	x = this->res2.forward(x);
+	x = this->res3.forward(x);
+	x = this->res4.forward(x);
+	x = this->res5.forward(x);
+	x = this->res6.forward(x);
 
 	// compute individual heads
 	torch::Tensor value = this->value_head.forward(x);

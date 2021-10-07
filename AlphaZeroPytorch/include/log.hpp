@@ -9,10 +9,10 @@
 #define ModelLogger false
 
 
+#include <unordered_map>
 #if (MainLogger || MCTSLogger || MemoryLogger || ProfileLogger || ModelLogger)
 #include <spdlog/sinks/basic_file_sink.h>
 //#include <memory>
-#include <unordered_map>
 #if ProfileLogger
 #include "timer.hpp"
 #endif
