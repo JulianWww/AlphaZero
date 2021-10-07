@@ -19,7 +19,7 @@
 #define Training true
 #define DEBUG false
 
-#define U_computation(edge) (this->cpuct * ((1-doRand) * edge->P + doRand * nu[idx] ) * std::sqrt(Nb) / (1 + edge->N))
+#define U_computation(edge) (this->cpuct * edge->P * std::sqrt(Nb) / (1 + edge->N))
 
 
 // runn setting
@@ -34,7 +34,7 @@
 
 // simulation setting
 #define MCTSSimulations 50
-#define cpuct_ 1.0f
+#define cpuct_ 2.0f
 #define ProbabiliticMoves 3
 
 // memory setting

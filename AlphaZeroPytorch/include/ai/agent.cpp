@@ -27,7 +27,7 @@ std::pair<int, std::vector<float>> AlphaZero::ai::Agent::getAction(std::shared_p
 	debug::Profiler::profiler.switchOperation(0);
 #endif
 	this->tree->MCTSIter = 0;
-	std::shared_ptr<Node> node = this->tree->addNode(state);
+	Node* node = this->tree->addNode(state);
 	try {
 #if threads > 0
 		std::vector<std::thread> threadvec;
@@ -35,7 +35,7 @@ std::pair<int, std::vector<float>> AlphaZero::ai::Agent::getAction(std::shared_p
 			threadvec.push_back(std::thread(runSimulationsCaller, this, node.get()));
 		}
 #endif
-		runSimulationsCaller(this, node.get());
+		runSimulationsCaller(this, node);
 #if threads > 0
 		for (auto& thread : threadvec) {
 			thread.join();

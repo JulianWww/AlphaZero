@@ -8,6 +8,9 @@ namespace AlphaZero {
 		// Softams function inp is an iteratable of numbers
 		template<typename T>
 		void softmax(T& inp);
+
+		template<typename T>
+		void linmax(const T& inp);
 	}
 }
 
@@ -31,7 +34,22 @@ inline void AlphaZero::ai::softmax(T& inp){
 	for (number& z : inp) {
 		z = exp(z - constant);
 	}
+	throw "Depricated function"
 	return;
+}
+
+template<typename T>
+void AlphaZero::ai::linmax(const T& inp)
+{
+	float sum = 0;
+	for (auto const& idx : inp)
+	{
+		sum = sum + idx;
+	}
+	for (auto& idx : inp)
+	{
+		idx = idx / sum;
+	}
 }
 
 /*

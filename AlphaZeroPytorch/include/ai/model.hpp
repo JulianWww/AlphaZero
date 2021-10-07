@@ -15,10 +15,19 @@
 
 namespace AlphaZero {
 	namespace ai {
+		class TopLayer : public torch::nn::Module {
+		public: torch::nn::Conv2d conv1;
+		public: torch::nn::BatchNorm2d batch;
+		public: torch::nn::LeakyReLU relu;
+		private: int kernel1;
+
+		public: TopLayer(int inp, int out, int kernelsize1);
+		public: torch::Tensor forward(torch::Tensor);
+		};
 		class ResNet : public torch::nn::Module {
 		public: torch::nn::Conv2d conv1, conv2;
-		private: torch::nn::BatchNorm2d batch;
-		private: torch::nn::LeakyReLU activ;
+		public: torch::nn::BatchNorm2d batch, batch2;
+		public: torch::nn::LeakyReLU activ;
 		private: int kernel1, kernel2;
 
 		public: ResNet(int inp, int out, int kernelsize1, int kernelsize2);
@@ -30,8 +39,8 @@ namespace AlphaZero {
 		class Value_head : torch::nn::Module {
 		public: torch::nn::Conv2d conv;
 		public: torch::nn::Linear lin1, lin2;
-		private: torch::nn::ReLU relu;
-		private: torch::nn::Tanh tanh;
+		public: torch::nn::ReLU relu;
+		public: torch::nn::Tanh tanh;
 		private: int size;
 
 		public: Value_head(int inp, int hidden_size, int out, int kernels);
@@ -43,7 +52,6 @@ namespace AlphaZero {
 		class Policy_head : torch::nn::Module {
 		public: torch::nn::Conv2d conv;
 		public: torch::nn::Linear lin1;
-		private: torch::nn::Softmax softmax;
 		private: int size;
 
 		public: Policy_head(int inp, int hidden, int out);
@@ -59,6 +67,7 @@ namespace AlphaZero {
 		
 		class Model : public torch::nn::Module {
 		//private: torch::nn::Conv2d headLayer;
+		private: TopLayer top;
 		private: ResNet res1, res2, res3, res4, res5, res6;
 		private: Value_head value_head;
 		private: Policy_head policy_head;
@@ -87,6 +96,7 @@ namespace AlphaZero {
 		public: void copyModel(std::shared_ptr<Model>);
 		public: void toCPU();
 
+		private: TopLayer register_custom_module(TopLayer net);
 		private: ResNet register_custom_module(ResNet net, std::string layer);
 		private: Value_head register_custom_module(Value_head net);
 		private: Policy_head register_custom_module(Policy_head net);
@@ -99,7 +109,8 @@ namespace AlphaZero {
 
 inline AlphaZero::ai::Model::Model() :
 	//headLayer(register_module("conv", torch::nn::Conv2d()))
-	res1(this->register_custom_module(ResNet( 2, 75, 5, 5), "Residual_1")),
+	top(this->register_custom_module(TopLayer(2, 75, 5))),
+	res1(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_1")),
 	res2(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_2")),
 	res3(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_3")),
 	res4(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_4")),
@@ -134,12 +145,37 @@ inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(tor
 };
 // end of cutimizable section
 
+inline AlphaZero::ai::TopLayer::TopLayer(int inp, int out, int kernelsize1) :
+	conv1(torch::nn::Conv2d(torch::nn::Conv2dOptions(inp, out, kernelsize1))),
+	batch(torch::nn::BatchNorm2d(torch::nn::BatchNorm2dOptions(out))),
+	relu(torch::nn::LeakyReLU(torch::nn::LeakyReLU())),
+	kernel1(kernelsize1 / 2)
+{
+	if (torch::cuda::cudnn_is_available())
+	{
+		this->conv1->to(c10::Device("cuda:0"));
+		this->batch->to(c10::Device("cuda:0"));
+		this->relu->to(c10::Device("cuda:0"));
+	}
+}
+inline torch::Tensor AlphaZero::ai::TopLayer::forward(torch::Tensor x)
+{
+	x = torch::nn::functional::pad(x, torch::nn::functional::PadFuncOptions({ kernel1, kernel1, kernel1, kernel1 }));
+	x = this->conv1(x);
+	x = this->batch(x);
+	x = this->relu(x);
+	return x;
+}
+
 inline void AlphaZero::ai::ResNet::copyModel(ResNet* net)
 {
 	this->conv1->weight = net->conv1->weight.clone();
 	this->conv1->bias = net->conv1->bias.clone();
 	this->conv2->weight = net->conv2->weight.clone();
 	this->conv2->bias = net->conv2->bias.clone();
+
+	this->batch2->bias = net->batch2->bias.clone();
+	this->batch->bias = net->batch->bias.clone();
 }
 
 inline void AlphaZero::ai::ResNet::toCPU()
@@ -155,12 +191,14 @@ inline AlphaZero::ai::ResNet::ResNet(int inp, int out, int kernelsize1, int kern
 	conv1(torch::nn::Conv2d(torch::nn::Conv2dOptions(inp, out, kernelsize1))),
 	conv2(torch::nn::Conv2d(torch::nn::Conv2dOptions(out, out, kernelsize2))),
 	batch(torch::nn::BatchNorm2d(torch::nn::BatchNorm2dOptions(out))),
+	batch2(torch::nn::BatchNorm2d(torch::nn::BatchNorm2dOptions(out))),
 	activ(torch::nn::LeakyReLU(torch::nn::LeakyReLU()))
 {
 	if (torch::cuda::is_available()) {
 		this->conv1->to(c10::Device("cuda:0"), true);
 		this->conv2->to(c10::Device("cuda:0"), true);
 		this->batch->to(c10::Device("cuda:0"), true);
+		this->batch2->to(c10::Device("cuda:0"), true);
 		this->activ->to(c10::Device("cuda:0"), true);
 	}
 }
@@ -172,9 +210,10 @@ inline torch::Tensor AlphaZero::ai::ResNet::forward(torch::Tensor x)
 #endif 
 	x = torch::nn::functional::pad(x, torch::nn::functional::PadFuncOptions({ kernel1 / 2, kernel1 / 2, kernel1 / 2, kernel1 / 2 }));
 	x = this->conv1(x);
+	x = this->batch(x);
 	torch::Tensor y = torch::nn::functional::pad(x, torch::nn::functional::PadFuncOptions({ kernel2 / 2, kernel2 / 2, kernel2 / 2, kernel2 / 2 }));
 	y = this->conv2(y);
-	y = this->batch(y);
+	y = this->batch2(y);
 	return x + y;
 }
 
@@ -231,15 +270,13 @@ inline void AlphaZero::ai::Value_head::toCPU()
 
 inline AlphaZero::ai::Policy_head::Policy_head(int inp, int hidden, int out) :
 	conv(torch::nn::Conv2d(torch::nn::Conv2dOptions(inp, 2, 1))),
-	lin1(torch::nn::Linear(hidden, out)),
-	softmax(torch::nn::Softmax(torch::nn::SoftmaxOptions(1)))
+	lin1(torch::nn::Linear(hidden, out))
 {
 	this->size = hidden;
 
 	if (torch::cuda::is_available()) {
 		this->conv->to(c10::Device("cuda:0"), true);
 		this->lin1->to(c10::Device("cuda:0"), true);
-		this->softmax->to(c10::Device("cuda:0"), true);
 	}
 }
 
@@ -251,7 +288,7 @@ inline torch::Tensor AlphaZero::ai::Policy_head::forward(torch::Tensor x)
 #endif 
 	x = this->conv(x);
 	x = this->lin1(x.reshape({ x.size(0), this->size }));
-	return this->softmax(x);
+	return x;
 }
 
 inline void AlphaZero::ai::Policy_head::copyModel(Policy_head* net)
@@ -267,13 +304,12 @@ inline void AlphaZero::ai::Policy_head::toCPU()
 {
 	this->conv->to(c10::Device("cpu"), true);
 	this->lin1->to(c10::Device("cpu"), true);
-	this->softmax->to(c10::Device("cpu"), true);
 }
 
 inline std::pair<float, float> AlphaZero::ai::Model::train(const std::pair<torch::Tensor, torch::Tensor>& x, const std::pair<torch::Tensor, torch::Tensor>& y)
 {
 	auto valLoss = torch::mse_loss(x.first, y.first);
-	auto plyLoss = torch::mse_loss(x.second, y.second);
+	auto plyLoss = torch::cross_entropy_loss(x.second, y.second);
 	torch::autograd::backward({ valLoss, plyLoss });
 	this->optim.step();
 	return { torch::mean(valLoss).item().toFloat(), torch::mean(plyLoss).item().toFloat() };
@@ -403,10 +439,21 @@ inline void AlphaZero::ai::Model::toCPU()
 	this->CUDA = false;
 }
 
+inline AlphaZero::ai::TopLayer AlphaZero::ai::Model::register_custom_module(TopLayer net)
+{
+	register_module("TopLayer_conv", net.conv1);
+	register_module("TopLayer_batch", net.batch);
+	register_module("TopLayer_ReLU", net.relu);
+	return net;
+}
+
 inline AlphaZero::ai::ResNet AlphaZero::ai::Model::register_custom_module(ResNet net, std::string layer)
 {
 	register_module(layer + "_conv1", net.conv1);
 	register_module(layer + "_conv2", net.conv2);
+	register_module(layer + "_batch1", net.batch);
+	register_module(layer + "_batch2", net.batch2);
+	register_module(layer + "_active", net.activ);
 	return net;
 }
 inline AlphaZero::ai::Value_head AlphaZero::ai::Model::register_custom_module(Value_head net)
@@ -414,6 +461,8 @@ inline AlphaZero::ai::Value_head AlphaZero::ai::Model::register_custom_module(Va
 	register_module("value_conv", net.conv);
 	register_module("value_lin1", net.lin1);
 	register_module("value_lin2", net.lin2);
+	register_module("value_ReLU", net.relu);
+	register_module("value_tanh", net.tanh);
 	return net;
 }
 inline AlphaZero::ai::Policy_head AlphaZero::ai::Model::register_custom_module(Policy_head net)

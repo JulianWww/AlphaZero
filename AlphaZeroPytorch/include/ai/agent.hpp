@@ -20,8 +20,8 @@ namespace AlphaZero {
 		private: float evaluateLeaf(Node*);
 		public: void fit(std::shared_ptr<Memory> memory, unsigned short iteration);
 		private: std::pair<float, std::vector<float>> predict(std::shared_ptr<Game::GameState> state);
-		private: std::pair<int, std::vector<float>> derministicAction(std::shared_ptr<Node>const& node);
-		private: std::pair<int, std::vector<float>> prabilisticAction(std::shared_ptr<Node>const& node);
+		private: std::pair<int, std::vector<float>> derministicAction(Node* node);
+		private: std::pair<int, std::vector<float>> prabilisticAction(Node* node);
 		};
 #if not Training
 		class User : public Agent {
@@ -52,7 +52,7 @@ inline float AlphaZero::ai::Agent::evaluateLeaf(Node* node)
 {
 	if (!node->state->done){
 		std::shared_ptr<Game::GameState> nextState;
-		std::shared_ptr<Node> nextNode;
+		Node* nextNode;
 		auto NNvals = this->predict(node->state);
 		for (auto& action : node->state->allowedActions) {
 			nextState = node->state->takeAction(action);
@@ -92,7 +92,7 @@ inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::s
 	return { val, polys };
 }
 
-inline std::pair<int, std::vector<float>> AlphaZero::ai::Agent::derministicAction(std::shared_ptr<Node> const& node)
+inline std::pair<int, std::vector<float>> AlphaZero::ai::Agent::derministicAction(Node* node)
 {
 	int action = 0;
 	unsigned int max_N = 0;
@@ -104,16 +104,12 @@ inline std::pair<int, std::vector<float>> AlphaZero::ai::Agent::derministicActio
 			action = iter.first;
 		}
 		probs[iter.second->action] = ((float)iter.second->N);
-		sum += iter.second->N;
 	}
-	float sumF = (float)sum;
-	for (auto& val : probs) {
-		val = val / sumF;
-	}
+	linmax(probs);
 	return { action, probs };
 }
 
-inline std::pair<int, std::vector<float>> AlphaZero::ai::Agent::prabilisticAction(std::shared_ptr<Node> const& node)
+inline std::pair<int, std::vector<float>> AlphaZero::ai::Agent::prabilisticAction(Node* node)
 {
 	int action = -1;
 	int idx = 0;
@@ -123,11 +119,11 @@ inline std::pair<int, std::vector<float>> AlphaZero::ai::Agent::prabilisticActio
 
 	for (auto const& iter : node->edges) {
 		probs[iter.second->action] = ((float)iter.second->N);
-		sum += iter.second->N;
 	}
+	linmax(probs);
+
 	float sumF = (float)sum;
-	for (auto& val : probs) {
-		val = val / sumF;
+	for (auto const& val : probs) {
 		action_probs -= val;
 		if (action_probs < 0) {
 			action = idx;

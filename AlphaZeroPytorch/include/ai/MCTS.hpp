@@ -33,9 +33,9 @@ namespace AlphaZero {
 		public: float P=0;
 			  // the win probability
 		public: float Q=0;
-		public: std::shared_ptr<Node> outNode;
+		public: Node* outNode;
 		public: Node* inNode;
-		public: Edge(std::shared_ptr<Node>outNode, Node* inNode, int action, float p);
+		public: Edge(Node* outNode, Node* inNode, int action, float p);
 		public: void traverse();
 		};
 
@@ -54,7 +54,7 @@ namespace AlphaZero {
 		public: std::pair <Node*, std::list<Edge*>> moveToLeaf(Node*, int);
 		public: void backFill(std::list<Edge*>&, Node* leaf, float val);
 		public: std::shared_ptr<Node> getNode(IDType);
-		public: std::shared_ptr<Node> addNode(std::shared_ptr<Game::GameState> state);
+		public: Node* addNode(std::shared_ptr<Game::GameState> state);
 		public: void reset();
 		};
 	}
@@ -79,19 +79,19 @@ inline void AlphaZero::ai::Node::addEdge(int id, std::shared_ptr<Edge>& edge)
 	this->lock.unlock();
 }
 
-inline std::shared_ptr<AlphaZero::ai::Node> AlphaZero::ai::MCTS::addNode(std::shared_ptr<Game::GameState> state)
+inline AlphaZero::ai::Node* AlphaZero::ai::MCTS::addNode(std::shared_ptr<Game::GameState> state)
 {
 	if (this->MCTS_tree.count(state->id()) == 0) {
-		std::shared_ptr<Node> newNode = std::make_shared<Node>(state);
+		Node* newNode = new Node(state);
 
 		this->NodeInsersionMutex.lock();
-		this->MCTS_tree.insert({ state->id(),  newNode });
+		this->MCTS_tree.insert({ state->id(),  std::shared_ptr<Node>(newNode) });
 		this->NodeInsersionMutex.unlock();
 
 		return newNode;
 	}
 	else {
-		return this->MCTS_tree[state->id()];
+		return this->MCTS_tree[state->id()].get();
 	}
 }
 
