@@ -34,7 +34,7 @@ inline void AlphaZero::ai::softmax(T& inp){
 	for (number& z : inp) {
 		z = exp(z - constant);
 	}
-	throw "Depricated function"
+	throw "Depricated function";
 	return;
 }
 
@@ -50,6 +50,7 @@ void AlphaZero::ai::linmax(T& inp)
 	{
 		idx = idx / sum;
 	}
+	return;
 }
 
 /*
