@@ -1,6 +1,8 @@
 ﻿// TorchTestCMake.h : Include file for standard system include files,
 // or project specific include files.
 
+// TODO READ Alpha Go Zero paper
+
 #pragma once
 
 #include <iostream>
@@ -314,7 +316,7 @@ inline void AlphaZero::ai::Policy_head::toCPU()
 inline std::pair<float, float> AlphaZero::ai::Model::train(const std::pair<torch::Tensor, torch::Tensor>& x, const std::pair<torch::Tensor, torch::Tensor>& y)
 {
 	auto valLoss = torch::mse_loss(x.first, y.first);
-	auto plyLoss = torch::cross_entropy_loss(x.second, y.second);
+	auto plyLoss = torch::mse_loss(x.second, y.second); // TODO get cce  
 	torch::autograd::backward({ valLoss, plyLoss });
 	this->optim.step();
 	return { torch::mean(valLoss).item().toFloat(), torch::mean(plyLoss).item().toFloat() };
