@@ -28,7 +28,7 @@ void createFolder(char name[])
 #else
 	const char* foo = "mkdir -p";
 	char* full_text;
-	full_text = malloc(strlen(foo) + strlen(name) + 1);
+	full_text = malloc(100);
 	strcpy(full_text, foo);
 	strcat(full_text, name);
 	std::cout << full_text << std::endl;
