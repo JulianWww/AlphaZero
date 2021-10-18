@@ -29,7 +29,6 @@ void AlphaZero::ai::train(int version)
 	std::shared_ptr<Agent> bestAgent = std::make_shared<Agent>(game);
 
 	memory->load();
-	memory->render();
 	char nameBuff[100];
 
 	currentAgent->identity = 0;
@@ -50,8 +49,6 @@ void AlphaZero::ai::train(int version)
 		sprintf(nameBuff, "logs/games/game_%d_Generator.gameLog", iteration);
 		playGames(game, bestAgent, bestAgent, memory, probabilitic_moves, EPOCHS, nameBuff);
 		std::cout << "memory size is: " << memory->memory.size() << std::endl;
-		memory->save();
-		memory->render();
 		if (memory->memory.size() > memory_size) {
 #if ProfileLogger
 			debug::Profiler::profiler.switchOperation(5);
@@ -73,6 +70,8 @@ void AlphaZero::ai::train(int version)
 				currentAgent->model->save_as_current();
 				bestAgent->model->copyModel(currentAgent->model);
 				bestAgent->model->save_version(version);
+
+				memory->save();
 			}
 		}
 		iteration++;

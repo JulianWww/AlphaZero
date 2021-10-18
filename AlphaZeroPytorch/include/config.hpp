@@ -43,7 +43,7 @@
 #define memory_size 30000
 
 // self play
-#define EPOCHS 1
+#define EPOCHS 30
 #define probabilitic_moves 2 // how manny moves are prabilistic in the begining of the game to aid in exploration
 
 // training
@@ -62,7 +62,7 @@
 //#define RenderGameProgress true;
 
 // Saving
-#define SaverType 2
+#define SaverType 0
 /*	+-----------+-------------------------------------------------------------------------+
 	| SaverType | Description                                                             |
 	+-----------+-------------------------------------------------------------------------+
@@ -76,3 +76,5 @@
 
 
 typedef std::bitset<stateSize> IDType;
+#define UNIX
+#endif

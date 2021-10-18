@@ -7,7 +7,9 @@
 #include <io.hpp>
 #include <chrono>
 #include <thread>
+#ifndef UNIX
 #include <filesystem>
+#endif
 #if OPSMode == 1 || OPSMode == 2
 #include <Server/server.hpp>
 #endif
@@ -18,19 +20,36 @@ inline void wait(int time)
 	std::chrono::seconds dura(time);
 	std::this_thread::sleep_for(dura);
 }
+
+void createFolder(char name[])
+{
+#ifndef UNIX
+	std::filesystem::create_directories(name);
+#else
+	const char* foo = "mkdir -p";
+	char* full_text;
+	full_text = malloc(strlen(foo) + strlen(name) + 1);
+	strcpy(full_text, foo);
+	strcat(full_text, name);
+	system(full_text);
+#endif
+}
+
 void inline train(int arg)
 {
 	char folder[100];
+
 	sprintf(folder, "models/run_%d", runVersion);
-	std::filesystem::create_directories(folder);
+	createFolder(folder);
 
 	sprintf(folder, "memory/run_%d", runVersion);
-	std::filesystem::create_directories(folder);
+	createFolder(folder);
 
-	std::filesystem::create_directories("logs/c++");
-	std::filesystem::create_directories("logs/games");
+	createFolder("logs/c++");
+	createFolder("logs/games");
 
 	std::cout << "started training" << std::endl;
+
 	AlphaZero::ai::train(arg);
 }
 
