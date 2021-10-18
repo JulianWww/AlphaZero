@@ -27,9 +27,12 @@ namespace AlphaZero {
 		public: void updateMemory(int player, int value);
 		public: std::shared_ptr<MemoryElement> getState();
 		public: void save(int version);
+		public: void save();
 		public: void save(char filename[]);
 		public: void load(int version);
+		public: void load();
 		public: void load(char filename[]);
+		public: void render();
 		private: void updateMemory(int val);
 		};
 	}
@@ -66,6 +69,14 @@ inline std::shared_ptr<AlphaZero::ai::MemoryElement> AlphaZero::ai::Memory::getS
 	std::shared_ptr<MemoryElement> element = this->memory[idx];
 	this->memory.erase(this->memory.begin() + idx);
 	return element;
+}
+
+inline void AlphaZero::ai::Memory::render()
+{
+	for (auto const& element : this->memory)
+	{
+		element->state->render();
+	}
 }
 
 inline void AlphaZero::ai::Memory::updateMemory(int val)

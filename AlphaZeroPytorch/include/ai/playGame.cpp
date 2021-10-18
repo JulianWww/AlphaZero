@@ -28,6 +28,8 @@ void AlphaZero::ai::train(int version)
 	std::shared_ptr<Agent> currentAgent = std::make_shared<Agent>(game);
 	std::shared_ptr<Agent> bestAgent = std::make_shared<Agent>(game);
 
+	memory->load();
+	memory->render();
 	char nameBuff[100];
 
 	currentAgent->identity = 0;
@@ -46,9 +48,10 @@ void AlphaZero::ai::train(int version)
 		std::cout << "playing Generational Games:" << std::endl;
 
 		sprintf(nameBuff, "logs/games/game_%d_Generator.gameLog", iteration);
-		playGames(game, bestAgent, bestAgent, memory, probabilitic_moves, EPOCHS, "test.bin");
+		playGames(game, bestAgent, bestAgent, memory, probabilitic_moves, EPOCHS, nameBuff);
 		std::cout << "memory size is: " << memory->memory.size() << std::endl;
-		memory->save(iteration);
+		memory->save();
+		memory->render();
 		if (memory->memory.size() > memory_size) {
 #if ProfileLogger
 			debug::Profiler::profiler.switchOperation(5);
@@ -60,7 +63,7 @@ void AlphaZero::ai::train(int version)
 			memory->active = false;
 			std::cout << "playing Tournement Games:" << std::endl;
 
-			sprintf(nameBuff, "logs//games//game_%d_Turney.gameLog", iteration);
+			sprintf(nameBuff, "logs/games/game_%d_Turney.gameLog", iteration);
 			auto score = playGames(game, bestAgent, currentAgent, memory, Turnement_probabiliticMoves, TurneyEpochs, nameBuff);
 
 			std::cout << "Turney ended with: " << score[currentAgent->identity] << " : " << score[bestAgent->identity] << std::endl;
@@ -145,6 +148,7 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 #endif
 			game->takeAction(actionData.first);
 		}
+		// memory->commit(game->state);   add end game states to memory ??
 #if SaverType == 1
 		saver.addState(game->state);
 #endif

@@ -60,18 +60,30 @@ inline void AlphaZero::io::FullState::GameSaver::save(char filename[])
 {
     std::ofstream fout;
     fout.open(filename, std::ios::binary);
-
-    jce::save(fout, this->states);
-
-    fout.close();
+    if (fout.is_open())
+    {
+        jce::save(fout, this->states);
+        fout.close();
+    }
+    else
+    {
+        throw "Game saver file not opend.";
+    }
 }
 
 inline void AlphaZero::io::FullState::GameSaver::load(char filename[])
 {
     std::ifstream infile(filename, std::ios::binary);
 
-    jce::load(infile, this->states);
-    infile.close();
+    if (infile.is_open())
+    {
+        jce::load(infile, this->states);
+        infile.close();
+    }
+    else
+    {
+    throw "Game saver file not opend.";
+    }
 }
 
 inline void AlphaZero::io::FullState::GameSaver::ConsoleReplay(int idx)
@@ -101,15 +113,29 @@ inline void AlphaZero::io::ActionsOnly::GameSaver::clear()
 inline void AlphaZero::io::ActionsOnly::GameSaver::save(char filename[])
 {
     std::ofstream file(filename, std::ios::binary);
-    jce::save(file, this->states);
-    file.close();
+    if (file.is_open())
+    {
+        jce::save(file, this->states);
+        file.close();
+    }
+    else
+    {
+        throw "Game saver file not opend.";
+    }
 }
 
 inline void AlphaZero::io::ActionsOnly::GameSaver::load(char filename[])
 {
     std::ifstream file(filename, std::ios::binary);
-    jce::load(file, this->states);
-    file.close();
+    if (file.is_open())
+    {
+        jce::load(file, this->states);
+        file.close();
+    }
+    else
+    {
+        throw "Game saver file not opend.";
+    }
 }
 
 inline void AlphaZero::io::ActionsOnly::GameSaver::ConsoleReplay(int idx)

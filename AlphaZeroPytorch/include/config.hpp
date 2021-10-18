@@ -25,7 +25,7 @@
 
 
 // runn setting
-#define runVersion 2
+#define runVersion 1
 #define loadVersion -1
 
 // Net settings
@@ -43,7 +43,7 @@
 #define memory_size 30000
 
 // self play
-#define EPOCHS 30
+#define EPOCHS 1
 #define probabilitic_moves 2 // how manny moves are prabilistic in the begining of the game to aid in exploration
 
 // training
@@ -62,7 +62,7 @@
 //#define RenderGameProgress true;
 
 // Saving
-#define SaverType 0
+#define SaverType 2
 /*	+-----------+-------------------------------------------------------------------------+
 	| SaverType | Description                                                             |
 	+-----------+-------------------------------------------------------------------------+

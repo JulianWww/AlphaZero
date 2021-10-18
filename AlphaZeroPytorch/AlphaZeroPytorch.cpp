@@ -7,6 +7,7 @@
 #include <io.hpp>
 #include <chrono>
 #include <thread>
+#include <filesystem>
 #if OPSMode == 1 || OPSMode == 2
 #include <Server/server.hpp>
 #endif
@@ -19,6 +20,16 @@ inline void wait(int time)
 }
 void inline train(int arg)
 {
+	char folder[100];
+	sprintf(folder, "models/run_%d", runVersion);
+	std::filesystem::create_directories(folder);
+
+	sprintf(folder, "memory/run_%d", runVersion);
+	std::filesystem::create_directories(folder);
+
+	std::filesystem::create_directories("logs/c++");
+	std::filesystem::create_directories("logs/games");
+
 	std::cout << "started training" << std::endl;
 	AlphaZero::ai::train(arg);
 }
