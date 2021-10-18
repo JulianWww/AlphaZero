@@ -2,7 +2,7 @@
 #define threads 0
 
 //logging
-#define MainLogger true
+#define MainLogger false
 #define MCTSLogger false
 #define MemoryLogger false
 #define ProfileLogger false
@@ -10,7 +10,6 @@
 
 
 #include <unordered_map>
-#if (MainLogger || MCTSLogger || MemoryLogger || ProfileLogger || ModelLogger)
 #include <spdlog/sinks/basic_file_sink.h>
 //#include <memory>
 #if ProfileLogger
@@ -18,7 +17,7 @@
 #endif
 #include <stdio.h>
 #include <chrono>
-
+#if (MainLogger || MCTSLogger || MemoryLogger || ProfileLogger || ModelLogger)
 
 
 
