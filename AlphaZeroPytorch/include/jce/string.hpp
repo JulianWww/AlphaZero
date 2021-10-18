@@ -33,7 +33,5 @@ inline void jce::consoleUtils::render_progress_bar(float progress, bool persista
         }
         std::cout.flush();
     }
-#else
-    return;
 #endif
 }
