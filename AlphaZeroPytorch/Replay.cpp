@@ -2,7 +2,7 @@
 #include <io.hpp>
 #include <config.hpp>
 
-int main(int argc, char argv[])
+int main(int argc, char ** argv)
 {
 #if SaverType == 2
 	auto saver = AlphaZero::io::ActionsOnly::GameSaver();

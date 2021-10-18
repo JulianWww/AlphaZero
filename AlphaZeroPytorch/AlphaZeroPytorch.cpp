@@ -24,7 +24,7 @@ void inline train(int arg)
 }
 
 
-int main(int argc, char argv[])
+int main(int argc, char ** argv)
 {
 	/*std::ofstream out("out.txt");
 	std::streambuf* coutbuf = std::cout.rdbuf(); //save old buf
