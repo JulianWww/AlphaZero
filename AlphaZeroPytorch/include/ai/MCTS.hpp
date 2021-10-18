@@ -11,7 +11,7 @@ namespace AlphaZero {
 		class Edge;
 		class Node {
 			// mutex locking the during insersion of edges and also used as the child edges mutex
-		public: std::mutex lock;
+		//public: std::mutex lock;
 		public: std::shared_ptr<Game::GameState> state;
 		public: std::unordered_map<int, std::shared_ptr<Edge>> edges;
 		public: Node(std::shared_ptr<Game::GameState>);
@@ -41,9 +41,9 @@ namespace AlphaZero {
 
 		class MCTS {
 			// mutex keeping corrupion within the Tree from occuring when new nodes are added
-		public: std::mutex NodeInsersionMutex;
+		// public: std::mutex NodeInsersionMutex;
 			// mutex keeping corrupion of the MCTSIter variable
-		public: std::mutex MCTSIterMutex;
+		// public: std::mutex MCTSIterMutex;
 		public: unsigned short MCTSIter = 0;
 		private: std::unordered_map<IDType, std::shared_ptr<Node>> MCTS_tree;
 
@@ -62,9 +62,9 @@ namespace AlphaZero {
 
 inline void AlphaZero::ai::MCTS::addMCTSIter()
 {
-	this->MCTSIterMutex.lock();
+	// this->MCTSIterMutex.lock();
 	MCTSIter++;
-	this->MCTSIterMutex.unlock();
+	// this->MCTSIterMutex.unlock();
 }
 
 inline bool AlphaZero::ai::Node::isLeaf()
@@ -74,9 +74,9 @@ inline bool AlphaZero::ai::Node::isLeaf()
 
 inline void AlphaZero::ai::Node::addEdge(int id, std::shared_ptr<Edge>& edge)
 {
-	this->lock.lock();
+	// this->lock.lock();
 	this->edges.insert({ id, edge });
-	this->lock.unlock();
+	// this->lock.unlock();
 }
 
 inline std::shared_ptr<AlphaZero::ai::Node> AlphaZero::ai::MCTS::addNode(std::shared_ptr<Game::GameState> state)
@@ -84,9 +84,9 @@ inline std::shared_ptr<AlphaZero::ai::Node> AlphaZero::ai::MCTS::addNode(std::sh
 	if (this->MCTS_tree.count(state->id()) == 0) {
 		auto newNode = std::make_shared<Node>(state);
 
-		this->NodeInsersionMutex.lock();
+		// this->NodeInsersionMutex.lock();
 		this->MCTS_tree.insert({ state->id(),  std::shared_ptr<Node>(newNode) });
-		this->NodeInsersionMutex.unlock();
+		// this->NodeInsersionMutex.unlock();
 
 		return newNode;
 	}
@@ -97,9 +97,9 @@ inline std::shared_ptr<AlphaZero::ai::Node> AlphaZero::ai::MCTS::addNode(std::sh
 
 inline void AlphaZero::ai::MCTS::reset()
 {
-	this->NodeInsersionMutex.lock();
+	// this->NodeInsersionMutex.lock();
 	this->MCTS_tree.clear();
-	this->NodeInsersionMutex.unlock();
+	// this->NodeInsersionMutex.unlock();
 }
 
 inline std::shared_ptr<AlphaZero::ai::Node> AlphaZero::ai::MCTS::getNode(IDType key)
@@ -110,7 +110,7 @@ inline std::shared_ptr<AlphaZero::ai::Node> AlphaZero::ai::MCTS::getNode(IDType 
 
 inline void AlphaZero::ai::Edge::traverse()
 {
-	this->inNode->lock.lock();
+	// this->inNode->lock.lock();
 	this->N++;
-	this->inNode->lock.unlock();
+	// this->inNode->lock.unlock();
 }

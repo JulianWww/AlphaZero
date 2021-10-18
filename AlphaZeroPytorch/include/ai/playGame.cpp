@@ -78,8 +78,9 @@ void AlphaZero::ai::train(int version)
 	}
 }
 
-std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game> game, std::shared_ptr<Agent> agent1, std::shared_ptr<Agent> agent2, std::shared_ptr<Memory> memory, int probMoves, int Epochs, char RunId[], int goesFist)
+std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game> game, std::shared_ptr<Agent> agent1, std::shared_ptr<Agent> agent2, std::shared_ptr<Memory> memory, int probMoves, int Epochs, char RunId[], int _goesFist)
 {
+	int goesFist = _goesFist;
 #if ProfileLogger
 	debug::Profiler::profiler.switchOperation(3);
 #endif
@@ -112,9 +113,11 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 			debug::log::mainLogger->info("================================================================");
 		}
 #endif
-		if (goesFist == 0) {
+		if (_goesFist == 0) 
+		{
 			goesFist = rand() % 2 * 2 - 1;
 		}
+
 		std::unordered_map<int, std::shared_ptr<Agent>> players = {
 			{goesFist, agent1},
 			{-goesFist,agent2}
