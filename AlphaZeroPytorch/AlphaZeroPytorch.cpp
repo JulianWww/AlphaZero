@@ -26,7 +26,7 @@ void createFolder(char name[])
 #ifndef UNIX
 	std::filesystem::create_directories(name);
 #else
-	const char* foo = "mkdir -p";
+	const char* foo = "mkdir -p ";
 	char* full_text = new char[100];
 	strcpy(full_text, foo);
 	strcat(full_text, name);
