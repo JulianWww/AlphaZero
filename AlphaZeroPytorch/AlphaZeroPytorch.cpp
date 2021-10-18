@@ -31,6 +31,7 @@ void createFolder(char name[])
 	full_text = malloc(strlen(foo) + strlen(name) + 1);
 	strcpy(full_text, foo);
 	strcat(full_text, name);
+	std::cout << full_text << std::endl;
 	system(full_text);
 #endif
 }
