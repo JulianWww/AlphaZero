@@ -3,11 +3,10 @@
 
 namespace jce
 {
-	namespace consoleUtils
-	{
-		void render_progress_bar(float progress, bool persistand=false);
-	}
-    void format(char out[], const char in[], int number);
+    namespace consoleUtils
+    {
+        void render_progress_bar(float progress, bool persistand = false);
+    }
 }
 
 inline void jce::consoleUtils::render_progress_bar(float progress, bool persistant)
