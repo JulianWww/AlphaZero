@@ -9,6 +9,9 @@ int main(int argc, char argv[])
 #elif SaverType == 1
 	auto saver = AlphaZero::io::FullState::GameSaver();
 #endif
+#if SaverType != 0
 	saver.load("test.bin");
 	saver.ConsoleReplay(0);
+#endif
+	return 1;
 }
