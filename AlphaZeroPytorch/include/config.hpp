@@ -35,7 +35,7 @@
 #define learningRage 0.1
 
 // simulation setting
-#define MCTSSimulations 5
+#define MCTSSimulations 50
 #define cpuct_ 2.0f
 #define ProbabiliticMoves 15
 

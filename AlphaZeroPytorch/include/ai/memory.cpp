@@ -50,7 +50,7 @@ void AlphaZero::ai::Memory::load()
 	}
 	catch (...)
 	{
-		std::cout << "\33[1;32mFailed to load Memory!\33[0m";
+		std::cout << "\33[1;31mFailed to load Memory!\33[0m" << std::endl;
 	}
 }
 
