@@ -44,16 +44,15 @@ std::pair<int, std::vector<float>> AlphaZero::ai::Agent::getAction(std::shared_p
 #if ProfileLogger
 		debug::Profiler::profiler.switchOperation(3);
 #endif
-		std::pair<int, std::vector<float>> actionVals;
 		if (proabilistic) {
-			actionVals = this->prabilisticAction(node);
+			return this->prabilisticAction(node);
 		}
 		else {
-			actionVals = this->derministicAction(node);
+			return this->derministicAction(node);
 		}
-		return actionVals;
 	}
 	catch (const std::exception& ex) {
+		std::cerr << "\33[31;1mError in Agent::getAction\33[0m" << std::endl;
 		std::cerr << ex.what() << std::endl;
 	}
 }

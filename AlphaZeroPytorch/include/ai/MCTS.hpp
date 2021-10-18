@@ -85,7 +85,7 @@ inline std::shared_ptr<AlphaZero::ai::Node> AlphaZero::ai::MCTS::addNode(std::sh
 		auto newNode = std::make_shared<Node>(state);
 
 		// this->NodeInsersionMutex.lock();
-		this->MCTS_tree.insert({ state->id(),  std::shared_ptr<Node>(newNode) });
+		this->MCTS_tree.insert({ state->id(),  (newNode) });
 		// this->NodeInsersionMutex.unlock();
 
 		return newNode;
