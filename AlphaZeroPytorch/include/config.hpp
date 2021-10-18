@@ -76,5 +76,8 @@
 
 
 typedef std::bitset<stateSize> IDType;
+
+
+#ifdef unix
 #define UNIX
 #endif
