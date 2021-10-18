@@ -47,7 +47,7 @@ void AlphaZero::ai::Memory::load()
 	getName(nameBuff, -1, runVersion);
 	try{
 		this->load(nameBuff);
-		std::cout << "\33[1;32mFoaded memory from file\33[0m" << std::endl;
+		std::cout << "\33[1;32mLoaded memory from file\33[0m" << std::endl;
 	}
 	catch (...)
 	{
