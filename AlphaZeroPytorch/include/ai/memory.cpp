@@ -2,7 +2,6 @@
 #include "config.hpp"
 #include <jce/load.hpp>
 #include <jce/save.hpp>
-#include <filesystem>
 
 inline void getName(char out[], int version, int run)
 {
@@ -46,9 +45,12 @@ void AlphaZero::ai::Memory::load()
 {
 	char nameBuff[100];
 	getName(nameBuff, -1, runVersion);
-	if (std::filesystem::exists(nameBuff))
-	{
+	try{
 		this->load(nameBuff);
+	}
+	catch (...)
+	{
+		std::cout << "\33[1;32mFailed to load Memory!\33[0m"
 	}
 }
 
