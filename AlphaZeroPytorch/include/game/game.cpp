@@ -107,7 +107,7 @@ void AlphaZero::Game::GameState::gameIsDone()
 		{20,27,34,41},
 
 		//diagonal topleft-bottomRight
-		{14,22,30,28},
+		{14,22,30,38},
 
 		{7, 15,23,31},
 		{15,23,31,39},

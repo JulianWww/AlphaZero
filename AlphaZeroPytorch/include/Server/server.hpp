@@ -23,6 +23,16 @@ namespace AlphaZero
 		public: TCPServer(std::shared_ptr<ai::Agent> agent, int port=PORT);
 		public: void mainLoop();
 		};
+
+		class TestServer
+		{
+		private: sockpp::socket_initializer sockInit;
+		private: sockpp::tcp_acceptor acc;
+		private: void accept();
+			   
+		public: TestServer(int port = PORT);
+		public: void mainLoop();
+		};
 	}
 }
 

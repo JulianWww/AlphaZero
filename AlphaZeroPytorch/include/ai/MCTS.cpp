@@ -11,7 +11,7 @@ AlphaZero::ai::Node::Node(std::shared_ptr<Game::GameState> state)
 	this->state = state;
 }
 
-AlphaZero::ai::Edge::Edge(Node* _outNode, Node* _inNode, int _action, float _p)
+AlphaZero::ai::Edge::Edge(std::shared_ptr<Node> _outNode, Node* _inNode, int _action, float _p)
 {
 	this->P = _p;
 	this->action = _action;
@@ -68,7 +68,7 @@ std::pair<AlphaZero::ai::Node*, std::list<AlphaZero::ai::Edge*>> AlphaZero::ai::
 			}
 			opsEdge->traverse();
 			backTrackList.push_back(opsEdge);
-			node = opsEdge->outNode;
+			node = opsEdge->outNode.get();;
 		}
 	}
 }

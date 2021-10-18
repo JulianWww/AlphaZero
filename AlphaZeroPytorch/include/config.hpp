@@ -12,6 +12,8 @@
 +---------+-------------+
 | 1       | Run Server  |
 +---------+-------------+
+| 2       | Run Tester  |
++---------+-------------+
 */
 
 #define GameChecksLegalMoved true // the game will check if a move is legal not neded for training
@@ -33,7 +35,7 @@
 #define learningRage 0.1
 
 // simulation setting
-#define MCTSSimulations 50
+#define MCTSSimulations 5
 #define cpuct_ 2.0f
 #define ProbabiliticMoves 15
 
@@ -58,6 +60,19 @@
 #define RenderTrainingProgress true
 #define RenderGenAndTurneyProgress true
 //#define RenderGameProgress true;
+
+// Saving
+#define SaverType 1
+/*	+-----------+-------------------------------------------------------------------------+
+	| SaverType | Description                                                             |
+	+-----------+-------------------------------------------------------------------------+
+	| 0         | no Saver                                                                |
+	+-----------+-------------------------------------------------------------------------+
+	| 1         | save full state to file                                                 |
+	+-----------+-------------------------------------------------------------------------+
+	| 2         | Save taken Actions to file (int size is saved size of the int in bytes) |
+	+-----------+-------------------------------------------------------------------------+*/
+#define SaverIntSize 1
 
 
 typedef std::bitset<stateSize> IDType;

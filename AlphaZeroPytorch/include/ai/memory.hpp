@@ -7,6 +7,7 @@
 #include <game/game.hpp>
 #include "utils.hpp"
 
+
 namespace AlphaZero {
 	namespace ai {
 		class MemoryElement {
@@ -25,8 +26,10 @@ namespace AlphaZero {
 		public: void commit(std::shared_ptr<Game::GameState>, std::vector<float>&);
 		public: void updateMemory(int player, int value);
 		public: std::shared_ptr<MemoryElement> getState();
-		/*public: void save(int version);
-		public: void load(int version);*/
+		public: void save(int version);
+		public: void save(char filename[]);
+		public: void load(int version);
+		public: void load(char filename[]);
 		private: void updateMemory(int val);
 		};
 	}
@@ -74,24 +77,3 @@ inline void AlphaZero::ai::Memory::updateMemory(int val)
 		this->tempMemory.pop_back();
 	}
 }
-/*
-inline void AlphaZero::ai::Memory::save(int version) {
-	std::stringstream ss;
-	ss << "memory" << version << ".cvec";
-	std::ofstream file(ss.str().c_str(), std::ios::binary);
-	Write(file, this->memory);
-	file.close();
-}
-
-inline void AlphaZero::ai::Memory::load(int version) {
-	std::stringstream ss;
-	ss << "memory" << version << ".cvec";
-	std::filebuf fb;
-	if (fb.open(ss.str().c_str(), std::ios::binary))
-	{
-		std::istream is(&fb);
-		Read(is, this->memory);
-		fb.close();
-	}
-}
-*/

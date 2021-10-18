@@ -1,4 +1,5 @@
 #include "playGame.hpp"
+#include <io.hpp>
 
 
 void AlphaZero::test::playGame(std::shared_ptr<Game::Game> game, std::shared_ptr<ai::Agent> player1, std::shared_ptr<ai::Agent> player2, int goesFirst)
@@ -27,6 +28,8 @@ void AlphaZero::ai::train(int version)
 	std::shared_ptr<Agent> currentAgent = std::make_shared<Agent>(game);
 	std::shared_ptr<Agent> bestAgent = std::make_shared<Agent>(game);
 
+	char nameBuff[100];
+
 	currentAgent->identity = 0;
 	bestAgent->identity = 1;
 #if loadVersion >= 0
@@ -41,8 +44,11 @@ void AlphaZero::ai::train(int version)
 #endif
 
 		std::cout << "playing Generational Games:" << std::endl;
-		playGames(game, bestAgent, bestAgent, memory, probabilitic_moves, EPOCHS);
+
+		sprintf(nameBuff, "logs/games/game_%d_Generator.gameLog", iteration);
+		playGames(game, bestAgent, bestAgent, memory, probabilitic_moves, EPOCHS, "test.bin");
 		std::cout << "memory size is: " << memory->memory.size() << std::endl;
+		memory->save(iteration);
 		if (memory->memory.size() > memory_size) {
 #if ProfileLogger
 			debug::Profiler::profiler.switchOperation(5);
@@ -53,7 +59,9 @@ void AlphaZero::ai::train(int version)
 #endif
 			memory->active = false;
 			std::cout << "playing Tournement Games:" << std::endl;
-			auto score = playGames(game, bestAgent, currentAgent, memory, Turnement_probabiliticMoves, TurneyEpochs);
+
+			sprintf(nameBuff, "logs//games//game_%d_Turney.gameLog", iteration);
+			auto score = playGames(game, bestAgent, currentAgent, memory, Turnement_probabiliticMoves, TurneyEpochs, nameBuff);
 
 			std::cout << "Turney ended with: " << score[currentAgent->identity] << " : " << score[bestAgent->identity] << std::endl;
 			if (score[currentAgent->identity] > score[bestAgent->identity] * scoringThreshold) {
@@ -68,7 +76,7 @@ void AlphaZero::ai::train(int version)
 	}
 }
 
-std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game> game, std::shared_ptr<Agent> agent1, std::shared_ptr<Agent> agent2, std::shared_ptr<Memory> memory, int probMoves, int Epochs, int goesFist)
+std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game> game, std::shared_ptr<Agent> agent1, std::shared_ptr<Agent> agent2, std::shared_ptr<Memory> memory, int probMoves, int Epochs, char RunId[], int goesFist)
 {
 #if ProfileLogger
 	debug::Profiler::profiler.switchOperation(3);
@@ -78,12 +86,22 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 		scores.insert({ agent1->identity, 0 });
 		scores.insert({ agent2->identity, 0 });
 	}
+
+#if SaverType == 1
+	io::FullState::GameSaver saver = io::FullState::GameSaver();
+#elif SaverType == 2
+	io::ActionsOnly::GameSaver saver = io::ActionsOnly::GameSaver();
+#endif
+
 	for (int epoch = 0; epoch < Epochs; epoch++) {
 #if RenderGenAndTurneyProgress
 		jce::consoleUtils::render_progress_bar((float)epoch / (float)Epochs);
 #endif
 #if ProfileLogger
 		debug::Profiler::profiler.switchOperation(3);
+#endif
+#if	SaverType == 2 || SaverType == 1
+		saver.addGame();
 #endif
 #if MainLogger
 		if (epoch == 0) {
@@ -113,6 +131,11 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 			turn++;
 			auto actionData = players[game->state->player]->getAction(game->state, probMoves > turn);
 			memory->commit(game->state, actionData.second);
+#if SaverType == 1
+			saver.addState(game->state);
+#elif SaverType == 2
+			saver.addState(actionData.first);
+#endif
 #if MainLogger
 			if (epoch == 0) {
 				game->state->render(debug::log::mainLogger);
@@ -122,6 +145,9 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 #endif
 			game->takeAction(actionData.first);
 		}
+#if SaverType == 1
+		saver.addState(game->state);
+#endif
 #if MainLogger
 		if (epoch == 0) {
 			game->state->render(debug::log::mainLogger);
@@ -142,6 +168,10 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 		debug::Profiler::profiler.stop();
 #endif
 	}
+
+#if	SaverType == 2 || SaverType == 1
+	saver.save(RunId);
+#endif
 
 #if RenderGenAndTurneyProgress
 	jce::consoleUtils::render_progress_bar(1.0f, true);

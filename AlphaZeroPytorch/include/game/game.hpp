@@ -15,6 +15,7 @@ this is the alpha Zero game for tick tack toe
 
 #include "config.hpp"
 
+
 #define input_shape_x 6
 #define input_shape_y 7
 #define input_snape_z 2

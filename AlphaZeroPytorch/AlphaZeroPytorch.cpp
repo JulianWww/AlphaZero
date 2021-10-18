@@ -4,9 +4,10 @@
 #include "AlphaZeroPytorch.h"
 #include <ai/playGame.hpp>
 #include <jce/string.hpp>
+#include <io.hpp>
 #include <chrono>
 #include <thread>
-#if OPSMode == 1
+#if OPSMode == 1 || OPSMode == 2
 #include <Server/server.hpp>
 #endif
 
@@ -23,7 +24,7 @@ void inline train(int arg)
 }
 
 
-int main()
+int main(int argc, char argv[])
 {
 	/*std::ofstream out("out.txt");
 	std::streambuf* coutbuf = std::cout.rdbuf(); //save old buf
@@ -45,12 +46,15 @@ int main()
 	std::shared_ptr<AlphaZero::Game::Game> game = std::make_shared<AlphaZero::Game::Game>();
 
 	std::shared_ptr<AlphaZero::ai::Agent> agent = std::make_shared<AlphaZero::ai::Agent>(game);
-	agent->model->load_version(60);
+	agent->model->load_current();
 
 	AlphaZero::Server::TCPServer server (agent);
 	server.mainLoop();
 
-
+#elif OPSMode == 2
+	std::cout << "\33[1;31mUsing Test Server! \n\tset OPSMode to 1 for server if not testing\33[0m" << std::endl;
+	AlphaZero::Server::TestServer server (PORT);
+	server.mainLoop();
 #endif
 #if ProfileLogger
 	debug::Profiler::profiler.log();

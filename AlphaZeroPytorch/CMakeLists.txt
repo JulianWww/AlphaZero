@@ -26,40 +26,35 @@ file(GLOB HEADER_Files
 
 # Add source to this project's executable.
 add_executable (AlphaZeroPytorch "AlphaZeroPytorch.cpp" "AlphaZeroPytorch.h" ${SOURCES_Files} ${HEADER_Files})
+add_executable (GameReplayer "Replay.cpp" "include/game/game.cpp")
 
 message("linking libs ...")
 target_link_libraries(AlphaZeroPytorch "${TORCH_LIBRARIES}")
+target_link_libraries(GameReplayer "${TORCH_LIBRARIES}")
 
 message("adding includes ...")
 
 if (WIN32)
 	target_include_directories(AlphaZeroPytorch PUBLIC "D:/MyCode/CppLibs/include")
+	target_include_directories(GameReplayer PUBLIC "D:/MyCode/CppLibs/include")
 
 	target_link_libraries (AlphaZeroPytorch "D:/MyCode/CppLibs/x64/sockpp-static_d.lib")
 endif (WIN32)
 if (UNIX)
 	target_include_directories(AlphaZeroPytorch PUBLIC "/spdlog/spdlog/include")
 	target_include_directories(AlphaZeroPytorch PUBLIC "/sockpp/include")
+
+	target_include_directories(GameReplayer PUBLIC "/spdlog/spdlog/include")
+	target_include_directories(GameReplayer PUBLIC "/sockpp/include")
+
 	find_library(sockpp_location sockpp)
 	message("sockpp is at: ${sockpp_location}")
 	target_link_libraries(AlphaZeroPytorch "${sockpp_location}")
 endif(UNIX)
 
+
 target_include_directories(AlphaZeroPytorch PUBLIC "${CMAKE_SOURCE_DIR}/include")
+target_include_directories(GameReplayer PUBLIC "${CMAKE_SOURCE_DIR}/include")
 
 message("done")
 
-#message("building cuda2cpu")
-
-#add_executable (cuda2cpu "toCPU.cpp")
-#target_link_libraries(cuda2cpu "${TORCH_LIBRARIES}")
-#target_include_directories(cuda2cpu PUBLIC "${CMAKE_SOURCE_DIR}/include")
-
-#if (WIN32)
-#	target_include_directories(cuda2cpu PUBLIC "D:/MyCode/CppLibs/include")
-#endif (WIN32)
-#if (UNIX)
-#	target_include_directories(cuda2cpu PUBLIC "/spdlog/spdlog/include")
-#endif(UNIX)
-
-# TODO: Add tests and install targets if needed.

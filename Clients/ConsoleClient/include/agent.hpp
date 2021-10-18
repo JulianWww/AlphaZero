@@ -3,7 +3,6 @@
 
 #include "game.hpp"
 #include "modifications.hpp"
-#include <memory>
 #include <string>
 #include <sockpp/tcp_connector.h>
 

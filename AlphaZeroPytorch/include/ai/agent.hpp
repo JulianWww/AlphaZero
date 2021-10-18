@@ -20,8 +20,8 @@ namespace AlphaZero {
 		private: float evaluateLeaf(Node*);
 		public: void fit(std::shared_ptr<Memory> memory, unsigned short iteration);
 		private: std::pair<float, std::vector<float>> predict(std::shared_ptr<Game::GameState> state);
-		private: std::pair<int, std::vector<float>> derministicAction(Node* node);
-		private: std::pair<int, std::vector<float>> prabilisticAction(Node* node);
+		private: std::pair<int, std::vector<float>> derministicAction(std::shared_ptr<Node>& node);
+		private: std::pair<int, std::vector<float>> prabilisticAction(std::shared_ptr<Node>& node);
 		};
 #if not Training
 		class User : public Agent {
@@ -52,7 +52,7 @@ inline float AlphaZero::ai::Agent::evaluateLeaf(Node* node)
 {
 	if (!node->state->done){
 		std::shared_ptr<Game::GameState> nextState;
-		Node* nextNode;
+		std::shared_ptr<Node> nextNode;
 		auto NNvals = this->predict(node->state);
 		for (auto& action : node->state->allowedActions) {
 			nextState = node->state->takeAction(action);
@@ -62,7 +62,7 @@ inline float AlphaZero::ai::Agent::evaluateLeaf(Node* node)
 		}
 		return NNvals.first;
 	}
-	return (float)std::get<2>(node->state->val);
+	return (float)std::get<0>(node->state->val);
 }
 
 inline void AlphaZero::ai::Agent::fit(std::shared_ptr<Memory> memory, unsigned short run)
@@ -92,7 +92,7 @@ inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::s
 	return { val, polys };
 }
 
-inline std::pair<int, std::vector<float>> AlphaZero::ai::Agent::derministicAction(Node* node)
+inline std::pair<int, std::vector<float>> AlphaZero::ai::Agent::derministicAction(std::shared_ptr<Node>& node)
 {
 	int action = 0;
 	unsigned int max_N = 0;
@@ -109,7 +109,7 @@ inline std::pair<int, std::vector<float>> AlphaZero::ai::Agent::derministicActio
 	return { action, probs };
 }
 
-inline std::pair<int, std::vector<float>> AlphaZero::ai::Agent::prabilisticAction(Node* node)
+inline std::pair<int, std::vector<float>> AlphaZero::ai::Agent::prabilisticAction(std::shared_ptr<Node>& node)
 {
 	int action = -1;
 	int idx = 0;
