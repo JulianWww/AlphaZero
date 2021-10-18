@@ -12,7 +12,7 @@ namespace jce
 
 inline void jce::consoleUtils::render_progress_bar(float progress, bool persistant)
 {
-#if true
+#if false
     if (progress <= 1.0) {
         int barWidth = 70;
 
