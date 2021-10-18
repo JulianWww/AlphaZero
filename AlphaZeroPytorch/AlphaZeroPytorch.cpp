@@ -27,8 +27,7 @@ void createFolder(char name[])
 	std::filesystem::create_directories(name);
 #else
 	const char* foo = "mkdir -p";
-	char* full_text;
-	full_text = malloc(100);
+	char* full_text = new char[100];
 	strcpy(full_text, foo);
 	strcat(full_text, name);
 	std::cout << full_text << std::endl;
