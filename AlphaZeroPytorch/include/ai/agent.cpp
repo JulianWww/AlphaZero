@@ -31,10 +31,10 @@ std::pair<int, std::vector<float>> AlphaZero::ai::Agent::getAction(std::shared_p
 #if threads > 0
 	std::vector<std::thread> threadvec;
 	for (int i = 0; i < threads; i++) {
-		threadvec.push_back(std::thread(runSimulationsCaller, this, node.get()));
+		threadvec.push_back(std::thread(runSimulationsCaller, this, node));
 	}
 #endif
-	runSimulationsCaller(this, node.get());
+	runSimulationsCaller(this, node);
 #if threads > 0
 	for (auto& thread : threadvec) {
 		thread.join();

@@ -11,7 +11,7 @@ AlphaZero::ai::Node::Node(std::shared_ptr<Game::GameState> state)
 	this->state = state;
 }
 
-AlphaZero::ai::Edge::Edge(std::shared_ptr<Node> _outNode, Node* _inNode, int _action, float _p)
+AlphaZero::ai::Edge::Edge(std::shared_ptr<Node> _outNode, std::shared_ptr<Node> _inNode, int _action, float _p)
 {
 	this->P = _p;
 	this->action = _action;
@@ -27,9 +27,9 @@ AlphaZero::ai::MCTS::MCTS(std::shared_ptr<Game::GameState> root)
 	this->addNode(root);
 }
 
-std::pair<AlphaZero::ai::Node*, std::list<AlphaZero::ai::Edge*>> AlphaZero::ai::MCTS::moveToLeaf(Node* node, int randomMovesRemaining)
+std::pair<std::shared_ptr<AlphaZero::ai::Node>, std::list<std::shared_ptr<AlphaZero::ai::Edge>>> AlphaZero::ai::MCTS::moveToLeaf(std::shared_ptr<Node> node, int randomMovesRemaining)
 {
-	std::list<Edge*> backTrackList;
+	std::list<std::shared_ptr<Edge>> backTrackList;
 	while (true) {
 		if (node->isLeaf()) {
 			return { node, backTrackList };
@@ -54,26 +54,26 @@ std::pair<AlphaZero::ai::Node*, std::list<AlphaZero::ai::Edge*>> AlphaZero::ai::
 				Nb += iter.second->N;
 			}
 
-			Edge* opsEdge;
+			std::shared_ptr<Edge> opsEdge;
 			int opsAction;
 
 			
 			for (auto const& iter : node->edges) {
 				U = U_computation(iter.second);
 				if (U + iter.second->Q > maxQu) {
-					opsEdge = iter.second.get();
+					opsEdge = iter.second;
 					opsAction = iter.first;
 					maxQu = U + iter.second->Q;
 				}
 			}
 			opsEdge->traverse();
 			backTrackList.push_back(opsEdge);
-			node = opsEdge->outNode.get();;
+			node = opsEdge->outNode;;
 		}
 	}
 }
 
-void AlphaZero::ai::MCTS::backFill(std::list<Edge*>& backTrace, Node* leaf, float val)
+void AlphaZero::ai::MCTS::backFill(std::list<std::shared_ptr<Edge>>& backTrace, std::shared_ptr<Node> leaf, float val)
 {
 	int& currentPlayer = leaf->state->player;
 

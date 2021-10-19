@@ -16,8 +16,8 @@ namespace AlphaZero {
 #else
 		public: virtual std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
 #endif
-		public: void runSimulations(Node*);
-		private: float evaluateLeaf(Node*);
+		public: void runSimulations(std::shared_ptr<Node>);
+		private: float evaluateLeaf(std::shared_ptr<Node>);
 		public: void fit(std::shared_ptr<Memory> memory, unsigned short iteration);
 		private: std::pair<float, std::vector<float>> predict(std::shared_ptr<Game::GameState> state);
 		private: std::pair<int, std::vector<float>> derministicAction(std::shared_ptr<Node>& node);
@@ -28,13 +28,13 @@ namespace AlphaZero {
 		public: virtual std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::Game> game, bool proabilistic);
 		};
 #endif
-		void runSimulationsCaller(AlphaZero::ai::Agent* agent, Node*);
+		void runSimulationsCaller(AlphaZero::ai::Agent* agent, std::shared_ptr<Node> node);
 	}
 }
 
-inline void AlphaZero::ai::Agent::runSimulations(Node* node)
+inline void AlphaZero::ai::Agent::runSimulations(std::shared_ptr<Node> node)
 {
-	std::pair<Node*, std::list<Edge*>> serchResults;
+	std::pair<std::shared_ptr<Node>, std::list<std::shared_ptr<Edge>>> serchResults;
 	try
 	{
 		serchResults = this->tree->moveToLeaf(node, ProbabiliticMoves);
@@ -71,14 +71,14 @@ inline void AlphaZero::ai::Agent::runSimulations(Node* node)
 	}
 }
 
-inline void AlphaZero::ai::runSimulationsCaller(AlphaZero::ai::Agent* agent, Node* node)
+inline void AlphaZero::ai::runSimulationsCaller(AlphaZero::ai::Agent* agent, std::shared_ptr<Node> node)
 {
 	while (agent->tree->MCTSIter < MCTSSimulations) {
 		agent->runSimulations(node);
 	}
 }
 
-inline float AlphaZero::ai::Agent::evaluateLeaf(Node* node)
+inline float AlphaZero::ai::Agent::evaluateLeaf(std::shared_ptr<Node> node)
 {
 	if (!node->state->done){
 		std::shared_ptr<Game::GameState> nextState;

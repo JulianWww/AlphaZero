@@ -34,8 +34,8 @@ namespace AlphaZero {
 			  // the win probability
 		public: float Q=0;
 		public: std::shared_ptr<Node> outNode;
-		public: Node* inNode;
-		public: Edge(std::shared_ptr<Node> outNode, Node* inNode, int action, float p);
+		public: std::shared_ptr<Node> inNode;
+		public: Edge(std::shared_ptr<Node> outNode, std::shared_ptr<Node> inNode, int action, float p);
 		public: void traverse();
 		};
 
@@ -51,8 +51,8 @@ namespace AlphaZero {
 		public: void addMCTSIter();
 		public: MCTS(std::shared_ptr<Game::GameState>);
 		public: float cpuct = cpuct_;
-		public: std::pair <Node*, std::list<Edge*>> moveToLeaf(Node*, int);
-		public: void backFill(std::list<Edge*>&, Node* leaf, float val);
+		public: std::pair <std::shared_ptr<Node>, std::list<std::shared_ptr<Edge>>> moveToLeaf(std::shared_ptr<Node>, int);
+		public: void backFill(std::list<std::shared_ptr<Edge>>&, std::shared_ptr<Node> leaf, float val);
 		public: std::shared_ptr<Node> getNode(IDType);
 		public: std::shared_ptr<Node> addNode(std::shared_ptr<Game::GameState> state);
 		public: void reset();
@@ -85,7 +85,7 @@ inline std::shared_ptr<AlphaZero::ai::Node> AlphaZero::ai::MCTS::addNode(std::sh
 		auto newNode = std::make_shared<Node>(state);
 
 		// this->NodeInsersionMutex.lock();
-		this->MCTS_tree.insert({ state->id(),  (newNode) });
+		this->MCTS_tree.insert({ state->id(),  newNode });
 		// this->NodeInsersionMutex.unlock();
 
 		return newNode;
