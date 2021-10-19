@@ -13,10 +13,10 @@ namespace AlphaZero {
 			// mutex locking the during insersion of edges and also used as the child edges mutex
 		//public: std::mutex lock;
 		public: std::shared_ptr<Game::GameState> state;
-		public: std::unordered_map<int, std::shared_ptr<Edge>> edges;
+		public: std::unordered_map<int, Edge> edges;
 		public: Node(std::shared_ptr<Game::GameState>);
 		public: bool isLeaf();
-		public: void addEdge(int id, std::shared_ptr<Edge>& edge);
+		public: void addEdge(int id, Edge& edge);
 		};
 
 		/*Class Represienting the action connecting 2 nodes togather. It handles all The MCTS relevant variables and the mutex for
@@ -33,9 +33,9 @@ namespace AlphaZero {
 		public: float P=0;
 			  // the win probability
 		public: float Q=0;
-		public: std::shared_ptr<Node> outNode;
-		public: std::shared_ptr<Node> inNode;
-		public: Edge(std::shared_ptr<Node> outNode, std::shared_ptr<Node> inNode, int action, float p);
+		public: Node* outNode;
+		public: Node* inNode;
+		public: Edge(Node* outNode, Node* inNode, int action, float p);
 		public: void traverse();
 		};
 
@@ -45,16 +45,16 @@ namespace AlphaZero {
 			// mutex keeping corrupion of the MCTSIter variable
 		// public: std::mutex MCTSIterMutex;
 		public: unsigned short MCTSIter = 0;
-		private: std::unordered_map<IDType, std::shared_ptr<Node>> MCTS_tree;
+		private: std::unordered_map<IDType, std::unique_ptr<Node>> MCTS_tree;
 
 			   // add 1 to MCTSIter within a mutex
 		public: void addMCTSIter();
 		public: MCTS(std::shared_ptr<Game::GameState>);
 		public: float cpuct = cpuct_;
-		public: std::pair <std::shared_ptr<Node>, std::list<std::shared_ptr<Edge>>> moveToLeaf(std::shared_ptr<Node>, int);
-		public: void backFill(std::list<std::shared_ptr<Edge>>&, std::shared_ptr<Node> leaf, float val);
-		public: std::shared_ptr<Node> getNode(IDType);
-		public: std::shared_ptr<Node> addNode(std::shared_ptr<Game::GameState> state);
+		public: std::pair <Node*, std::list<Edge*>> moveToLeaf(Node*, int);
+		public: void backFill(std::list<Edge*>&, Node* leaf, float val);
+		public: Node* getNode(IDType);
+		public: Node* addNode(std::shared_ptr<Game::GameState> state);
 		public: void reset();
 		};
 	}
@@ -72,27 +72,22 @@ inline bool AlphaZero::ai::Node::isLeaf()
 	return this->edges.size() == 0;
 }
 
-inline void AlphaZero::ai::Node::addEdge(int id, std::shared_ptr<Edge>& edge)
+inline void AlphaZero::ai::Node::addEdge(int id, Edge& edge)
 {
 	// this->lock.lock();
 	this->edges.insert({ id, edge });
 	// this->lock.unlock();
 }
 
-inline std::shared_ptr<AlphaZero::ai::Node> AlphaZero::ai::MCTS::addNode(std::shared_ptr<Game::GameState> state)
+inline AlphaZero::ai::Node* AlphaZero::ai::MCTS::addNode(std::shared_ptr<Game::GameState> state)
 {
 	if (this->MCTS_tree.count(state->id()) == 0) {
-		auto newNode = std::make_shared<Node>(state);
 
 		// this->NodeInsersionMutex.lock();
-		this->MCTS_tree.insert({ state->id(),  newNode });
+		this->MCTS_tree.insert({ state->id(), std::make_unique<Node>(state)});
 		// this->NodeInsersionMutex.unlock();
-
-		return newNode;
 	}
-	else {
-		return this->MCTS_tree[state->id()];
-	}
+	return this->getNode(state->id());
 }
 
 inline void AlphaZero::ai::MCTS::reset()
@@ -102,9 +97,9 @@ inline void AlphaZero::ai::MCTS::reset()
 	// this->NodeInsersionMutex.unlock();
 }
 
-inline std::shared_ptr<AlphaZero::ai::Node> AlphaZero::ai::MCTS::getNode(IDType key)
+inline AlphaZero::ai::Node* AlphaZero::ai::MCTS::getNode(IDType key)
 {
-	return this->MCTS_tree[key];
+	return this->MCTS_tree[key].get();
 }
 
 

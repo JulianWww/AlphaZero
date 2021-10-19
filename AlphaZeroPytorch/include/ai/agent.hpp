@@ -16,25 +16,25 @@ namespace AlphaZero {
 #else
 		public: virtual std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
 #endif
-		public: void runSimulations(std::shared_ptr<Node>);
-		private: float evaluateLeaf(std::shared_ptr<Node>);
+		public: void runSimulations(Node*);
+		private: float evaluateLeaf(Node*);
 		public: void fit(std::shared_ptr<Memory> memory, unsigned short iteration);
 		private: std::pair<float, std::vector<float>> predict(std::shared_ptr<Game::GameState> state);
-		private: std::pair<int, std::vector<float>> derministicAction(std::shared_ptr<Node>& node);
-		private: std::pair<int, std::vector<float>> prabilisticAction(std::shared_ptr<Node>& node);
+		private: std::pair<int, std::vector<float>> derministicAction(Node* node);
+		private: std::pair<int, std::vector<float>> prabilisticAction(Node* node);
 		};
 #if not Training
 		class User : public Agent {
 		public: virtual std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::Game> game, bool proabilistic);
 		};
 #endif
-		void runSimulationsCaller(AlphaZero::ai::Agent* agent, std::shared_ptr<Node> node);
+		void runSimulationsCaller(AlphaZero::ai::Agent* agent, Node* node);
 	}
 }
 
-inline void AlphaZero::ai::Agent::runSimulations(std::shared_ptr<Node> node)
+inline void AlphaZero::ai::Agent::runSimulations(Node* node)
 {
-	std::pair<std::shared_ptr<Node>, std::list<std::shared_ptr<Edge>>> serchResults;
+	std::pair<Node*, std::list<Edge*>> serchResults;
 	try
 	{
 		serchResults = this->tree->moveToLeaf(node, ProbabiliticMoves);
@@ -71,23 +71,23 @@ inline void AlphaZero::ai::Agent::runSimulations(std::shared_ptr<Node> node)
 	}
 }
 
-inline void AlphaZero::ai::runSimulationsCaller(AlphaZero::ai::Agent* agent, std::shared_ptr<Node> node)
+inline void AlphaZero::ai::runSimulationsCaller(AlphaZero::ai::Agent* agent, Node* node)
 {
 	while (agent->tree->MCTSIter < MCTSSimulations) {
 		agent->runSimulations(node);
 	}
 }
 
-inline float AlphaZero::ai::Agent::evaluateLeaf(std::shared_ptr<Node> node)
+inline float AlphaZero::ai::Agent::evaluateLeaf(Node* node)
 {
 	if (!node->state->done){
 		std::shared_ptr<Game::GameState> nextState;
-		std::shared_ptr<Node> nextNode;
+		Node* nextNode;
 		auto NNvals = this->predict(node->state);
 		for (auto& action : node->state->allowedActions) {
 			nextState = node->state->takeAction(action);
 			nextNode = this->tree->addNode(nextState);
-			std::shared_ptr<Edge> newEdge = std::make_shared<Edge>(nextNode, node, action, NNvals.second[action]); //the last is the prob
+			Edge newEdge = Edge(nextNode, node, action, NNvals.second[action]); //the last is the prob
 			node->addEdge( action, newEdge);
 		}
 		return NNvals.first;
@@ -122,24 +122,24 @@ inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::s
 	return { val, polys };
 }
 
-inline std::pair<int, std::vector<float>> AlphaZero::ai::Agent::derministicAction(std::shared_ptr<Node>& node)
+inline std::pair<int, std::vector<float>> AlphaZero::ai::Agent::derministicAction(Node* node)
 {
 	int action = 0;
 	unsigned int max_N = 0;
 	unsigned int sum = 0;
 	std::vector<float> probs = jce::vector::gen(action_count, 0.0f);
 	for (auto const& iter : node->edges) {
-		if (iter.second->N > max_N) {
-			max_N = iter.second->N;
+		if (iter.second.N > max_N) {
+			max_N = iter.second.N;
 			action = iter.first;
 		}
-		probs[iter.second->action] = ((float)iter.second->N);
+		probs[iter.second.action] = ((float)iter.second.N);
 	}
 	linmax(probs);
 	return { action, probs };
 }
 
-inline std::pair<int, std::vector<float>> AlphaZero::ai::Agent::prabilisticAction(std::shared_ptr<Node>& node)
+inline std::pair<int, std::vector<float>> AlphaZero::ai::Agent::prabilisticAction(Node* node)
 {
 	int action = -1;
 	int idx = 0;
@@ -148,7 +148,7 @@ inline std::pair<int, std::vector<float>> AlphaZero::ai::Agent::prabilisticActio
 	std::vector<float> probs = jce::vector::gen(action_count, 0.0f);
 
 	for (auto const& iter : node->edges) {
-		probs[iter.second->action] = ((float)iter.second->N);
+		probs[iter.second.action] = ((float)iter.second.N);
 	}
 	linmax(probs);
 
