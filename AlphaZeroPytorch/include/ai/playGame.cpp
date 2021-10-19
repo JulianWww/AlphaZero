@@ -115,7 +115,7 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 #endif
 		if (_goesFist == 0) 
 		{
-			goesFist = rand() % 2 * 2 - 1;
+			goesFist = -goesFist;
 		}
 
 		std::unordered_map<int, std::shared_ptr<Agent>> players = {

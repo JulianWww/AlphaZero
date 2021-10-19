@@ -2,7 +2,7 @@
 #define threads 0
 
 //logging
-#define MainLogger false
+#define MainLogger true
 #define MCTSLogger false
 #define MemoryLogger false
 #define ProfileLogger false
