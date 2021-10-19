@@ -53,7 +53,7 @@ std::pair<AlphaZero::ai::Node*, std::list<AlphaZero::ai::Edge*>> AlphaZero::ai::
 				Nb += iter.second.N;
 			}
 
-			Edge* opsEdge = &(node->edges[0]);
+			Edge* opsEdge = &(node->edges.begin()->second);
 			int opsAction;
 
 			float maxQu;
