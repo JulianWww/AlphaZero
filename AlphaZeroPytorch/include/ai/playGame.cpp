@@ -80,7 +80,7 @@ void AlphaZero::ai::train(int version)
 
 std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game> game, std::shared_ptr<Agent> agent1, std::shared_ptr<Agent> agent2, std::shared_ptr<Memory> memory, int probMoves, int Epochs, char RunId[], int _goesFist)
 {
-	int goesFist = _goesFist;
+	int goesFist = (_goesFist == 0) ? 1 : _goesFist;
 #if ProfileLogger
 	debug::Profiler::profiler.switchOperation(3);
 #endif
