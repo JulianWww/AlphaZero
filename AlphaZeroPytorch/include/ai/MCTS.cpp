@@ -46,7 +46,6 @@ std::pair<AlphaZero::ai::Node*, std::list<AlphaZero::ai::Edge*>> AlphaZero::ai::
 			else {
 				nu = jce::vector::gen<double>(node->edges.size(), 0);
 			}
-			float maxQu = MaxQuDefault;
 			float U;
 			int idx = 0;
 			int Nb = 0;
@@ -54,16 +53,19 @@ std::pair<AlphaZero::ai::Node*, std::list<AlphaZero::ai::Edge*>> AlphaZero::ai::
 				Nb += iter.second.N;
 			}
 
-			Edge* opsEdge;
+			Edge* opsEdge = &(node->edges[0]);
 			int opsAction;
 
+			float maxQu;
+			bool nothasQU = true;
 			
 			for (auto& iter : node->edges) {
 				U = U_computation(iter.second);
-				if (U + iter.second.Q > maxQu) {
+				if (nothasQU || U + iter.second.Q > maxQu) {
 					opsEdge = &(iter.second);
 					opsAction = iter.first;
 					maxQu = U + iter.second.Q;
+					nothasQU = false;
 				}
 			}
 			opsEdge->traverse();
