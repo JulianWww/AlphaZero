@@ -8,7 +8,28 @@
 
 namespace AlphaZero {
 	namespace ai {
-		class Edge;
+		class Node;
+
+		/*Class Represienting the action connecting 2 nodes togather. It handles all The MCTS relevant variables and the mutex for
+		* parallization
+		*/
+		class Edge {
+			// The number of times the Edge was traversed
+		public: int N = 0;
+			  // the action asociated with the action
+		public: int action = 0;
+			  // the amount of times this lead to a win
+		public: float W = 0;
+			  // the probability initialized by the NN
+		public: float P = 0;
+			  // the win probability
+		public: float Q = 0;
+		public: Node* outNode;
+		public: Node* inNode;
+		public: Edge(Node* outNode, Node* inNode, int action, float p);
+		public: void traverse();
+		};
+
 		class Node {
 			// mutex locking the during insersion of edges and also used as the child edges mutex
 		//public: std::mutex lock;
@@ -17,26 +38,6 @@ namespace AlphaZero {
 		public: Node(std::shared_ptr<Game::GameState>);
 		public: bool isLeaf();
 		public: void addEdge(int id, Edge& edge);
-		};
-
-		/*Class Represienting the action connecting 2 nodes togather. It handles all The MCTS relevant variables and the mutex for
-		* parallization
-		*/
-		class Edge {
-			  // The number of times the Edge was traversed
-		public: int N=0;
-			  // the action asociated with the action
-		public: int action=0;
-			  // the amount of times this lead to a win
-		public: float W=0;
-			  // the probability initialized by the NN
-		public: float P=0;
-			  // the win probability
-		public: float Q=0;
-		public: Node* outNode;
-		public: Node* inNode;
-		public: Edge(Node* outNode, Node* inNode, int action, float p);
-		public: void traverse();
 		};
 
 		class MCTS {
