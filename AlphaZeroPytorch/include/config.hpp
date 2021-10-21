@@ -21,7 +21,7 @@
 #define Training true
 #define DEBUG false
 
-#define U_computation(edge) (this->cpuct * edge.P * std::sqrt(Nb) / (1 + edge.N))
+#define U_computation(edge) (this->cpuct * edge.P * std::sqrt((float)Nb) / (float)(1 + edge.N))
 
 
 // runn setting

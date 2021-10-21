@@ -49,7 +49,8 @@ std::pair<AlphaZero::ai::Node*, std::list<AlphaZero::ai::Edge*>> AlphaZero::ai::
 			float U;
 			int idx = 0;
 			int Nb = 0;
-			for (auto const& iter : node->edges) {
+			for (auto const& iter : node->edges) 
+			{
 				Nb += iter.second.N;
 			}
 
@@ -70,19 +71,19 @@ std::pair<AlphaZero::ai::Node*, std::list<AlphaZero::ai::Edge*>> AlphaZero::ai::
 			}
 			opsEdge->traverse();
 			backTrackList.push_back(opsEdge);
-			node = opsEdge->outNode;;
+			node = opsEdge->outNode;
 		}
 	}
 }
 
 void AlphaZero::ai::MCTS::backFill(std::list<Edge*>& backTrace, Node* leaf, float val)
 {
-	int& currentPlayer = leaf->state->player;
+	float currentPlayer = (float)leaf->state->player * val;
 
 	for (auto const& edge : backTrace) {
 		// edge->inNode->lock.lock();
 
-		edge->W = edge->W + val * currentPlayer * edge->inNode->state->player;
+		edge->W = edge->W + currentPlayer * (float)edge->inNode->state->player;
 		edge->Q = edge->W / (float)edge->N;
 
 		// edge->inNode->lock.unlock();
