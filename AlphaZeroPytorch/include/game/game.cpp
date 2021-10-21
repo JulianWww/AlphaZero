@@ -163,7 +163,7 @@ void AlphaZero::Game::GameState::gameIsDone()
 		}
 		if (count == -4 * this->player) {
 			this->done = true;
-			this->val = { -1, -1, 1 }; // done, winForThisPlayer, points for this player, points for other player
+			this->val = { -1, -1, 1 }; // winForThisPlayer, points for this player, points for other player
 			return;
 		}
 	}

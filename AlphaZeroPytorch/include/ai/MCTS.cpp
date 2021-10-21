@@ -83,7 +83,7 @@ void AlphaZero::ai::MCTS::backFill(std::list<Edge*>& backTrace, Node* leaf, floa
 		// edge->inNode->lock.lock();
 
 		edge->W = edge->W + val * currentPlayer * edge->inNode->state->player;
-		edge->Q = edge->W / edge->N;
+		edge->Q = edge->W / (float)edge->N;
 
 		// edge->inNode->lock.unlock();
 	}

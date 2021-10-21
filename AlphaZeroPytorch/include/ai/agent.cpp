@@ -54,5 +54,6 @@ std::pair<int, std::vector<float>> AlphaZero::ai::Agent::getAction(std::shared_p
 	catch (const std::exception& ex) {
 		std::cerr << "\33[31;1mError in Agent::getAction\33[0m" << std::endl;
 		std::cerr << ex.what() << std::endl;
+		throw ex;
 	}
 }
