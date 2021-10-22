@@ -46,8 +46,9 @@ void AlphaZero::ai::Memory::load()
 	char nameBuff[100];
 	getName(nameBuff, -1, runVersion);
 	try{
+		std::cout << "\33[1;32mLoading memory from file ... ";
 		this->load(nameBuff);
-		std::cout << "\33[1;32mLoaded memory from file\33[0m" << std::endl;
+		std::cout << "done\33[0m" << std::endl;
 	}
 	catch (...)
 	{
