@@ -34,41 +34,10 @@ namespace AlphaZero {
 
 inline void AlphaZero::ai::Agent::runSimulations(Node* node)
 {
-	std::pair<Node*, std::list<Edge*>> serchResults;
-	try
-	{
-		serchResults = this->tree->moveToLeaf(node, ProbabiliticMoves);
-	}
-	catch (const std::exception& ex) {
-		std::cerr << "\33[31;1mError in MCTS::moveToLeaf\33[0m" << std::endl;
-		std::cerr << ex.what() << std::endl;
-	}
-	float val;
-	try
-	{
-		val = this->evaluateLeaf(serchResults.first);
-	}
-	catch (const std::exception& ex) {
-		std::cerr << "\33[31;1mError in Agent::evaluateLeaf\33[0m" << std::endl;
-		std::cerr << ex.what() << std::endl;
-	}
-	try
-	{
-		this->tree->backFill(serchResults.second, serchResults.first, val);
-	}
-	catch (const std::exception& ex) {
-		std::cerr << "\33[31;1mError in MCTS::Backfill\33[0m" << std::endl;
-		std::cerr << ex.what() << std::endl;
-	}
-
-	try
-	{
-		this->tree->addMCTSIter();
-	}
-	catch (const std::exception& ex) {
-		std::cerr << "\33[31;1mError in addMCTSIter\33[0m" << std::endl;
-		std::cerr << ex.what() << std::endl;
-	}
+	std::pair<Node*, std::list<Edge*>> serchResults = this->tree->moveToLeaf(node, ProbabiliticMoves);
+	float val = this->evaluateLeaf(serchResults.first);
+	this->tree->backFill(serchResults.second, serchResults.first, val);
+	this->tree->addMCTSIter();
 }
 
 inline void AlphaZero::ai::runSimulationsCaller(AlphaZero::ai::Agent* agent, Node* node)
