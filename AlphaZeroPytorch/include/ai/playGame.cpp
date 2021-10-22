@@ -25,8 +25,8 @@ void AlphaZero::ai::train(int version)
 	unsigned short iteration = 0;
 	std::shared_ptr<Memory> memory = std::make_shared<Memory>();
 	std::shared_ptr<Game::Game> game = std::make_shared<Game::Game>();
-	std::shared_ptr<Agent> currentAgent = std::make_shared<Agent>(game);
-	std::shared_ptr<Agent> bestAgent = std::make_shared<Agent>(game);
+	std::shared_ptr<Agent> currentAgent = std::make_shared<Agent>();
+	std::shared_ptr<Agent> bestAgent = std::make_shared<Agent>();
 
 	memory->load();
 	char nameBuff[100];
@@ -36,7 +36,10 @@ void AlphaZero::ai::train(int version)
 #if loadVersion >= 0
 	bestAgent->model->load(loadVersion);
 	currentAgent->model->load(loadVersion);
+#else
+	currentAgent->model->copyModel(bestAgent->model);
 #endif
+
 	// TODO bestAgent->model->save(0);
 	while (true) { // TODO revert to while !!!
 		memory->active = true;

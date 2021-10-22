@@ -9,7 +9,7 @@ namespace AlphaZero {
 		class Agent {
 		public: std::shared_ptr<MCTS> tree;
 		public: std::shared_ptr<Model> model;
-		public: Agent(std::shared_ptr<Game::Game> game);
+		public: Agent();
 		public: int identity;
 #if Training
 		public: std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);

@@ -16,6 +16,7 @@ file(GLOB SOURCES_Files
 	"include/ai/*.cpp"
 	"include/game/*.cpp"
 	"include/Server/*.cpp"
+	"include/test/*.cpp"
 )
 file(GLOB HEADER_Files 
 	"include/*.hpp"
@@ -24,19 +25,29 @@ file(GLOB HEADER_Files
 	"include/Server/*.hpp"
 )
 
+file(GLOB TEST_SOURCE
+	"include/test/*.cpp"
+	"include/ai/*.cpp"
+	"include/game/*.cpp"
+	"include/*.cpp"
+)
+
 # Add source to this project's executable.
 add_executable (AlphaZeroPytorch "AlphaZeroPytorch.cpp" "AlphaZeroPytorch.h" ${SOURCES_Files} ${HEADER_Files})
 add_executable (GameReplayer "Replay.cpp" "include/game/game.cpp")
+add_executable (runTest "test.cpp" ${TEST_SOURCE} ${HEADER_Files})
 
 message("linking libs ...")
 target_link_libraries(AlphaZeroPytorch "${TORCH_LIBRARIES}")
 target_link_libraries(GameReplayer "${TORCH_LIBRARIES}")
+target_link_libraries(runTest "${TORCH_LIBRARIES}")
 
 message("adding includes ...")
 
 if (WIN32)
 	target_include_directories(AlphaZeroPytorch PUBLIC "D:/MyCode/CppLibs/include")
 	target_include_directories(GameReplayer PUBLIC "D:/MyCode/CppLibs/include")
+	target_include_directories(runTest PUBLIC "D:/MyCode/CppLibs/include")
 
 	target_link_libraries (AlphaZeroPytorch "D:/MyCode/CppLibs/x64/sockpp-static_d.lib")
 endif (WIN32)
@@ -45,7 +56,8 @@ if (UNIX)
 	target_include_directories(AlphaZeroPytorch PUBLIC "/sockpp/include")
 
 	target_include_directories(GameReplayer PUBLIC "/spdlog/spdlog/include")
-	target_include_directories(GameReplayer PUBLIC "/sockpp/include")
+
+	target_include_directories(runTest PUBLIC "/spdlog/spdlog/include")
 
 	find_library(sockpp_location sockpp)
 	message("sockpp is at: ${sockpp_location}")
@@ -55,6 +67,8 @@ endif(UNIX)
 
 target_include_directories(AlphaZeroPytorch PUBLIC "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(GameReplayer PUBLIC "${CMAKE_SOURCE_DIR}/include")
+target_include_directories(runTest PUBLIC "${CMAKE_SOURCE_DIR}/include")
+
 
 message("done")
 

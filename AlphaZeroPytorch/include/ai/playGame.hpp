@@ -11,5 +11,7 @@ namespace AlphaZero {
 	}
 	namespace test {
 		void playGame(std::shared_ptr<Game::Game> game, std::shared_ptr<ai::Agent> player1, std::shared_ptr<ai::Agent>player2, int goesFirst=0);
+
+		bool testCoppying();
 	}
 }
