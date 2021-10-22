@@ -19,7 +19,7 @@ namespace AlphaZero {
 		public: void runSimulations(Node*);
 		private: float evaluateLeaf(Node*);
 		public: void fit(std::shared_ptr<Memory> memory, unsigned short iteration);
-		private: std::pair<float, std::vector<float>> predict(std::shared_ptr<Game::GameState> state);
+		public: std::pair<float, std::vector<float>> predict(std::shared_ptr<Game::GameState> state);
 		private: std::pair<int, std::vector<float>> derministicAction(Node* node);
 		private: std::pair<int, std::vector<float>> prabilisticAction(Node* node);
 		};

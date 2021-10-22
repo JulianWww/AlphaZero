@@ -144,7 +144,10 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 #if MainLogger
 			if (epoch == 0) {
 				game->state->render(debug::log::mainLogger);
+				debug::log::mainLogger->info("MSCT vals:");
 				debug::log::logVector(debug::log::mainLogger, actionData.second);
+				debug::log::mainLogger->info("NN vals:");
+				debug::log::logVector(debug::log::mainLogger, players[game->state->player]->predict(game->state).second);
 				debug::log::mainLogger->info("selected action is: {}", actionData.first);
 			}
 #endif
