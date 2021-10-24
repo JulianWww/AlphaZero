@@ -101,8 +101,6 @@ inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::s
 		mask[0][idx] = false;
 	}
 
-	std::cout << mask << std::endl;
-
 	torch::Tensor out = torch::softmax(torch::masked_fill(preds.second.cpu(), mask, -1000.0f), 1);
 
 	for (auto const& idx : state->allowedActions) {
