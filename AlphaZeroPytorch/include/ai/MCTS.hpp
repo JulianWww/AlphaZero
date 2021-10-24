@@ -94,13 +94,10 @@ inline AlphaZero::ai::Node* AlphaZero::ai::MCTS::addNode(std::shared_ptr<Game::G
 }
 
 inline void AlphaZero::ai::MCTS::reset()
-{
-	if (this->MCTS_tree.size() != 0)
-	{
-		// this->NodeInsersionMutex.lock();
-		this->MCTS_tree.clear();
-		// this->NodeInsersionMutex.unlock();
-	}
+{	
+	// this->NodeInsersionMutex.lock();
+	this->MCTS_tree.clear();
+	// this->NodeInsersionMutex.unlock();
 }
 
 inline AlphaZero::ai::Node* AlphaZero::ai::MCTS::getNode(IDType key)

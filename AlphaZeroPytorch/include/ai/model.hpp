@@ -117,7 +117,7 @@ inline AlphaZero::ai::Model::Model() :
 	res6(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_6")),
 	value_head(this->register_custom_module(Value_head(75, 420, 210, 10))),
 	policy_head(this->register_custom_module(Policy_head(75, 84, 42))),
-	optim(Optimizer(this->parameters(), OptimizerOptions(0.0001).momentum(0.9)))
+	optim(Optimizer(this->parameters(), OptimizerOptions(0.0001).momentum(Momentum)))
 {
 }
 

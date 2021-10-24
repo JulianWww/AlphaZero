@@ -31,13 +31,14 @@
 // Net settings
 #define MaxQuDefault -99999
 #define reg_const 0.0001
-#define Alpha 0.8
 #define learningRage 0.1
+#define Momentum 0.9
 
 // simulation setting
 #define MCTSSimulations 50
-#define cpuct_ 2.0f
+#define cpuct_ 1.0f
 #define ProbabiliticMoves 0
+#define Alpha 0.8
 
 // memory setting
 #define memory_size 30000
