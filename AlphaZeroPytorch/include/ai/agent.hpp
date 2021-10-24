@@ -86,18 +86,24 @@ inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::s
 	std::vector<float> polys = std::vector<float>(action_count);
 
 	c10::Device device ("cpu");
-	if (torch::cuda::cudnn_is_available())
+	/*if (torch::cuda::cudnn_is_available())
 	{
 		device = c10::Device("cuda:0");
-	}
+	}*/
 
-	torch::Tensor mask = torch::ones({ 1, action_count }, c10::TensorOptions().device(c10::Device("cpu")).dtype(at::kBool));
+	torch::Tensor mask = torch::ones(
+		{ 1, action_count }, 
+		c10::TensorOptions().device(c10::Device("cpu")).dtype(at::kBool)
+	);
 
-	for (auto const& idx : state->allowedActions) {
+	for (auto idx : state->allowedActions)
+	{
 		mask[0][idx] = false;
 	}
 
-	torch::Tensor out = torch::softmax(torch::masked_fill(preds.second, mask.to(device), -1000.0f), 1).cpu();
+	std::cout << mask << std::endl;
+
+	torch::Tensor out = torch::softmax(torch::masked_fill(preds.second.cpu(), mask, -1000.0f), 1);
 
 	for (auto const& idx : state->allowedActions) {
 		polys[idx] = out[0][idx].item<float>();

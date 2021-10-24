@@ -31,14 +31,14 @@ namespace AlphaZero {
 		public: bool done;
 		public: std::tuple<int, int, int> val;
 		public: IDType gameBoard;
-		public: std::list<int> allowedActions;
+		public: std::vector<int> allowedActions;
 
 		public: GameState(IDType board, int _player);
 		public: GameState();
 		private: void initialize(IDType board, int _player);
 		public: std::shared_ptr<GameState> takeAction(int action);
 		public: void gameIsDone();
-		protected: std::list<int> getAllowedActions();
+		protected: void getAllowedActions();
 		public: int IdIndex(int id);
 		public: IDType id();
 		public: void render();

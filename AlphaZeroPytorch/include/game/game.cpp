@@ -16,7 +16,7 @@ void AlphaZero::Game::GameState::initialize(IDType board, int _player)
 {
 	this->gameBoard = board;
 	this->player = _player;
-	this->allowedActions = this->getAllowedActions();
+	this->getAllowedActions();
 	this->gameIsDone();
 }
 
@@ -186,16 +186,15 @@ inline std::pair<int, bool> AlphaZero::Game::GameState::getAllowedColumHeight(in
 	}
 }
 
-std::list<int> AlphaZero::Game::GameState::getAllowedActions()
+void AlphaZero::Game::GameState::getAllowedActions()
 {
-	std::list<int> res;
+	this->allowedActions.clear();
 	for (int idx = 0; idx < 7; idx++) {
 		std::pair<int, bool> data = this->getAllowedColumHeight(idx);
 		if (data.second) {
-			res.push_back(data.first);
+			this->allowedActions.push_back(data.first);
 		}
 	}
-	return res;
 }
 
 void AlphaZero::Game::GameState::render()
