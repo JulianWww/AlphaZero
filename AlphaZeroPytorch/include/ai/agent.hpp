@@ -90,6 +90,7 @@ inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::s
 	{
 		device = c10::Device("cuda:0");
 	}
+	std::cout << device << std::endl;
 	torch::Tensor mask = torch::zeros({ 1, action_count }, c10::TensorOptions().device(device));
 	torch::Tensor outT = torch::full({ 1, action_count }, -10000.0f, c10::TensorOptions().device(device));
 	for (auto const& idx : state->allowedActions) {
