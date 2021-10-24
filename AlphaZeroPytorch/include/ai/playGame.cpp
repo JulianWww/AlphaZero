@@ -41,7 +41,7 @@ void AlphaZero::ai::train(int version)
 #endif
 
 	// TODO bestAgent->model->save(0);
-	while (true) { // TODO revert to while !!!
+	if (true) { // TODO revert to while !!!
 		memory->active = true;
 #if MainLogger
 		debug::log::mainLogger->info("playing version: {}", version);
