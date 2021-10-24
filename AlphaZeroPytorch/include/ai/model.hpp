@@ -288,7 +288,6 @@ inline std::pair<float, torch::Tensor> AlphaZero::ai::Model::predict(std::shared
 		NNInput = NNInput.cuda();
 	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
 	float value = NNOut.first[0].item<float>();
-	NNOut.second = NNOut.second.cpu(); // only if cuda is available ??
 	return {value, NNOut.second };
 }
 
