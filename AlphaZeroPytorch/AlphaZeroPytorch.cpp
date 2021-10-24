@@ -7,6 +7,7 @@
 #include <io.hpp>
 #include <chrono>
 #include <thread>
+#include <string>
 #ifndef UNIX
 #include <filesystem>
 #endif
@@ -19,6 +20,11 @@ inline void wait(int time)
 {
 	std::chrono::seconds dura(time);
 	std::this_thread::sleep_for(dura);
+}
+
+void createFolder(std::string str)
+{
+	createFolder(str.c_str());
 }
 
 void createFolder(char name[])
