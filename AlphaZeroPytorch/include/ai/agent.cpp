@@ -18,6 +18,7 @@ std::pair<int, std::vector<float>> AlphaZero::ai::User::getAction(std::shared_pt
 AlphaZero::ai::Agent::Agent() // TODO remove int version from this function
 {
 	this->model = std::make_shared<AlphaZero::ai::Model>();
+	this->tree = std::make_shared<AlphaZero::ai::MCTS>();
 }
 
 std::pair<int, std::vector<float>> AlphaZero::ai::Agent::getAction(std::shared_ptr<Game::GameState> state, bool proabilistic)

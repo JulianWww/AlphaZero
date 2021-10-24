@@ -50,7 +50,7 @@ namespace AlphaZero {
 
 			   // add 1 to MCTSIter within a mutex
 		public: void addMCTSIter();
-		public: MCTS(std::shared_ptr<Game::GameState>);
+		public: MCTS();
 		public: float cpuct = cpuct_;
 		public: std::pair <Node*, std::list<Edge*>> moveToLeaf(Node*, int);
 		public: void backFill(std::list<Edge*>&, Node* leaf, float val);
@@ -80,6 +80,8 @@ inline void AlphaZero::ai::Node::addEdge(int id, Edge& edge)
 	// this->lock.unlock();
 }
 
+inline AlphaZero::ai::MCTS::MCTS(){}
+
 inline AlphaZero::ai::Node* AlphaZero::ai::MCTS::addNode(std::shared_ptr<Game::GameState> state)
 {
 	if (this->MCTS_tree.count(state->id()) == 0) {
@@ -93,9 +95,12 @@ inline AlphaZero::ai::Node* AlphaZero::ai::MCTS::addNode(std::shared_ptr<Game::G
 
 inline void AlphaZero::ai::MCTS::reset()
 {
-	// this->NodeInsersionMutex.lock();
-	this->MCTS_tree.clear();
-	// this->NodeInsersionMutex.unlock();
+	if (this->MCTS_tree.size() != 0)
+	{
+		// this->NodeInsersionMutex.lock();
+		this->MCTS_tree.clear();
+		// this->NodeInsersionMutex.unlock();
+	}
 }
 
 inline AlphaZero::ai::Node* AlphaZero::ai::MCTS::getNode(IDType key)

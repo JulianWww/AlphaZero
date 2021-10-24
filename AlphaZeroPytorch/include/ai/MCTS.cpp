@@ -22,11 +22,6 @@ AlphaZero::ai::Edge::Edge(Node* _outNode, Node* _inNode, int _action, float _p)
 	this->Q = 0;
 }
 
-AlphaZero::ai::MCTS::MCTS(std::shared_ptr<Game::GameState> root)
-{
-	this->addNode(root);
-}
-
 std::pair<AlphaZero::ai::Node*, std::list<AlphaZero::ai::Edge*>> AlphaZero::ai::MCTS::moveToLeaf(Node* node, int randomMovesRemaining)
 {
 	std::list<Edge*> backTrackList;
