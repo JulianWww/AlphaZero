@@ -93,9 +93,6 @@ inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::s
 	torch::Tensor mask = torch::zeros({ 1, action_count }, c10::TensorOptions().device(device));
 	torch::Tensor outT = torch::full({ 1, action_count }, -10000.0f, c10::TensorOptions().device(device));
 
-	std::cout << "outT: " << outT.device() << std::endl;
-	std::cout << "mask: " << mask.device() << std::endl;
-	std::cout << "preds: " << preds.second.device() << std::endl;
 	for (auto const& idx : state->allowedActions) {
 		mask[0][idx] = 1;
 	}
