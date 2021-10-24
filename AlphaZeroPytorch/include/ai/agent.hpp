@@ -90,14 +90,14 @@ inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::s
 	{
 		device = c10::Device("cuda:0");
 	}
-	torch::Tensor mask = torch::zeros({ 1, action_count }, c10::TensorOptions().device(device));
-	torch::Tensor outT = torch::full({ 1, action_count }, -10000.0f, c10::TensorOptions().device(device));
+
+	torch::Tensor mask = torch::ones({ 1, action_count }, c10::TensorOptions().device(c10::Device("cpu")).dtype(at::kBool));
 
 	for (auto const& idx : state->allowedActions) {
-		mask[0][idx] = 1;
+		mask[0][idx] = false;
 	}
 
-	torch::Tensor out = torch::softmax(torch::masked_scatter(outT, mask == 1, preds.second), 1).cpu();
+	torch::Tensor out = torch::softmax(torch::masked_fill(preds.second, mask.to(device), -1000.0f), 1).cpu();
 	auto a = torch::sum(out);
 
 	for (auto const& idx : state->allowedActions) {
