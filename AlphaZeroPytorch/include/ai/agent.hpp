@@ -98,7 +98,6 @@ inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::s
 	}
 
 	torch::Tensor out = torch::softmax(torch::masked_fill(preds.second, mask.to(device), -1000.0f), 1).cpu();
-	auto a = torch::sum(out);
 
 	for (auto const& idx : state->allowedActions) {
 		polys[idx] = out[0][idx].item<float>();
