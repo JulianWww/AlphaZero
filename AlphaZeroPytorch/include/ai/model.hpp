@@ -25,7 +25,7 @@ namespace AlphaZero {
 
 		public: TopLayer(int inp, int out, int kernelsize1);
 		public: torch::Tensor forward(torch::Tensor);
-		public: void moveTo(c10::Device* device);
+		public: void moveTo(c10::Device device);
 		};
 		class ResNet : public torch::nn::Module {
 		public: torch::nn::Conv2d conv1, conv2;
@@ -35,7 +35,7 @@ namespace AlphaZero {
 
 		public: ResNet(int inp, int out, int kernelsize1, int kernelsize2);
 		public: torch::Tensor forward(torch::Tensor);
-		public: void moveTo(c10::Device* device);
+		public: void moveTo(c10::Device device);
 		};
 
 		class Value_head : torch::nn::Module {
@@ -47,7 +47,7 @@ namespace AlphaZero {
 
 		public: Value_head(int inp, int hidden_size, int out, int kernels);
 		public: torch::Tensor forward(torch::Tensor);
-		public: void moveTo(c10::Device* device);
+		public: void moveTo(c10::Device device);
 		};
 
 		class Policy_head : torch::nn::Module {
@@ -57,7 +57,7 @@ namespace AlphaZero {
 
 		public: Policy_head(int inp, int hidden, int out);
 		public: torch::Tensor forward(torch::Tensor);
-		public: void moveTo(c10::Device* device);
+		public: void moveTo(c10::Device device);
 		};
 
 		typedef torch::nn::MSELoss Loss;
@@ -93,7 +93,7 @@ namespace AlphaZero {
 		public: void load_from_file(char* filename);
 
 		public: void copyModel(std::shared_ptr<Model>);
-		public: void moveTo(c10::Device* device);
+		public: void moveTo(c10::Device device);
 
 		private: TopLayer register_custom_module(TopLayer net);
 		private: ResNet register_custom_module(ResNet net, std::string layer);
@@ -149,7 +149,7 @@ inline AlphaZero::ai::TopLayer::TopLayer(int inp, int out, int kernelsize1) :
 {
 	if (torch::cuda::cudnn_is_available())
 	{
-		this->moveTo(&c10::Device("cuda:0"));
+		this->moveTo(c10::Device("cuda:0"));
 	}
 }
 inline torch::Tensor AlphaZero::ai::TopLayer::forward(torch::Tensor x)
@@ -161,11 +161,11 @@ inline torch::Tensor AlphaZero::ai::TopLayer::forward(torch::Tensor x)
 	return x;
 }
 
-inline void AlphaZero::ai::TopLayer::moveTo(c10::Device* device)
+inline void AlphaZero::ai::TopLayer::moveTo(c10::Device device)
 {
-	this->conv1->to(*device, true);
-	this->batch->to(*device, true);
-	this->relu->to(*device, true);
+	this->conv1->to(device, true);
+	this->batch->to(device, true);
+	this->relu->to(device, true);
 }
 
 inline AlphaZero::ai::ResNet::ResNet(int inp, int out, int kernelsize1, int kernelsize2) :
@@ -177,7 +177,7 @@ inline AlphaZero::ai::ResNet::ResNet(int inp, int out, int kernelsize1, int kern
 	activ(torch::nn::LeakyReLU(torch::nn::LeakyReLU()))
 {
 	if (torch::cuda::is_available()) {
-		this->moveTo(&c10::Device("cuda:0"));
+		this->moveTo(c10::Device("cuda:0"));
 	}
 }
 
@@ -195,13 +195,13 @@ inline torch::Tensor AlphaZero::ai::ResNet::forward(torch::Tensor x)
 	return x + y;
 }
 
-inline void AlphaZero::ai::ResNet::moveTo(c10::Device* device)
+inline void AlphaZero::ai::ResNet::moveTo(c10::Device device)
 {
-	this->conv1->to(*device, true);
-	this->conv2->to(*device, true);
-	this->batch->to(*device, true);
-	this->batch2->to(*device, true);
-	this->activ->to(*device, true);
+	this->conv1->to(device, true);
+	this->conv2->to(device, true);
+	this->batch->to(device, true);
+	this->batch2->to(device, true);
+	this->activ->to(device, true);
 }
 
 inline AlphaZero::ai::Value_head::Value_head(int inp, int hidden_size, int out, int convOut) :
@@ -214,7 +214,7 @@ inline AlphaZero::ai::Value_head::Value_head(int inp, int hidden_size, int out, 
 
 	if (torch::cuda::is_available()) 
 	{
-		this->moveTo(&c10::Device("cuda:0"));
+		this->moveTo(c10::Device("cuda:0"));
 	}
 }
 
@@ -232,13 +232,13 @@ inline torch::Tensor AlphaZero::ai::Value_head::forward(torch::Tensor x)
 	return x;
 }
 
-inline void AlphaZero::ai::Value_head::moveTo(c10::Device* device)
+inline void AlphaZero::ai::Value_head::moveTo(c10::Device device)
 {
-	this->conv->to(*device, true);
-	this->lin1->to(*device, true);
-	this->relu->to(*device, true);
-	this->lin2->to(*device, true);
-	this->tanh->to(*device, true);
+	this->conv->to(device, true);
+	this->lin1->to(device, true);
+	this->relu->to(device, true);
+	this->lin2->to(device, true);
+	this->tanh->to(device, true);
 }
 
 inline AlphaZero::ai::Policy_head::Policy_head(int inp, int hidden, int out) :
@@ -248,7 +248,7 @@ inline AlphaZero::ai::Policy_head::Policy_head(int inp, int hidden, int out) :
 	this->size = hidden;
 
 	if (torch::cuda::is_available()) {
-		this->moveTo(&c10::Device("cuda:0"));
+		this->moveTo(c10::Device("cuda:0"));
 	}
 }
 
@@ -263,10 +263,10 @@ inline torch::Tensor AlphaZero::ai::Policy_head::forward(torch::Tensor x)
 	return x;
 }
 
-inline void AlphaZero::ai::Policy_head::moveTo(c10::Device* device)
+inline void AlphaZero::ai::Policy_head::moveTo(c10::Device device)
 {
-	this->conv->to(*device, true);
-	this->lin1->to(*device, true);
+	this->conv->to(device, true);
+	this->lin1->to(device, true);
 }
 
 inline std::pair<float, float> AlphaZero::ai::Model::train(const std::pair<torch::Tensor, torch::Tensor>& x, const std::pair<torch::Tensor, torch::Tensor>& y)
@@ -396,7 +396,7 @@ inline void AlphaZero::ai::Model::copyModel(std::shared_ptr<AlphaZero::ai::Model
 	torch::autograd::GradMode::set_enabled(true);
 }
 
-inline void AlphaZero::ai::Model::moveTo(c10::Device* device)
+inline void AlphaZero::ai::Model::moveTo(c10::Device device)
 {
 	this->top.moveTo(device);
 
