@@ -37,20 +37,21 @@
 // simulation setting
 #define MCTSSimulations 50
 #define cpuct_ 1.0f
-#define ProbabiliticMoves 0
-#define Alpha 0.8
+#define ProbabiliticMoves 10
+#define Alpha 0.9
+#define EPSILON 0.2f
 
 // memory setting
 #define memory_size 30000
 
 // self play
 #define EPOCHS 30
-#define probabilitic_moves 2 // how manny moves are prabilistic in the begining of the game to aid in exploration
+#define probabilitic_moves 2// how manny moves are prabilistic in the begining of the game to aid in exploration
 
 // training
-#define Training_loops 15
+#define Training_loops 20
 #define Training_batch 256
-#define Training_epochs 10
+#define Training_epochs 1
 
 // turney
 #define Turnement_probabiliticMoves 2
