@@ -28,8 +28,9 @@ void AlphaZero::test::testSave()
 	auto modelA = std::make_shared<ai::Agent>();
 	auto modelB = std::make_shared<ai::Agent>();
 
-	modelA->model->save_to_file("temp.torch");
-	modelB->model->load_from_file("temp.torch");
+	const char folder[] = "temp.torch";
+	modelA->model->save_to_file(folder);
+	modelB->model->load_from_file(folder);
 
 	remove("temp.torch");
 

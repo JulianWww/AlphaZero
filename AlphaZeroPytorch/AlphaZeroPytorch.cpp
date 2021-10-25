@@ -50,8 +50,11 @@ void inline train(int arg)
 	sprintf(folder, "memory/run_%d", runVersion);
 	createFolder(folder);
 
-	createFolder("logs/c++");
-	createFolder("logs/games");
+	sprintf(folder, "logs/c++");
+	createFolder(folder);
+
+	sprintf(folder, "logs/games");
+	createFolder(folder);
 
 	std::cout << "started training" << std::endl;
 
