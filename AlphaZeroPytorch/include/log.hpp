@@ -113,7 +113,7 @@ inline std::pair<float, float> debug::log::lossLogger::operator[](size_t idx) co
 template<typename T>
 inline void debug::log::logVector(std::shared_ptr<spdlog::logger> logger, std::vector<T> vec)
 {
-	char out[] = "Action vals are: {}, {}, {}, {}, {}, {}, {}"
+	char out[] = "Action vals are: {}, {}, {}, {}, {}, {}, {}";
 	logger->info(out, (vec[0]),  (vec[1]),  (vec[2]),  (vec[3]),  (vec[4]),  (vec[5]),  (vec[6]));
 	logger->info(out, (vec[7]),  (vec[8]),  (vec[9]),  (vec[10]), (vec[11]), (vec[12]), (vec[13]));
 	logger->info(out, (vec[14]), (vec[15]), (vec[16]), (vec[17]), (vec[18]), (vec[19]), (vec[20]));
