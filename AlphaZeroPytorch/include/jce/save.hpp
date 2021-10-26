@@ -21,6 +21,10 @@ namespace jce
 
 	// end custom part
 
+	template<typename T, typename T2>
+	// save pair to file
+	void save(std::ofstream& out, std::pair<T, T2>const& data);
+
 	template<typename T>
 	//save list to ofstream
 	void save(std::ofstream& out, std::list<T> const& data);
@@ -60,6 +64,13 @@ inline void jce::save(std::ofstream& out, std::shared_ptr<AlphaZero::Game::GameS
 {
 	jce::save(out, state->gameBoard);
 	jce::save(out, state->player);
+}
+
+template<typename T, typename T2>
+inline void jce::save(std::ofstream& out, std::pair<T, T2> const& data)
+{
+	jce::save(out, data.first);
+	jce::save(out, data.second);
 }
 
 template<typename T>

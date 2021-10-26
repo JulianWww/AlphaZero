@@ -7,6 +7,7 @@
 #define MemoryLogger false
 #define ProfileLogger false
 #define ModelLogger false
+#define LossLogger true
 
 
 #include <unordered_map>
@@ -17,7 +18,7 @@
 #endif
 #include <stdio.h>
 #include <chrono>
-#if (MainLogger || MCTSLogger || MemoryLogger || ProfileLogger || ModelLogger)
+#if (MainLogger || MCTSLogger || MemoryLogger || ProfileLogger || ModelLogger || LossLogger)
 
 
 
@@ -46,6 +47,21 @@ namespace debug {
 		template<typename T>
 		void logVector(std::shared_ptr<spdlog::logger> logger, std::vector<T>);
 
+		class lossLogger
+		{
+		public: lossLogger();
+		public: lossLogger(const char file[]);
+
+		protected: std::vector<std::pair<float, float>> vals;
+
+		public: void addValue(const float val, const float poly);
+		public: void addValue(const std::pair<float, float>& val);
+		public: void save(const char file[]);
+
+		public: std::pair<float, float> operator[](size_t idx) const;
+		public: bool operator==(const lossLogger&);
+		};
+
 #if MainLogger
 		extern std::shared_ptr<spdlog::logger> mainLogger;
 #endif
@@ -61,6 +77,9 @@ namespace debug {
 #if ModelLogger
 		extern std::shared_ptr<spdlog::logger> modelLogger;
 #endif
+#if LossLogger
+		extern lossLogger _lossLogger;
+#endif
 	}
 }
 
@@ -69,6 +88,26 @@ inline std::shared_ptr<spdlog::logger> debug::log::createLogger(const char* name
 	int success = remove(file);
 	auto logger = spdlog::basic_logger_mt(name, file);
 	return logger;
+}
+
+inline debug::log::lossLogger::lossLogger()
+{
+}
+
+inline void debug::log::lossLogger::addValue(const float a, const float b)
+{
+	std::pair<float, float> data = { a, b };
+	this->addValue(data);
+}
+
+inline void debug::log::lossLogger::addValue(const std::pair<float, float>& val)
+{
+	this->vals.push_back(val);
+}
+
+inline std::pair<float, float> debug::log::lossLogger::operator[](size_t idx) const
+{
+	return this->vals[idx];
 }
 
 template<typename T>

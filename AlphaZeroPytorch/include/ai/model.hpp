@@ -88,12 +88,10 @@ namespace AlphaZero {
 		public: void save_version(unsigned int version);
 		public: void save_as_current();
 		public: void save_to_file(char* filename);
-		public: void save_to_file(std::string str);
 
 		public: void load_version(unsigned int version);
 		public: void load_current();
 		public: void load_from_file(char* filename);
-		public: void load_from_file(std::string str);
 
 		public: void copyModel(std::shared_ptr<Model>);
 		public: void moveTo(c10::Device device);
@@ -315,6 +313,10 @@ inline void AlphaZero::ai::Model::fit(const std::tuple<torch::Tensor, torch::Ten
 #if ModelLogger
 	debug::log::modelLogger->info("model error in iteration {} on batch {} had valueError of {} and polyError of {}", run, trainingLoop, std::get<0>(error), std::get<1>(error));
 #endif
+#if LossLogger
+	debug::log::_lossLogger.addValue(error);
+	debug::log::_lossLogger.save("logs/game/loss.bin");
+#endif
 }
 
 inline void AlphaZero::ai::Model::save_version(unsigned int version)
@@ -346,10 +348,6 @@ inline void AlphaZero::ai::Model::save_to_file(char* filename)
 	out.save_to(model_path);
 }
 
-inline void AlphaZero::ai::Model::save_to_file(std::string str)
-{
-	this->save_to_file(str.c_str());
-}
 
 inline void AlphaZero::ai::Model::load_version(unsigned int version)
 {
@@ -379,11 +377,6 @@ inline void AlphaZero::ai::Model::load_from_file(char* filename)
 	std::string model_path = std::string(filename);
 	inp.load_from(model_path);
 	this->load(inp);
-}
-
-inline void AlphaZero::ai::Model::load_from_file(std::string str)
-{
-	this->load_from_file(str.c_str());
 }
 
 inline void AlphaZero::ai::Model::copyModel(std::shared_ptr<AlphaZero::ai::Model> model)

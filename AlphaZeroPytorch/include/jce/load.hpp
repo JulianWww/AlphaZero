@@ -19,6 +19,10 @@ namespace jce
 	void load(std::ifstream& in, std::shared_ptr<AlphaZero::ai::MemoryElement>& element);
 
 	// end custom part
+
+	// load pair from file
+	template<typename T, typename T2>
+	void load(std::ifstream& in, std::pair<T, T2>& data);
 	
 	// load list from file
 	template<typename T>
@@ -63,6 +67,13 @@ inline void jce::load(std::ifstream& in, std::shared_ptr<AlphaZero::ai::MemoryEl
 	jce::load(in, element->value);
 	jce::load(in, element->state);
 	jce::load(in, element->av);
+}
+
+template<typename T, typename T2>
+void jce::load(std::ifstream& in, std::pair<T, T2>& data)
+{
+	jce::load(in, data.first);
+	jce::load(in, data.second);
 }
 
 template<typename T>

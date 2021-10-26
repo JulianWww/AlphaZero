@@ -10,6 +10,7 @@ namespace AlphaZero
 
 		void testCoppying();
 		void testSave();
+		void testLossLog();
 
 		bool compareAgents(std::shared_ptr<ai::Agent> anget1, std::shared_ptr<ai::Agent> anget2);
 		void printSuccess(bool val);

@@ -1,5 +1,7 @@
 #include "log.hpp"
 #include <stdio.h>
+#include <jce/save.hpp>
+#include <jce/load.hpp>
 
 
 
@@ -20,3 +22,34 @@ debug::Profiler::MCTSProfiler debug::Profiler::profiler = debug::Profiler::MCTSP
 #if ModelLogger
 std::shared_ptr<spdlog::logger> debug::log::modelLogger = debug::log::createLogger("ModelLogger", "logs/c++/ModelLogger.log");
 #endif
+#if LossLogger
+debug::log::lossLogger debug::log::_lossLogger = debug::log::lossLogger();
+#endif
+
+debug::log::lossLogger::lossLogger(const char file[])
+{
+	std::ifstream in(file, std::ios::binary);
+	jce::load(in, this->vals);
+}
+
+void debug::log::lossLogger::save(const char file[])
+{
+	std::ofstream out (file, std::ios::binary);
+	jce::save(out, this->vals);
+}
+
+bool debug::log::lossLogger::operator==(const lossLogger& other)
+{
+	if (other.vals.size() == this->vals.size())
+	{
+		for (size_t idx = 0; idx < other.vals.size(); idx++)
+		{
+			if (other[idx] != (*this)[idx])
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	return false;
+}
