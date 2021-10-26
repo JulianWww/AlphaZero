@@ -29,7 +29,15 @@ debug::log::lossLogger debug::log::_lossLogger = debug::log::lossLogger();
 debug::log::lossLogger::lossLogger(const char file[])
 {
 	std::ifstream in(file, std::ios::binary);
-	jce::load(in, this->vals);
+	if (in.is_open())
+	{
+		jce::load(in, this->vals);
+	}
+	else
+	{
+		std::cout << "\33[31;1mFailed to load lossLogger from " << file << "\33[0m" << std::endl;
+	}
+	in.close();
 }
 
 void debug::log::lossLogger::save(const char file[])
@@ -43,6 +51,7 @@ void debug::log::lossLogger::save(const char file[])
 	{
 		std::cout << "\33[31;1mFailed to save lossLogger to " << file << "\33[0m" << std::endl;
 	}
+	out.close();
 }
 
 bool debug::log::lossLogger::operator==(const lossLogger& other)
