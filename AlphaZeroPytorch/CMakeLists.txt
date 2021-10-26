@@ -44,9 +44,17 @@ target_link_libraries(runTest "${TORCH_LIBRARIES}")
 message("adding includes ...")
 
 if (WIN32)
+	add_executable(showLoss "showLoss.cpp" "include/log.cpp")
+	target_include_directories(showLoss PUBLIC "${CMAKE_SOURCE_DIR}/include")
+	target_include_directories(showLoss PUBLIC "C:/Users/Julia/AppData/Local/Programs/Python/Python39/include")
+	target_link_libraries(showLoss "C:/Users/Julia/AppData/Local/Programs/Python/Python39/libs/python39_d.lib")
+	target_link_libraries(showLoss "${TORCH_LIBRARIES}")
+
+
 	target_include_directories(train PUBLIC "D:/MyCode/CppLibs/include")
 	target_include_directories(GameReplayer PUBLIC "D:/MyCode/CppLibs/include")
 	target_include_directories(runTest PUBLIC "D:/MyCode/CppLibs/include")
+	target_include_directories(showLoss PUBLIC "D:/MyCode/CppLibs/include")
 
 	target_link_libraries (train "D:/MyCode/CppLibs/x64/sockpp-static_d.lib")
 endif (WIN32)

@@ -254,10 +254,10 @@ bool AlphaZero::Game::Game::takeHumanAction(int action)
 	return false;
 }
 
-inline std::pair<std::shared_ptr<AlphaZero::Game::GameState>, std::vector<float>> mirrorGameState(std::shared_ptr<AlphaZero::Game::GameState> state, std::vector<float>& actionProbs) {
+inline std::pair<std::shared_ptr<AlphaZero::Game::GameState>, std::vector<int>> mirrorGameState(std::shared_ptr<AlphaZero::Game::GameState> state, std::vector<int>& actionProbs) {
 	IDType boardBuffer;
 
-	std::vector<float> probs = {
+	std::vector<int> probs = {
 		actionProbs[6],  actionProbs[5],  actionProbs[4],  actionProbs[3],  actionProbs[2],  actionProbs[1],  actionProbs[0],
 		actionProbs[13], actionProbs[12], actionProbs[11], actionProbs[10], actionProbs[9],  actionProbs[8],  actionProbs[7],
 		actionProbs[20], actionProbs[19], actionProbs[18], actionProbs[17], actionProbs[16], actionProbs[15], actionProbs[14],
@@ -280,9 +280,9 @@ inline std::pair<std::shared_ptr<AlphaZero::Game::GameState>, std::vector<float>
 	return { std::make_shared<AlphaZero::Game::GameState>(boardBuffer, state->player), probs };
 }
 
-std::vector<std::pair<std::shared_ptr<AlphaZero::Game::GameState>, std::vector<float>>> AlphaZero::Game::identities(std::shared_ptr<GameState> state, std::vector<float>& probs)
+std::vector<std::pair<std::shared_ptr<AlphaZero::Game::GameState>, std::vector<int>>> AlphaZero::Game::identities(std::shared_ptr<GameState> state, std::vector<int>& probs)
 {
-	std::vector<std::pair<std::shared_ptr<GameState>, std::vector<float>>> idents(2);
+	std::vector<std::pair<std::shared_ptr<AlphaZero::Game::GameState>, std::vector<int>>> idents(2);
 	int id = 0;
 	idents[0] = { state, probs };
 	idents[1] = mirrorGameState(state, probs);

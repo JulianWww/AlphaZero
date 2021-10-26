@@ -11,6 +11,9 @@ namespace AlphaZero {
 
 		template<typename T>
 		void linmax(T& inp);
+
+		template<typename T>
+		T getSumm(std::vector<T>& val);
 	}
 }
 
@@ -53,28 +56,13 @@ void AlphaZero::ai::linmax(T& inp)
 	return;
 }
 
-/*
-
-// This writes a vector of non-trivial data types.
-template <class T>
-inline void Write(std::ostream& s, const std::vector<T>& data)
+template<typename T>
+T AlphaZero::ai::getSumm(std::vector<T>& val)
 {
-	unsigned int len = data.size();
-	s.write((char*)&len, sizeof(len));
-	for (unsigned int i = 0; i < len; i++) {
-		Write(s, data[i]);
+	T out = 0;
+	for (const T& value : val)
+	{
+		out = out + value;
 	}
+	return out;
 }
-
-// This reads a vector of non-trivial data types.
-template <class T>
-inline void Read(std::istream& s, std::vector<T>& data)
-{
-	unsigned int len = 0;
-	s.read((char*)&len, sizeof(len));
-	data.resize(len);
-	for (unsigned int i = 0; i < len; i++) {
-		Read(s, data[i]);
-	}
-}
-*/

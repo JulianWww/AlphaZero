@@ -14,7 +14,7 @@ namespace AlphaZero {
 		public: int value;
 		public: std::shared_ptr<Game::GameState>state;
 		public: std::vector<float> av;
-		public: MemoryElement(std::shared_ptr<Game::GameState>, std::vector<float>);
+		public: MemoryElement(std::shared_ptr<Game::GameState>, std::vector<int>);
 		public: MemoryElement();
 		};
 		class Memory {
@@ -23,7 +23,7 @@ namespace AlphaZero {
 		public: std::vector<std::shared_ptr<MemoryElement>> tempMemory;
 		public: std::vector<std::shared_ptr<MemoryElement>> memory;
 		public: Memory();
-		public: void commit(std::shared_ptr<Game::GameState>, std::vector<float>&);
+		public: void commit(std::shared_ptr<Game::GameState>, std::vector<int>&);
 		public: void updateMemory(int player, int value);
 		public: std::shared_ptr<MemoryElement> getState();
 		public: void save(int version);
@@ -37,10 +37,16 @@ namespace AlphaZero {
 		};
 	}
 }
-inline AlphaZero::ai::MemoryElement::MemoryElement(std::shared_ptr<Game::GameState> _state, std::vector<float> _av)
+inline AlphaZero::ai::MemoryElement::MemoryElement(std::shared_ptr<Game::GameState> _state, std::vector<int> _av)
 {
 	this->state = _state;
-	this->av = _av;
+	float sum = (float)getSumm(_av);
+	this->av = std::vector<float>(_av.size());
+	for (size_t idx = 0; idx < this->av.size(); idx++)
+	{
+		float tmp = ((float)_av[idx]);
+		this->av[idx] = 1;// tmp / sum;
+	}
 }
 inline AlphaZero::ai::MemoryElement::MemoryElement()
 {
@@ -48,7 +54,7 @@ inline AlphaZero::ai::MemoryElement::MemoryElement()
 inline AlphaZero::ai::Memory::Memory()
 {
 }
-inline void AlphaZero::ai::Memory::commit(std::shared_ptr<Game::GameState> state, std::vector<float>& av)
+inline void AlphaZero::ai::Memory::commit(std::shared_ptr<Game::GameState> state, std::vector<int>& av)
 {
 	if (active) {
 		auto idents = Game::identities(state, av);

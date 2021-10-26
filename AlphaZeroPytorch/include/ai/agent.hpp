@@ -12,7 +12,7 @@ namespace AlphaZero {
 		public: Agent();
 		public: int identity;
 #if Training
-		public: std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
+		public: std::pair<int, std::vector<int>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
 #else
 		public: virtual std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
 #endif
@@ -20,8 +20,8 @@ namespace AlphaZero {
 		private: float evaluateLeaf(Node*);
 		public: void fit(std::shared_ptr<Memory> memory, unsigned short iteration);
 		public: std::pair<float, std::vector<float>> predict(std::shared_ptr<Game::GameState> state);
-		private: std::pair<int, std::vector<float>> derministicAction(Node* node);
-		private: std::pair<int, std::vector<float>> prabilisticAction(Node* node);
+		private: std::pair<int, std::vector<int>> derministicAction(Node* node);
+		private: std::pair<int, std::vector<int>> prabilisticAction(Node* node);
 		};
 #if not Training
 		class User : public Agent {
@@ -110,37 +110,35 @@ inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::s
 	return { val, polys };
 }
 
-inline std::pair<int, std::vector<float>> AlphaZero::ai::Agent::derministicAction(Node* node)
+inline std::pair<int, std::vector<int>> AlphaZero::ai::Agent::derministicAction(Node* node)
 {
 	int action = 0;
 	unsigned int max_N = 0;
 	unsigned int sum = 0;
-	std::vector<float> probs = jce::vector::gen(action_count, 0.0f);
+	std::vector<int> probs = jce::vector::gen(action_count, 0);
 	for (auto const& iter : node->edges) {
 		if (iter.second.N > max_N) {
 			max_N = iter.second.N;
 			action = iter.first;
 		}
-		probs[iter.second.action] = ((float)iter.second.N);
+		probs[iter.second.action] = iter.second.N;
 	}
-	linmax(probs);
 	return { action, probs };
 }
 
-inline std::pair<int, std::vector<float>> AlphaZero::ai::Agent::prabilisticAction(Node* node)
+inline std::pair<int, std::vector<int>> AlphaZero::ai::Agent::prabilisticAction(Node* node)
 {
 	int action = -1;
 	int idx = 0;
-	float action_probs = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	unsigned int sum = 0;
-	std::vector<float> probs = jce::vector::gen(action_count, 0.0f);
+	std::vector<int> probs = jce::vector::gen(action_count, 0);
 
 	for (auto const& iter : node->edges) {
-		probs[iter.second.action] = ((float)iter.second.N);
+		probs[iter.second.action] = (iter.second.N);
 	}
-	linmax(probs);
 
-	float sumF = (float)sum;
+	int action_probs = (rand() % ai::getSumm(probs));
+
 	for (auto const& val : probs) {
 		action_probs -= val;
 		if (action_probs < 0) {

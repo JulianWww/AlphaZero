@@ -46,7 +46,7 @@
 
 // self play
 #define EPOCHS 30
-#define probabilitic_moves 2// how manny moves are prabilistic in the begining of the game to aid in exploration
+#define probabilitic_moves 10// how manny moves are prabilistic in the begining of the game to aid in exploration
 
 // training
 #define Training_loops 20
