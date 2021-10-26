@@ -275,6 +275,7 @@ inline std::pair<float, float> AlphaZero::ai::Model::train(const std::pair<torch
 	auto valLoss = torch::mse_loss(x.first, y.first);
 	auto plyLoss = torch::mse_loss(x.second, y.second); // TODO get cce  
 	torch::autograd::backward({ valLoss, plyLoss });
+	torch::nn::utils::clip_grad_norm_(this->parameters(), 2.0, 2.0, true); // TODO find good values
 	this->optim.step();
 	return { torch::mean(valLoss).item().toFloat(), torch::mean(plyLoss).item().toFloat() };
 }
@@ -300,7 +301,7 @@ inline std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> AlphaZero::ai::Mo
 	for (unsigned short idx = 0; idx < batchSize; idx++) {
 		auto state = memory->getState();
 		state->state->toTensor(std::get<0>(output), idx);
-		std::get<1>(output)[idx] = at::from_blob(state->av.data(), { action_count });
+		std::get<1>(output)[idx] = at::from_blob(state->av.data(), { action_count }).toType(torch::kFloat16);
 		std::get<2>(output)[idx] = torch::tensor({ state->value });
 	}
 	return output;
