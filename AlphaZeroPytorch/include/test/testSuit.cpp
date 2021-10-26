@@ -49,6 +49,7 @@ void AlphaZero::test::testLossLog()
 	char folder[] = "temp.log.bin";
 	log1.save(folder);
 	auto log2 = debug::log::lossLogger(folder);
+	remove(folder);
 
 	printSuccess(log2 == log1);
 #else
