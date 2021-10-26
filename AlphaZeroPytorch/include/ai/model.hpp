@@ -315,7 +315,7 @@ inline void AlphaZero::ai::Model::fit(const std::tuple<torch::Tensor, torch::Ten
 #endif
 #if LossLogger
 	debug::log::_lossLogger.addValue(error);
-	debug::log::_lossLogger.save("logs/game/loss.bin");
+	debug::log::_lossLogger.save("logs/games/loss.bin");
 #endif
 }
 
