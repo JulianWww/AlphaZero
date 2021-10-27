@@ -6,6 +6,7 @@
 #include <queue>
 #include <game/game.hpp>
 #include "utils.hpp"
+#include <jce/vector.hpp>
 
 
 namespace AlphaZero {
@@ -41,11 +42,11 @@ inline AlphaZero::ai::MemoryElement::MemoryElement(std::shared_ptr<Game::GameSta
 {
 	this->state = _state;
 	float sum = (float)getSumm(_av);
-	this->av = std::vector<float>(_av.size());
+	this->av = jce::vector::gen(_av.size(), 0.0f);
 	for (size_t idx = 0; idx < this->av.size(); idx++)
 	{
 		float tmp = ((float)_av[idx]);
-		this->av[idx] = 1;// tmp / sum;
+		this->av[idx] = tmp / sum;
 	}
 }
 inline AlphaZero::ai::MemoryElement::MemoryElement()
