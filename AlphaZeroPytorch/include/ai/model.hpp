@@ -12,6 +12,7 @@
 #include <tuple>
 #include <jce/string.hpp>
 #include <string>
+#include <cmath>
 
 #define COPY(x) this-> ## x ## . ## copyModel(&model ## ->  ## x)
 
@@ -314,7 +315,7 @@ inline void AlphaZero::ai::Model::fit(const std::tuple<torch::Tensor, torch::Ten
 #if ModelLogger
 	debug::log::modelLogger->info("model error in iteration {} on batch {} had valueError of {} and polyError of {}", run, trainingLoop, std::get<0>(error), std::get<1>(error));
 #endif
-	if (isnan(error.first))
+	if (std::isnan(error.first))
 	{
 		std::cout << "\33[31;1mNaN in Loss Function\33[0m" << std::endl;
 	}
