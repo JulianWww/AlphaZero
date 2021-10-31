@@ -4,7 +4,7 @@
 
 void AlphaZero::test::runTests()
 {
-	std::cout << "running Test" << std::endl;
+	std::cout << "running Test on Devices " <<  DEVICES << std::endl;
 	testCoppying();
 	testSave();
 	testLossLog();
