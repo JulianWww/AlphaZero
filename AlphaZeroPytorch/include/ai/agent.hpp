@@ -123,7 +123,7 @@ inline std::pair<int, std::vector<int>> AlphaZero::ai::Agent::prabilisticAction(
 		probs[iter.second.action] = (iter.second.N);
 	}
 
-	softMaxNoDiv(probs);
+	//softMaxNoDiv(probs);
 	int action_probs = rand() % getSumm(probs);
 	for (auto const& val : probs) {
 		action_probs -= val;

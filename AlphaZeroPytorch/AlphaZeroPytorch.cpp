@@ -76,7 +76,7 @@ int main(int argc, char** argv)
 	else {
 		std::cout << "\33[1;31mWarning: cuDNN is unavailable, consider using a CUDA enabled GPU\33[0m" << std::endl;
 	}
-	std::cout << "Running on Devices" << DEVICES << std::endl;
+	std::cout << "Running on Devices: " << DEVICES << std::endl << std::endl;
 #if OPSMode == 0
 	train(-1);
 #elif OPSMode == 1

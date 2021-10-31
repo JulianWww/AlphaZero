@@ -18,6 +18,7 @@ std::shared_ptr<spdlog::logger> debug::log::memoryLogger = debug::log::createLog
 std::shared_ptr<spdlog::logger> debug::log::profileLogger = debug::log::createLogger("profileLogger", "logs/c++/profileLogger.log");
 
 debug::Profiler::MCTSProfiler debug::Profiler::profiler = debug::Profiler::MCTSProfiler();
+double debug::totalModelTime = 0.0;
 #endif
 #if ModelLogger
 std::shared_ptr<spdlog::logger> debug::log::modelLogger = debug::log::createLogger("ModelLogger", "logs/c++/ModelLogger.log");

@@ -24,6 +24,7 @@
 
 namespace debug {
 #if ProfileLogger
+	extern double totalModelTime;
 	namespace Profiler {
 		class MCTSProfiler {
 		private: utils::Timer timer;
@@ -125,8 +126,9 @@ inline void debug::log::logVector(std::shared_ptr<spdlog::logger> logger, std::v
 
 inline void debug::log::logVector(std::shared_ptr<spdlog::logger> logger, std::vector<int> vec)
 {
-	char out[] = "Action vals are: {2:d}, {2:d}, {2:d}, {2:d}, {2:d}, {2:d}, {2:d}";
+#define out "Action vals are: {0:2d}, {1:2d}, {2:2d}, {3:2d}, {4:2d}, {5:2d}, {6:2d}"
 	logVector(logger, vec, out);
+#undef out
 }
 
 inline void debug::log::logVector(std::shared_ptr<spdlog::logger> logger, std::vector<float> vec)
@@ -192,6 +194,7 @@ inline void debug::Profiler::MCTSProfiler::log(std::shared_ptr<spdlog::logger> l
 	for (auto const& pair : this->times) {
 		logger->info("Profiler time id {} took {} s", pair.first, pair.second);
 	}
+	logger->info("Profiler time Model took {} s", totalModelTime);
 	logger->info("everything else took: {}", this->rest);
 
 	logger->info("");

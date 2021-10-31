@@ -155,7 +155,6 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 			game->takeAction(actionData.first);
 			game->render();
 		}
-		std::cout << "done" << std::endl;
 		// memory->commit(game->state);   add end game states to memory ??
 #if SaverType == 1
 		saver.addState(game->state);
