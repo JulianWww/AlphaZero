@@ -5,6 +5,8 @@ AlphaZero::ai::modelWorker::modelWorker(char* _deviceName, modelManager* _manage
 {
 	this->deviceName = _deviceName;
 	this->manager = _manager;
+	this->model = std::make_unique<Model>();
+	this->model->to(c10::Device(_deviceName));
 	this->thread = std::thread(caler, this);
 
 	_manager->addWorker(this);

@@ -26,8 +26,10 @@ inline bool AlphaZero::test::compareAgents(std::shared_ptr<ai::Agent> anget1, st
 	}
 	auto state = std::make_shared<Game::GameState>(board, rand() % 2);
 
-	auto valsA = anget1->model->workers.front()->model->predict(state);
-	auto valsB = anget2->model->workers.front()->model->predict(state);
+	auto valsA = anget1->model->workers.front()->model->predict(state, 
+		c10::Device(anget1->model->workers.front()->deviceName));
+	auto valsB = anget2->model->workers.front()->model->predict(state, 
+		c10::Device(anget2->model->workers.front()->deviceName));
 
 	if (valsA.first != valsB.first) { return false; }
 	for (size_t idx = 0; idx < action_count; idx++)

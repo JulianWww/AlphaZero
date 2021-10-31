@@ -1,6 +1,9 @@
 #pragma once
 #include <log.hpp>
 #include <bitset>
+#ifdef unix
+#define UNIX
+#endif
 
 #define OPSMode 0
 
@@ -33,10 +36,14 @@
 #define reg_const 0.0001
 #define learningRage 0.1
 #define Momentum 0.9
+#ifdef UNIX
+#define DEVICES "cuda:0"
+#else
 #define DEVICES "cpu"
+#endif
 
 // simulation setting
-#define MCTSSimulations 1000
+#define MCTSSimulations 50
 #define cpuct_ 1.0f
 #define ProbabiliticMoves 10
 #define Alpha 0.9
@@ -80,8 +87,3 @@
 
 
 typedef std::bitset<stateSize> IDType;
-
-
-#ifdef unix
-#define UNIX
-#endif

@@ -82,7 +82,7 @@ namespace AlphaZero {
 		public: std::pair<torch::Tensor, torch::Tensor> forward(torch::Tensor);
 		public: std::pair<float, float> train(const std::pair<torch::Tensor, torch::Tensor>&x, const std::pair<torch::Tensor, torch::Tensor>&y);
 
-		public: std::pair<float, torch::Tensor>predict(std::shared_ptr<Game::GameState> state);
+		public: std::pair<float, torch::Tensor>predict(std::shared_ptr<Game::GameState> state, c10::Device device);
 		public: std::pair<torch::Tensor, torch::Tensor> predict (std::vector<std::shared_ptr<Game::GameState>> states, c10::Device device);
 		public: static std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> getBatch(std::shared_ptr<Memory> memory, unsigned int batchSize);
 		public: void fit(const std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>& batch, const unsigned short& run, const unsigned short& trainingLoop);
@@ -154,10 +154,6 @@ inline AlphaZero::ai::TopLayer::TopLayer(int inp, int out, int kernelsize1) :
 	relu(torch::nn::LeakyReLU(torch::nn::LeakyReLU())),
 	kernel1(kernelsize1 / 2)
 {
-	if (torch::cuda::cudnn_is_available())
-	{
-		this->moveTo(c10::Device("cuda:0"));
-	}
 }
 inline torch::Tensor AlphaZero::ai::TopLayer::forward(torch::Tensor x)
 {
@@ -183,9 +179,6 @@ inline AlphaZero::ai::ResNet::ResNet(int inp, int out, int kernelsize1, int kern
 	batch2(torch::nn::BatchNorm2d(torch::nn::BatchNorm2dOptions(out))),
 	activ(torch::nn::LeakyReLU(torch::nn::LeakyReLU()))
 {
-	if (torch::cuda::is_available()) {
-		this->moveTo(c10::Device("cuda:0"));
-	}
 }
 
 inline torch::Tensor AlphaZero::ai::ResNet::forward(torch::Tensor x)
@@ -218,11 +211,6 @@ inline AlphaZero::ai::Value_head::Value_head(int inp, int hidden_size, int out, 
 	relu(torch::nn::ReLU()), tanh(torch::nn::Tanh())
 {
 	this->size = hidden_size;
-
-	if (torch::cuda::is_available()) 
-	{
-		this->moveTo(c10::Device("cuda:0"));
-	}
 }
 
 inline torch::Tensor AlphaZero::ai::Value_head::forward(torch::Tensor x)
@@ -253,10 +241,6 @@ inline AlphaZero::ai::Policy_head::Policy_head(int inp, int hidden, int out) :
 	lin1(torch::nn::Linear(hidden, out))
 {
 	this->size = hidden;
-
-	if (torch::cuda::is_available()) {
-		this->moveTo(c10::Device("cuda:0"));
-	}
 }
 
 inline torch::Tensor AlphaZero::ai::Policy_head::forward(torch::Tensor x)
@@ -286,12 +270,10 @@ inline std::pair<float, float> AlphaZero::ai::Model::train(const std::pair<torch
 	return { torch::mean(valLoss).item().toFloat(), torch::mean(plyLoss).item().toFloat() };
 }
 
-inline std::pair<float, torch::Tensor> AlphaZero::ai::Model::predict(std::shared_ptr<Game::GameState> state)
+inline std::pair<float, torch::Tensor> AlphaZero::ai::Model::predict(std::shared_ptr<Game::GameState> state, c10::Device device)
 {
 	torch::Tensor NNInput = state->toTensor();
-	if (torch::cuda::cudnn_is_available())
-		NNInput = NNInput.cuda();
-	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
+	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput.to(device));
 	float value = NNOut.first[0].item<float>();
 	return {value, NNOut.second };
 }
@@ -317,8 +299,7 @@ inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::predict(std
 			mask[stateIdx][idx] = false;
 		}
 	}
-	mask.to(device);
-	torch::Tensor out = torch::softmax(torch::masked_fill(NNOut.second, mask, -1000.0f), 1).cpu();
+	torch::Tensor out = torch::softmax(torch::masked_fill(NNOut.second, mask.to(device), -1000.0f), 1).cpu();
 
 	return { NNOut.first.cpu(), out };
 }
