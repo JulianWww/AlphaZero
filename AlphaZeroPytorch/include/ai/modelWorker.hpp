@@ -50,6 +50,7 @@ namespace AlphaZero
 			   
 		public: void unlockAll();
 		public: modelManager();
+		public: ~modelManager();
 		public: void addNode(WorkerData* node);
 		public: void addFinishedNode(WorkerData* data);
 		public: std::list<WorkerData*> getNodes();
@@ -117,6 +118,14 @@ inline bool AlphaZero::ai::modelManager::isDone()
 
 inline AlphaZero::ai::modelManager::modelManager()
 {
+}
+
+inline AlphaZero::ai::modelManager::~modelManager()
+{
+	for (auto& worker : this->workers)
+	{
+		delete worker;
+	}
 }
 
 inline void AlphaZero::ai::modelManager::save_as_current()

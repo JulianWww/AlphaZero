@@ -15,10 +15,10 @@ void AlphaZero::test::testCoppying()
 {
 	std::cout << "Testing Model coppying ...\t";
 
-	auto modelA = std::make_shared<ai::Agent>();
-	auto modelB = std::make_shared<ai::Agent>();
+	auto modelA = std::make_shared<ai::Agent>(std::vector<char*>{ DEVICES });
+	auto modelB = std::make_shared<ai::Agent>(std::vector<char*>{ DEVICES });
 
-	modelB->model->copyModel(modelA->model);
+	modelB->model->copyModel(modelA->model.get());
 	printSuccess(compareAgents(modelA, modelB));
 }
 
@@ -26,8 +26,8 @@ void AlphaZero::test::testSave()
 {
 	std::cout << "Testing Model save ...\t\t";
 
-	auto modelA = std::make_shared<ai::Agent>();
-	auto modelB = std::make_shared<ai::Agent>();
+	auto modelA = std::make_shared<ai::Agent>(std::vector<char*>{ DEVICES });
+	auto modelB = std::make_shared<ai::Agent>(std::vector<char*>{ DEVICES });
 
 	char folder[] = "temp.torch";
 	modelA->model->save_to_file(folder);

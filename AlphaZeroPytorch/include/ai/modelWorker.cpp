@@ -17,8 +17,7 @@ AlphaZero::ai::modelWorker::~modelWorker()
 	{
 		this->terminate();
 	}
-	delete this->deviceName;
-	this->manager->removeWorker(this);
+	//delete this->deviceName;
 }
 
 void AlphaZero::ai::modelWorker::mainLoop()
