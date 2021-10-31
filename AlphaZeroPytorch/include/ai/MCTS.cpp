@@ -24,10 +24,14 @@ AlphaZero::ai::Edge::Edge(Node* _outNode, Node* _inNode, int _action, float _p)
 
 std::pair<AlphaZero::ai::Node*, std::list<AlphaZero::ai::Edge*>> AlphaZero::ai::MCTS::moveToLeaf(Node* node, int randomMovesRemaining)
 {
-	std::list<Edge*> backTrackList;
+	std::list<Edge*> edgeTrackList;
 	while (true) {
 		if (node->isLeaf()) {
-			return { node, backTrackList };
+			//must be the case since updateLock only propergates backward if somthing changed
+			node->locked = false;
+			node->updateLock();
+			node->locked = true; // only if edges are none 
+			return { node, edgeTrackList };
 		}
 		else {
 			int doRand = 0;
@@ -56,16 +60,19 @@ std::pair<AlphaZero::ai::Node*, std::list<AlphaZero::ai::Edge*>> AlphaZero::ai::
 			bool nothasQU = true;
 			
 			for (auto& iter : node->edges) {
-				U = U_computation(iter.second);
-				if (nothasQU || U + iter.second.Q > maxQu) {
-					opsEdge = &(iter.second);
-					opsAction = iter.first;
-					maxQu = U + iter.second.Q;
-					nothasQU = false;
+				if (!iter.second.outNode->locked)
+				{
+					U = U_computation(iter.second);
+					if (nothasQU || U + iter.second.Q > maxQu) {
+						opsEdge = &(iter.second);
+						opsAction = iter.first;
+						maxQu = U + iter.second.Q;
+						nothasQU = false;
+					}
 				}
 			}
 			opsEdge->traverse();
-			backTrackList.push_back(opsEdge);
+			edgeTrackList.push_back(opsEdge);
 			node = opsEdge->outNode;
 		}
 	}
@@ -85,3 +92,13 @@ void AlphaZero::ai::MCTS::backFill(std::list<Edge*>& backTrace, Node* leaf, floa
 	}
 }
 
+void AlphaZero::ai::MCTS::backFill(WorkerData* trace)
+{
+	float currentPlayer = (float)trace->node->state->player * trace->value;
+
+	for (auto edge : trace->edges)
+	{
+		edge->W = edge->W + currentPlayer * currentPlayer * edge->inNode->state->player;
+		edge->Q = edge->W / (float)(edge->N);
+	}
+}

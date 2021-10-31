@@ -33,13 +33,15 @@
 #define reg_const 0.0001
 #define learningRage 0.1
 #define Momentum 0.9
+#define DEVICES "cpu"
 
 // simulation setting
-#define MCTSSimulations 50
+#define MCTSSimulations 1000
 #define cpuct_ 1.0f
 #define ProbabiliticMoves 10
 #define Alpha 0.9
 #define EPSILON 0.2f
+#define NNMaxBatchSize 5
 
 // memory setting
 #define memory_size 30000
@@ -54,7 +56,7 @@
 #define Training_epochs 1
 
 // turney
-#define Turnement_probabiliticMoves 2
+#define Turnement_probabiliticMoves 0
 #define TurneyEpochs 20
 #define scoringThreshold 1.3
 

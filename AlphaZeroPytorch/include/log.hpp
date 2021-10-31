@@ -45,7 +45,9 @@ namespace debug {
 	namespace log {
 		std::shared_ptr<spdlog::logger> createLogger(const char* name, const char* file);
 		template<typename T>
-		void logVector(std::shared_ptr<spdlog::logger> logger, std::vector<T>);
+		void logVector(std::shared_ptr<spdlog::logger> logger, std::vector<T>, char*);
+		void logVector(std::shared_ptr<spdlog::logger> logger, std::vector<int>);
+		void logVector(std::shared_ptr<spdlog::logger> logger, std::vector<float>);
 
 		class lossLogger
 		{
@@ -111,9 +113,8 @@ inline std::pair<float, float> debug::log::lossLogger::operator[](size_t idx) co
 }
 
 template<typename T>
-inline void debug::log::logVector(std::shared_ptr<spdlog::logger> logger, std::vector<T> vec)
+inline void debug::log::logVector(std::shared_ptr<spdlog::logger> logger, std::vector<T> vec, char* out)
 {
-	char out[] = "Action vals are: {}, {}, {}, {}, {}, {}, {}";
 	logger->info(out, (vec[0]),  (vec[1]),  (vec[2]),  (vec[3]),  (vec[4]),  (vec[5]),  (vec[6]));
 	logger->info(out, (vec[7]),  (vec[8]),  (vec[9]),  (vec[10]), (vec[11]), (vec[12]), (vec[13]));
 	logger->info(out, (vec[14]), (vec[15]), (vec[16]), (vec[17]), (vec[18]), (vec[19]), (vec[20]));
@@ -121,6 +122,19 @@ inline void debug::log::logVector(std::shared_ptr<spdlog::logger> logger, std::v
 	logger->info(out, (vec[28]), (vec[29]), (vec[30]), (vec[31]), (vec[32]), (vec[33]), (vec[34]));
 	logger->info(out, (vec[35]), (vec[36]), (vec[37]), (vec[38]), (vec[39]), (vec[40]), (vec[41]));
 }
+
+inline void debug::log::logVector(std::shared_ptr<spdlog::logger> logger, std::vector<int> vec)
+{
+	char out[] = "Action vals are: {2:d}, {2:d}, {2:d}, {2:d}, {2:d}, {2:d}, {2:d}";
+	logVector(logger, vec, out);
+}
+
+inline void debug::log::logVector(std::shared_ptr<spdlog::logger> logger, std::vector<float> vec)
+{
+	char out[] = "Action vals are: {:1.2f}, {:1.2f}, {:1.2f}, {:1.2f}, {:1.2f}, {:1.2f}, {:1.2f}";
+	logVector(logger, vec, out);
+}
+
 #if ProfileLogger
 inline void debug::Profiler::MCTSProfiler::switchOperation(unsigned int id)
 {

@@ -1,13 +1,11 @@
 #pragma once
-#include <ostream>
-#include <istream>
 #include <vector>
 
 namespace AlphaZero {
 	namespace ai {
 		// Softams function inp is an iteratable of numbers
 		template<typename T>
-		void softmax(T& inp);
+		void softMaxNoDiv(T& inp);
 
 		template<typename T>
 		void linmax(T& inp);
@@ -17,28 +15,32 @@ namespace AlphaZero {
 	}
 }
 
-template<typename T>
-inline void AlphaZero::ai::softmax(T& inp){
-	typedef float number;
+inline int ipow(int base, int exp)
+{
+	int result = 1;
+	for (;;)
+	{
+		if (exp & 1)
+			result *= base;
+		exp >>= 1;
+		if (!exp)
+			break;
+		base *= base;
+	}
 
-	number m = -10e100;
-	for (number const& z : inp){
-		if (m < z) {
-			m = z;
+	return result;
+}
+
+template<typename T>
+inline void AlphaZero::ai::softMaxNoDiv(T& inp)
+{
+	for (auto& val : inp)
+	{
+		if (val != 0)
+		{
+			val = ipow(2, val);
 		}
 	}
-
-	number sum = 0.0;
-	for (number const& z : inp) {
-		sum += exp(z - m);
-	}
-
-	number constant = m + log(sum);
-	for (number& z : inp) {
-		z = exp(z - constant);
-	}
-	throw "Depricated function";
-	return;
 }
 
 template<typename T>

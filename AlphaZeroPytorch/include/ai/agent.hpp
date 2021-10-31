@@ -1,6 +1,6 @@
 #pragma once
 #include <ai/MCTS.hpp>
-#include <ai/memory.hpp>
+#include <ai/modelWorker.hpp>
 #include <jce/vector.hpp>
 #include "utils.hpp"
 
@@ -8,8 +8,8 @@ namespace AlphaZero {
 	namespace ai {
 		class Agent {
 		public: std::shared_ptr<MCTS> tree;
-		public: std::shared_ptr<Model> model;
-		public: Agent();
+		public: std::shared_ptr<modelManager> model;
+		public: Agent(std::vector<char*> devices);
 		public: int identity;
 #if Training
 		public: std::pair<int, std::vector<int>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
@@ -17,9 +17,9 @@ namespace AlphaZero {
 		public: virtual std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
 #endif
 		public: void runSimulations(Node*);
-		private: float evaluateLeaf(Node*);
+		private: void evaluateLeaf(WorkerData*);
 		public: void fit(std::shared_ptr<Memory> memory, unsigned short iteration);
-		public: std::pair<float, std::vector<float>> predict(std::shared_ptr<Game::GameState> state);
+		public: void predict(std::pair<Node*, std::list<Edge*>> state);
 		private: std::pair<int, std::vector<int>> derministicAction(Node* node);
 		private: std::pair<int, std::vector<int>> prabilisticAction(Node* node);
 		};
@@ -34,34 +34,46 @@ namespace AlphaZero {
 
 inline void AlphaZero::ai::Agent::runSimulations(Node* node)
 {
-	std::pair<Node*, std::list<Edge*>> serchResults = this->tree->moveToLeaf(node, ProbabiliticMoves);
-	float val = this->evaluateLeaf(serchResults.first);
-	this->tree->backFill(serchResults.second, serchResults.first, val);
-	this->tree->addMCTSIter();
+	if (this->model->toRun.size() < NNMaxBatchSize && node->rootLocked() && this->tree->MCTSIter < MCTSSimulations)
+	{
+		auto serchResults = this->tree->moveToLeaf(node, ProbabiliticMoves);
+		this->predict(serchResults);
+		this->tree->addMCTSIter();
+	}
+
+	auto predicted = this->model->getFinishedData();
+	for (auto state : predicted)
+	{
+		this->evaluateLeaf(state);
+		this->tree->backFill(state);
+	}
 }
 
 inline void AlphaZero::ai::runSimulationsCaller(AlphaZero::ai::Agent* agent, Node* node)
 {
-	while (agent->tree->MCTSIter < MCTSSimulations) {
+	while (agent->tree->MCTSIter < MCTSSimulations || !agent->model->isDone()) {
 		agent->runSimulations(node);
 	}
 }
 
-inline float AlphaZero::ai::Agent::evaluateLeaf(Node* node)
+inline void AlphaZero::ai::Agent::evaluateLeaf(WorkerData* trace)
 {
+	Node* node = trace->node;
 	if (!node->state->done){
 		std::shared_ptr<Game::GameState> nextState;
 		Node* nextNode;
-		auto NNvals = this->predict(node->state);
 		for (auto& action : node->state->allowedActions) {
 			nextState = node->state->takeAction(action);
 			nextNode = this->tree->addNode(nextState);
-			Edge newEdge = Edge(nextNode, node, action, NNvals.second[action]); //the last is the prob
+			nextNode->inNodes.push_back(node);
+			Edge newEdge = Edge(nextNode, node, action, trace->polys[action]); //the last is the prob
 			node->addEdge( action, newEdge);
 		}
-		return NNvals.first;
+		node->locked = true;
+		node->updateLock();
+		node->locked = false;
 	}
-	return (float)std::get<0>(node->state->val);
+	return ;
 }
 
 inline void AlphaZero::ai::Agent::fit(std::shared_ptr<Memory> memory, unsigned short run)
@@ -79,35 +91,9 @@ inline void AlphaZero::ai::Agent::fit(std::shared_ptr<Memory> memory, unsigned s
 #endif
 }
 
-inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::shared_ptr<Game::GameState> state)
+inline void AlphaZero::ai::Agent::predict(std::pair<Node*, std::list<Edge*>> data)
 {
-	auto preds = this->model->predict(state);
-	float& val = preds.first;
-	std::vector<float> polys = std::vector<float>(action_count);
-
-	c10::Device device ("cpu");
-	/*if (torch::cuda::cudnn_is_available())
-	{
-		device = c10::Device("cuda:0");
-	}*/
-
-	torch::Tensor mask = torch::ones(
-		{ 1, action_count }, 
-		c10::TensorOptions().device(c10::Device("cpu")).dtype(at::kBool)
-	);
-
-	for (auto idx : state->allowedActions)
-	{
-		mask[0][idx] = false;
-	}
-
-	torch::Tensor out = torch::softmax(torch::masked_fill(preds.second.cpu(), mask, -1000.0f), 1);
-
-	for (auto const& idx : state->allowedActions) {
-		polys[idx] = out[0][idx].item<float>();
-	}
-
-	return { val, polys };
+	this->model->addNode(new WorkerData(data));
 }
 
 inline std::pair<int, std::vector<int>> AlphaZero::ai::Agent::derministicAction(Node* node)
@@ -137,8 +123,8 @@ inline std::pair<int, std::vector<int>> AlphaZero::ai::Agent::prabilisticAction(
 		probs[iter.second.action] = (iter.second.N);
 	}
 
-	int action_probs = (rand() % ai::getSumm(probs));
-
+	softMaxNoDiv(probs);
+	int action_probs = rand() % getSumm(probs);
 	for (auto const& val : probs) {
 		action_probs -= val;
 		if (action_probs < 0) {

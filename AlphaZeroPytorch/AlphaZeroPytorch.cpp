@@ -15,6 +15,8 @@
 #include <Server/server.hpp>
 #endif
 
+#include <ai/modelWorker.hpp>
+
 
 inline void wait(int time)
 {
@@ -62,7 +64,7 @@ void inline train(int arg)
 }
 
 
-int main(int argc, char ** argv)
+int main(int argc, char** argv)
 {
 	/*std::ofstream out("out.txt");
 	std::streambuf* coutbuf = std::cout.rdbuf(); //save old buf
@@ -83,12 +85,12 @@ int main(int argc, char ** argv)
 	std::shared_ptr<AlphaZero::ai::Agent> agent = std::make_shared<AlphaZero::ai::Agent>(game);
 	agent->model->load_current();
 
-	AlphaZero::Server::TCPServer server (agent);
+	AlphaZero::Server::TCPServer server(agent);
 	server.mainLoop();
 
 #elif OPSMode == 2
 	std::cout << "\33[1;31mUsing Test Server! \n\tset OPSMode to 1 for server if not testing\33[0m" << std::endl;
-	AlphaZero::Server::TestServer server (PORT);
+	AlphaZero::Server::TestServer server(PORT);
 	server.mainLoop();
 #endif
 #if ProfileLogger

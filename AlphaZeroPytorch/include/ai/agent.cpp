@@ -15,9 +15,13 @@ std::pair<int, std::vector<float>> AlphaZero::ai::User::getAction(std::shared_pt
 }
 #endif
 
-AlphaZero::ai::Agent::Agent() // TODO remove int version from this function
+AlphaZero::ai::Agent::Agent(std::vector<char*> devices)
 {
-	this->model = std::make_shared<AlphaZero::ai::Model>();
+	this->model = std::make_shared<AlphaZero::ai::modelManager>();
+	for (auto& device : devices)
+	{
+		new modelWorker(device, this->model.get());
+	}
 	this->tree = std::make_shared<AlphaZero::ai::MCTS>();
 }
 

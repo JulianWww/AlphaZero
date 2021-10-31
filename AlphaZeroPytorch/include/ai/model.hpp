@@ -83,6 +83,7 @@ namespace AlphaZero {
 		public: std::pair<float, float> train(const std::pair<torch::Tensor, torch::Tensor>&x, const std::pair<torch::Tensor, torch::Tensor>&y);
 
 		public: std::pair<float, torch::Tensor>predict(std::shared_ptr<Game::GameState> state);
+		public: std::pair<torch::Tensor, torch::Tensor> predict (std::vector<std::shared_ptr<Game::GameState>> states, c10::Device device);
 		public: static std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> getBatch(std::shared_ptr<Memory> memory, unsigned int batchSize);
 		public: void fit(const std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>& batch, const unsigned short& run, const unsigned short& trainingLoop);
 
@@ -95,6 +96,7 @@ namespace AlphaZero {
 		public: void load_from_file(char* filename);
 
 		public: void copyModel(std::shared_ptr<Model>);
+		public: void copyModel(Model*);
 		public: void moveTo(c10::Device device);
 
 		private: TopLayer register_custom_module(TopLayer net);
@@ -128,6 +130,9 @@ inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(tor
 	if (!x.is_cuda() && torch::cuda::cudnn_is_available()) {
 		x = x.cuda();
 	}
+#if modelTest
+	std::cout << x.sizes() << std::endl;
+#endif
 	x = this->top.forward(x);
 	x = this->res1.forward(x);
 	x = this->res2.forward(x);
@@ -167,7 +172,7 @@ inline void AlphaZero::ai::TopLayer::moveTo(c10::Device device)
 {
 	this->conv1->to(device, true);
 	this->batch->to(device, true);
-	this->relu->to(device, true);
+	this->relu->to (device, true);
 }
 
 inline AlphaZero::ai::ResNet::ResNet(int inp, int out, int kernelsize1, int kernelsize2) :
@@ -291,6 +296,33 @@ inline std::pair<float, torch::Tensor> AlphaZero::ai::Model::predict(std::shared
 	return {value, NNOut.second };
 }
 
+inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::predict(std::vector<std::shared_ptr<Game::GameState>> states, c10::Device device)
+{
+	torch::Tensor NNInput = at::zeros({ (long long)states.size(), input_snape_z, input_shape_y, input_shape_x });
+	for (size_t idx = 0; idx < states.size(); idx++)
+	{
+		states[idx]->toTensor(NNInput, idx);
+	}
+
+	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput.to(device));
+
+	torch::Tensor mask = torch::ones(
+		{ (long long)states.size(), action_count },
+		c10::TensorOptions().device(c10::Device("cpu")).dtype(at::kBool)
+	);
+	for (size_t stateIdx = 0; stateIdx < states.size(); stateIdx++)
+	{
+		for (auto idx : states[stateIdx]->allowedActions)
+		{
+			mask[stateIdx][idx] = false;
+		}
+	}
+	mask.to(device);
+	torch::Tensor out = torch::softmax(torch::masked_fill(NNOut.second, mask, -1000.0f), 1).cpu();
+
+	return { NNOut.first.cpu(), out };
+}
+
 inline std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> AlphaZero::ai::Model::getBatch(std::shared_ptr<Memory> memory, unsigned int batchSize)
 {
 	std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> output =
@@ -386,6 +418,11 @@ inline void AlphaZero::ai::Model::load_from_file(char* filename)
 }
 
 inline void AlphaZero::ai::Model::copyModel(std::shared_ptr<AlphaZero::ai::Model> model)
+{
+	this->copyModel(model.get());
+}
+
+inline void AlphaZero::ai::Model::copyModel(AlphaZero::ai::Model* model)
 {
 	torch::autograd::GradMode::set_enabled(false);
 	auto new_params = model->named_parameters(true);
