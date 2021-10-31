@@ -126,6 +126,8 @@ inline void AlphaZero::ai::Node::updateLock()
 
 inline bool AlphaZero::ai::Node::rootLocked()
 {
+	return true;
+	
 	if (this->locked)
 	{
 		return false;
