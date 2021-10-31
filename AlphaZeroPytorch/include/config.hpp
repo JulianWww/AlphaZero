@@ -54,7 +54,7 @@
 #define memory_size 30000
 
 // self play
-#define EPOCHS 1
+#define EPOCHS 30
 #define probabilitic_moves 10// how manny moves are prabilistic in the begining of the game to aid in exploration
 
 // training
