@@ -14,7 +14,7 @@ namespace AlphaZero {
 #if Training
 		public: std::pair<int, std::vector<int>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
 #else
-		public: virtual std::pair<int, std::vector<int>> getAction(Game::GameState* state, bool proabilistic);
+		public: virtual std::pair<int, std::vector<int>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
 #endif
 		public: void runSimulations(Node*);
 		private: void evaluateLeaf(WorkerData*);
@@ -42,11 +42,11 @@ inline void AlphaZero::ai::Agent::runSimulations(Node* node)
 	}
 
 	auto predicted = this->model->getFinishedData();
-	for (auto state : predicted)
+	for (auto& state : predicted)
 	{
 		this->evaluateLeaf(state);
 		this->tree->backFill(state);
-		//delete state;
+		delete state;
 	}
 }
 
@@ -70,10 +70,10 @@ inline void AlphaZero::ai::Agent::evaluateLeaf(WorkerData* trace)
 			Edge newEdge = Edge(nextNode, node, action, trace->polys[action]); //the last is the prob
 			node->addEdge( action, newEdge);
 		}
-		node->locked = true;
-		node->updateLock();
-		node->locked = false;
 	}
+	node->locked = true;
+	node->updateLock();
+	node->locked = false;
 	return ;
 }
 

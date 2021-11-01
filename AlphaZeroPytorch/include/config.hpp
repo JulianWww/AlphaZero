@@ -48,7 +48,7 @@
 #define ProbabiliticMoves 10
 #define Alpha 0.9
 #define EPSILON 0.2f
-#define NNMaxBatchSize 5
+#define NNMaxBatchSize 20
 
 // memory setting
 #define memory_size 30000

@@ -90,8 +90,8 @@ void AlphaZero::ai::modelManager::addNode(WorkerData* node)
 	{
 		this->runMutex.lock();
 		this->toRun.push_back(node);
-		this->runMutex.unlock();
 		this->unlockAll();
+		this->runMutex.unlock();
 	}
 }
 
