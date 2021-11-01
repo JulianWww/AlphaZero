@@ -1,6 +1,11 @@
 #include "modelWorker.hpp"
 #include "MCTS.hpp"
 
+AlphaZero::ai::WorkerData::~WorkerData()
+{
+	return;
+}
+
 AlphaZero::ai::modelWorker::modelWorker(char* _deviceName, modelManager* _manager)
 {
 	this->deviceName = _deviceName;
@@ -27,7 +32,7 @@ void AlphaZero::ai::modelWorker::mainLoop()
 	this->currentlyRunning = true;
 	auto states = this->manager->getNodes();
 	auto states_begin = states.begin();
-	std::vector<std::shared_ptr<Game::GameState>> data(states.size());
+	std::vector<Game::GameState*> data(states.size());
 	for (size_t idx = 0; idx < states.size(); idx++)
 	{
 		data[idx] = (*states_begin)->node->state;

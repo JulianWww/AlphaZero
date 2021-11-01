@@ -100,6 +100,8 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 #endif
 
 	for (int epoch = 0; epoch < Epochs; epoch++) {
+		agent1->tree->reset();
+		agent2->tree->reset();
 #if RenderGenAndTurneyProgress
 		jce::consoleUtils::render_progress_bar((float)epoch / (float)Epochs);
 #endif
@@ -125,8 +127,6 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 			{goesFist, agent1},
 			{-goesFist,agent2}
 		};
-		agent1->tree->reset();
-		agent2->tree->reset();
 
 #if MainLogger
 		if (epoch == 0) {

@@ -22,12 +22,17 @@ void AlphaZero::Game::GameState::initialize(IDType board, int _player)
 
 std::shared_ptr<AlphaZero::Game::GameState> AlphaZero::Game::GameState::takeAction(int action)
 {
+	std::shared_ptr<GameState> newState(this->MCTS_takeAction(action));
+	return newState;
+}
+
+AlphaZero::Game::GameState* AlphaZero::Game::GameState::MCTS_takeAction(int action)
+{
 	IDType newBoard = this->gameBoard;
 	GameState::IdIndex(action, this->player, newBoard);
 
-	std::shared_ptr<GameState> newState = std::make_shared<GameState>(newBoard, -this->player);
-	return newState;
-}
+	return new GameState(newBoard, -this->player);
+};
 
 void AlphaZero::Game::GameState::gameIsDone()
 {

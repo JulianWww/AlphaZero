@@ -35,8 +35,11 @@ namespace AlphaZero {
 
 		public: GameState(IDType board, int _player);
 		public: GameState();
+		public: ~GameState();
 		private: void initialize(IDType board, int _player);
 		public: std::shared_ptr<GameState> takeAction(int action);
+			  // same a take Action but returns a standart pointer
+		public: GameState* MCTS_takeAction(int action);
 		public: void gameIsDone();
 		protected: void getAllowedActions();
 		public: int IdIndex(int id);
@@ -92,6 +95,11 @@ namespace AlphaZero {
 			std::cout << std::endl << "the last player just won";
 		}
 	}
+}
+
+inline AlphaZero::Game::GameState::~GameState()
+{
+	return;
 }
 
 inline std::size_t AlphaZero::Game::StateHash::operator()(std::pair<std::shared_ptr<GameState>, std::vector<int>>  const& s) const noexcept {

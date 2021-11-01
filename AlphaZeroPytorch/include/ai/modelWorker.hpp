@@ -17,6 +17,7 @@ namespace AlphaZero
 		class WorkerData
 		{
 		public: WorkerData(std::pair<Node*, std::list<Edge*>> edges);
+		public: ~WorkerData();
 		public: Node* node;
 		public: std::vector<Edge*> edges;
 		public: float value = 0.0f;
@@ -106,7 +107,7 @@ inline bool AlphaZero::ai::modelManager::isDone()
 	{
 		return false;
 	}
-	if (this->toRun.size() > 0)
+	if (this->hasRun.size() > 0)
 	{
 		return false;
 	}

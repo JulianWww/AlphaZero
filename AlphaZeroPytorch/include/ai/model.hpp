@@ -83,7 +83,7 @@ namespace AlphaZero {
 		public: std::pair<float, float> train(const std::pair<torch::Tensor, torch::Tensor>&x, const std::pair<torch::Tensor, torch::Tensor>&y);
 
 		public: std::pair<float, torch::Tensor>predict(std::shared_ptr<Game::GameState> state, c10::Device device);
-		public: std::pair<torch::Tensor, torch::Tensor> predict (std::vector<std::shared_ptr<Game::GameState>> states, c10::Device device);
+		public: std::pair<torch::Tensor, torch::Tensor> predict (std::vector<Game::GameState*> states, c10::Device device);
 		public: static std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> getBatch(std::shared_ptr<Memory> memory, unsigned int batchSize);
 		public: void fit(const std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>& batch, const unsigned short& run, const unsigned short& trainingLoop);
 
@@ -109,6 +109,7 @@ namespace AlphaZero {
 }
 // customizable section
 #define modelTest false
+#define RANDOM true
 
 inline AlphaZero::ai::Model::Model() :
 	//headLayer(register_module("conv", torch::nn::Conv2d()))
@@ -133,6 +134,9 @@ inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(tor
 #if modelTest
 	std::cout << x.sizes() << std::endl;
 #endif
+#if RANDOM
+	return { torch::rand({x.size(0), 1}), torch::rand({x.size(0), 42}) };
+#else
 	x = this->top.forward(x);
 	x = this->res1.forward(x);
 	x = this->res2.forward(x);
@@ -145,6 +149,7 @@ inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(tor
 	torch::Tensor value = this->value_head.forward(x);
 	torch::Tensor poly = this->policy_head.forward(x);
 	return { value, poly };
+#endif
 };
 // end of cutimizable section
 
@@ -278,7 +283,7 @@ inline std::pair<float, torch::Tensor> AlphaZero::ai::Model::predict(std::shared
 	return {value, NNOut.second };
 }
 
-inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::predict(std::vector<std::shared_ptr<Game::GameState>> states, c10::Device device)
+inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::predict(std::vector<Game::GameState*> states, c10::Device device)
 {
 	torch::Tensor NNInput = at::zeros({ (long long)states.size(), input_snape_z, input_shape_y, input_shape_x });
 	for (size_t idx = 0; idx < states.size(); idx++)

@@ -6,7 +6,7 @@
 std::random_device rd;
 std::mt19937 gen(rd());
 
-AlphaZero::ai::Node::Node(std::shared_ptr<Game::GameState> state)
+AlphaZero::ai::Node::Node(Game::GameState* state)
 {
 	this->state = state;
 }

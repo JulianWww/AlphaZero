@@ -14,7 +14,7 @@ namespace AlphaZero {
 #if Training
 		public: std::pair<int, std::vector<int>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
 #else
-		public: virtual std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
+		public: virtual std::pair<int, std::vector<int>> getAction(Game::GameState* state, bool proabilistic);
 #endif
 		public: void runSimulations(Node*);
 		private: void evaluateLeaf(WorkerData*);
@@ -46,6 +46,7 @@ inline void AlphaZero::ai::Agent::runSimulations(Node* node)
 	{
 		this->evaluateLeaf(state);
 		this->tree->backFill(state);
+		//delete state;
 	}
 }
 
@@ -60,10 +61,10 @@ inline void AlphaZero::ai::Agent::evaluateLeaf(WorkerData* trace)
 {
 	Node* node = trace->node;
 	if (!node->state->done){
-		std::shared_ptr<Game::GameState> nextState;
+		Game::GameState* nextState;
 		Node* nextNode;
 		for (auto& action : node->state->allowedActions) {
-			nextState = node->state->takeAction(action);
+			nextState = node->state->MCTS_takeAction(action);
 			nextNode = this->tree->addNode(nextState);
 			nextNode->inNodes.push_back(node);
 			Edge newEdge = Edge(nextNode, node, action, trace->polys[action]); //the last is the prob
