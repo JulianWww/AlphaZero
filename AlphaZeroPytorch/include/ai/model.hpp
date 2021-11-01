@@ -109,7 +109,7 @@ namespace AlphaZero {
 }
 // customizable section
 #define modelTest false
-#define RANDOM true
+#define RANDOM false
 
 inline AlphaZero::ai::Model::Model() :
 	//headLayer(register_module("conv", torch::nn::Conv2d()))
