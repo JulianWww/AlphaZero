@@ -34,19 +34,23 @@ namespace AlphaZero {
 
 inline void AlphaZero::ai::Agent::runSimulations(Node* node)
 {
-	if (this->model->toRun.size() < NNMaxBatchSize && node->rootLocked() && this->tree->MCTSIter < MCTSSimulations)
+	if (this->model->toRun.size() < NNMaxBatchSize && node->rootLocked() && this->tree->MCTSIter < MCTSSimulations && this->model->isDone())
 	{
 		auto serchResults = this->tree->moveToLeaf(node, ProbabiliticMoves);
 		this->predict(serchResults);
 		this->tree->addMCTSIter();
+		std::cout << "gen" << std::endl;
 	}
-
-	auto predicted = this->model->getFinishedData();
-	for (auto& state : predicted)
+	if (this->model->hasRun.size() > 0)
 	{
-		this->evaluateLeaf(state);
-		this->tree->backFill(state);
-		delete state;
+		auto predicted = this->model->getFinishedData();
+		for (auto& state : predicted)
+		{
+			this->evaluateLeaf(state);
+			this->tree->backFill(state);
+			delete state;
+			std::cout << "back" << std::endl;
+		}
 	}
 }
 

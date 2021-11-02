@@ -98,10 +98,10 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 #elif SaverType == 2
 	io::ActionsOnly::GameSaver saver = io::ActionsOnly::GameSaver();
 #endif
-	agent1->tree->reset();
-	agent2->tree->reset();
 
 	for (int epoch = 0; epoch < Epochs; epoch++) {
+		agent1->tree->reset();
+		agent2->tree->reset();
 #if RenderGenAndTurneyProgress
 		jce::consoleUtils::render_progress_bar((float)epoch / (float)Epochs);
 #endif

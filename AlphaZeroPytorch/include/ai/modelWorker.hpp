@@ -71,6 +71,7 @@ namespace AlphaZero
 		public: void save_to_file(char*);
 		public: void load_from_file(char*);
 		public: void copyModel(modelManager* manager);
+		public: void syncWorkers();
 		};
 	}
 }
@@ -160,4 +161,14 @@ inline void AlphaZero::ai::modelManager::copyModel(modelManager* manager)
 {
 	for (auto val : this->workers)
 		val->model->copyModel(manager->workers.front()->model.get());
+}
+inline void AlphaZero::ai::modelManager::syncWorkers()
+{
+	for (auto val : this->workers)
+	{
+		if (val != this->workers.front())
+		{
+			val->model->copyModel(this->workers.front()->model.get());
+		}
+	}
 }
