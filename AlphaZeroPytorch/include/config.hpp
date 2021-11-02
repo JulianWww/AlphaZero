@@ -43,7 +43,7 @@
 #endif
 
 // simulation setting
-#define MCTSSimulations 200
+#define MCTSSimulations 50
 #define cpuct_ 1.0f
 #define ProbabiliticMoves 10
 #define Alpha 0.9

@@ -145,4 +145,5 @@ void AlphaZero::ai::modelManager::removeWorker(modelWorker* worker)
 void  AlphaZero::ai::modelManager::fit(const std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>& batch, const unsigned short& run, const unsigned short& trainingLoop)
 {
 	this->workers.front()->model->fit(batch, run, trainingLoop);
+	this->copyModel(this);
 }
