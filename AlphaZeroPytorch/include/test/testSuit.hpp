@@ -14,6 +14,9 @@ namespace AlphaZero
 
 		bool compareAgents(std::shared_ptr<ai::Agent> anget1, std::shared_ptr<ai::Agent> anget2);
 		void printSuccess(bool val);
+		// this dose not state that the test is invalid rather that it has not been able to determine success
+		// for instance if the models return random numbers as they do while testing on the cpu to save time.
+		void printInvalidTest();
 	}
 }
 
@@ -52,4 +55,9 @@ inline void AlphaZero::test::printSuccess(bool val)
 	{
 	std::cout << "\33[31;1mFailed\33[0m" << std::endl;
 	}
+}
+
+inline void AlphaZero::test::printInvalidTest()
+{
+	std::cout << "\33[33;1mUnconclusive\33[0m" << std::endl;
 }
