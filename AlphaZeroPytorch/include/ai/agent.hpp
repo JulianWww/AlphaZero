@@ -39,7 +39,6 @@ inline void AlphaZero::ai::Agent::runSimulations(Node* node)
 		auto serchResults = this->tree->moveToLeaf(node, ProbabiliticMoves);
 		this->predict(serchResults);
 		this->tree->addMCTSIter();
-		std::cout << "gen" << std::endl;
 	}
 	if (this->model->hasRun.size() > 0)
 	{
@@ -49,7 +48,6 @@ inline void AlphaZero::ai::Agent::runSimulations(Node* node)
 			this->evaluateLeaf(state);
 			this->tree->backFill(state);
 			delete state;
-			std::cout << "back" << std::endl;
 		}
 	}
 }
