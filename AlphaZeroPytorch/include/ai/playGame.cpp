@@ -41,7 +41,7 @@ void AlphaZero::ai::train(int version)
 #endif
 
 	// TODO bestAgent->model->save(0);
-	if (true) { // TODO revert to while !!!
+	while (true) { // TODO revert to while !!!
 		memory->active = true;
 #if MainLogger
 		debug::log::mainLogger->info("playing version: {}", version);
@@ -98,10 +98,10 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 #elif SaverType == 2
 	io::ActionsOnly::GameSaver saver = io::ActionsOnly::GameSaver();
 #endif
+	agent1->tree->reset();
+	agent2->tree->reset();
 
 	for (int epoch = 0; epoch < Epochs; epoch++) {
-		agent1->tree->reset();
-		agent2->tree->reset();
 #if RenderGenAndTurneyProgress
 		jce::consoleUtils::render_progress_bar((float)epoch / (float)Epochs);
 #endif

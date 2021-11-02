@@ -5,7 +5,7 @@
 #define MainLogger true
 #define MCTSLogger false
 #define MemoryLogger false
-#define ProfileLogger true
+#define ProfileLogger false
 #define ModelLogger false
 #define LossLogger true
 
@@ -184,7 +184,7 @@ inline void debug::Profiler::MCTSProfiler::log(std::shared_ptr<spdlog::logger> l
 	logger->info("memory: 8 GB");
 #else
 	logger->info("OS: Ubuntu 18.04");
-	logger->info("CPU: ??");
+	logger->info("CPU: 8x Xenon Cpu @2.2 GHz");
 	logger->info("GPU: Nvidia P4 cuda 11.4");
 	logger->info("memory: 7.8 Gb");
 #endif
