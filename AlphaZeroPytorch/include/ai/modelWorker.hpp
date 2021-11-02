@@ -34,8 +34,6 @@ namespace AlphaZero
 		public: std::unique_ptr<Model> model;
 		public: char* deviceName;
 
-		private: utils::Timer timer;
-
 		public: modelManager* manager;
 		public: modelWorker(char* deviceName, modelManager* manager);
 		public: ~modelWorker();
@@ -94,9 +92,7 @@ inline void AlphaZero::ai::modelWorker::caler(modelWorker* worker)
 	{
 		if (worker->manager->toRun.size())
 		{
-			worker->timer.reset();
 			worker->mainLoop();
-			debug::totalModelTime = debug::totalModelTime + worker->timer.elapsed();
 		}
 	}
 }
