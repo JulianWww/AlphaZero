@@ -51,15 +51,15 @@
 #define NNMaxBatchSize 20
 
 // memory setting
-#define memory_size 30000
+#define memory_size 30//30000
 
 // self play
-#define EPOCHS 30
+#define EPOCHS 1//30
 #define probabilitic_moves 10// how manny moves are prabilistic in the begining of the game to aid in exploration
 
 // training
-#define Training_loops 20
-#define Training_batch 256
+#define Training_loops 1//20
+#define Training_batch 16//256
 #define Training_epochs 1
 
 // turney

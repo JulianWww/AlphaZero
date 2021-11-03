@@ -27,6 +27,7 @@ void AlphaZero::ai::train(int version)
 	std::shared_ptr<Game::Game> game = std::make_shared<Game::Game>();
 	std::shared_ptr<Agent> currentAgent = std::make_shared<Agent>(std::vector<char*>{ DEVICES });
 	std::shared_ptr<Agent> bestAgent = std::make_shared<Agent>(std::vector<char*>{ DEVICES });
+	bestAgent->model->load_from_file("tmp.torch");
 
 	memory->load();
 	char nameBuff[100];
@@ -153,6 +154,8 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 			}
 #endif
 			game->takeAction(actionData.first);
+
+			game->render();
 		}
 		// memory->commit(game->state);   add end game states to memory ??
 #if SaverType == 1

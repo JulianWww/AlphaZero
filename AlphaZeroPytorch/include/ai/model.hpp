@@ -110,7 +110,7 @@ namespace AlphaZero {
 // customizable section
 #define modelTest false
 #ifndef UNIX
-#define RANDOM true
+#define RANDOM false
 #endif
 #ifdef UNIX
 #define RANDOM false
@@ -133,9 +133,6 @@ inline AlphaZero::ai::Model::Model() :
 
 inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(torch::Tensor x)
 {
-	if (!x.is_cuda() && torch::cuda::cudnn_is_available()) {
-		x = x.cuda();
-	}
 #if modelTest
 	std::cout << x.sizes() << std::endl;
 #endif

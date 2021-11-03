@@ -60,7 +60,7 @@ std::pair<AlphaZero::ai::Node*, std::list<AlphaZero::ai::Edge*>> AlphaZero::ai::
 			bool nothasQU = true;
 			
 			for (auto& iter : node->edges) {
-				if (!iter.second.outNode->locked)
+				if (true)//!iter.second.outNode->locked)
 				{
 					U = U_computation(iter.second);
 					if (nothasQU || U + iter.second.Q > maxQu) {
@@ -69,6 +69,10 @@ std::pair<AlphaZero::ai::Node*, std::list<AlphaZero::ai::Edge*>> AlphaZero::ai::
 						maxQu = U + iter.second.Q;
 						nothasQU = false;
 					}
+				}
+				else 
+				{
+					std::cout << "mcts locking error" << std::endl;
 				}
 			}
 			opsEdge->traverse();
