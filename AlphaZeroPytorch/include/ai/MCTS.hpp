@@ -1,7 +1,6 @@
 #pragma once
-
-#include <ai/model.hpp>
 #include <mutex>
+#include <game/game.hpp>
 
 // remove one mutex - the Node mutex
 

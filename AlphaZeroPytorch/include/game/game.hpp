@@ -16,8 +16,8 @@ this is the alpha Zero game for tick tack toe
 #include "config.hpp"
 
 
-#define input_shape_x 6
-#define input_shape_y 7
+#define input_shape_x 7
+#define input_shape_y 6
 #define input_snape_z 2
 #define action_count 42
 #define boardOfset 42 // the size of a layer of the board in the buffer. (the amount of felds)
@@ -151,11 +151,11 @@ inline torch::Tensor AlphaZero::Game::GameState::toTensor()
 inline void AlphaZero::Game::GameState::toTensor(torch::Tensor& tensor, unsigned short idx)
 {
 	unsigned short pos = 0;
-	unsigned int ofset = (this->player == 1) ? 0 : boardOfset;
+	unsigned int ofset = (this->player == -1) ? 0 : boardOfset;
 	for (unsigned short z = 0; z < input_snape_z; z++) {
 		for (unsigned short y = 0; y < input_shape_y; y++) {
 			for (unsigned short x = 0; x < input_shape_x; x++) {
-				tensor[idx][z][y][z] = (float)this->gameBoard[(pos + ofset) % stateSize];
+				tensor[idx][z][y][x] = (float)this->gameBoard[(pos + ofset) % stateSize];
 				pos++;
 			}
 		}

@@ -1,5 +1,5 @@
 #pragma once
-#include <ai/MCTS.hpp>
+#include <ai/model.hpp>
 #include <ai/memory.hpp>
 #include <jce/vector.hpp>
 #include "utils.hpp"
@@ -20,6 +20,8 @@ namespace AlphaZero {
 		private: float evaluateLeaf(Node*);
 		public: void fit(std::shared_ptr<Memory> memory, unsigned short iteration);
 		public: std::pair<float, std::vector<float>> predict(std::shared_ptr<Game::GameState> state);
+		public: void predict(ModelData* data);
+		public: void predict(std::list<ModelData*> data);
 		private: std::pair<int, std::vector<int>> derministicAction(Node* node);
 		private: std::pair<int, std::vector<int>> prabilisticAction(Node* node);
 		};
@@ -86,10 +88,6 @@ inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::s
 	std::vector<float> polys = std::vector<float>(action_count);
 
 	c10::Device device ("cpu");
-	/*if (torch::cuda::cudnn_is_available())
-	{
-		device = c10::Device("cuda:0");
-	}*/
 
 	torch::Tensor mask = torch::ones(
 		{ 1, action_count }, 
@@ -108,6 +106,16 @@ inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::s
 	}
 
 	return { val, polys };
+}
+
+inline void AlphaZero::ai::Agent::predict(ModelData* data)
+{
+	this->model->predict(data);
+}
+
+inline void AlphaZero::ai::Agent::predict(std::list<ModelData*> data)
+{
+	this->model->predict(data);
 }
 
 inline std::pair<int, std::vector<int>> AlphaZero::ai::Agent::derministicAction(Node* node)
