@@ -15,12 +15,12 @@ namespace AlphaZero {
 		class Edge {
 			// The number of times the Edge was traversed
 		public: int N = 0;
+			  // the probability initialized by the NN
+		public: float P = 0;
 			  // the action asociated with the action
 		public: int action = 0;
 			  // the amount of times this lead to a win
 		public: float W = 0;
-			  // the probability initialized by the NN
-		public: float P = 0;
 			  // the win probability
 		public: float Q = 0;
 		public: Node* outNode;

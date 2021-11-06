@@ -3,21 +3,24 @@
 #include <ai/memory.hpp>
 #include <jce/vector.hpp>
 #include "utils.hpp"
+#include <thread>
 
 namespace AlphaZero {
 	namespace ai {
 		class Agent {
-		public: std::shared_ptr<MCTS> tree;
+		public: std::unordered_map<size_t, std::shared_ptr<MCTS>> tree;
 		public: std::shared_ptr<Model> model;
 		public: Agent();
 		public: int identity;
+		public: MCTS* getTree();
+		public: void reset();
 #if Training
 		public: std::pair<int, std::vector<int>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
 #else
 		public: virtual std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
 #endif
-		public: void runSimulations(Node*);
-		private: float evaluateLeaf(Node*);
+		public: void runSimulations(Node*, MCTS* tree);
+		private: float evaluateLeaf(Node*, MCTS* tree);
 		public: void fit(std::shared_ptr<Memory> memory, unsigned short iteration);
 		public: std::pair<float, std::vector<float>> predict(std::shared_ptr<Game::GameState> state);
 		public: void predict(ModelData* data);
@@ -30,26 +33,46 @@ namespace AlphaZero {
 		public: virtual std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::Game> game, bool proabilistic);
 		};
 #endif
-		void runSimulationsCaller(AlphaZero::ai::Agent* agent, Node* node);
+		void runSimulationsCaller(AlphaZero::ai::Agent* agent, Node* node, MCTS* tree);
 	}
 }
 
-inline void AlphaZero::ai::Agent::runSimulations(Node* node)
+inline AlphaZero::ai::MCTS* AlphaZero::ai::Agent::getTree()
 {
-	std::pair<Node*, std::list<Edge*>> serchResults = this->tree->moveToLeaf(node, ProbabiliticMoves);
-	float val = this->evaluateLeaf(serchResults.first);
-	this->tree->backFill(serchResults.second, serchResults.first, val);
-	this->tree->addMCTSIter();
-}
-
-inline void AlphaZero::ai::runSimulationsCaller(AlphaZero::ai::Agent* agent, Node* node)
-{
-	while (agent->tree->MCTSIter < MCTSSimulations) {
-		agent->runSimulations(node);
+	auto a = std::hash<std::thread::id>{}(std::this_thread::get_id());
+	if (this->tree.count(a))
+	{
+		return this->tree[a].get();
+	}
+	else
+	{
+		auto tree = std::make_shared<MCTS>();
+		this->tree.insert({ a, tree });
+		return tree.get();
 	}
 }
 
-inline float AlphaZero::ai::Agent::evaluateLeaf(Node* node)
+inline void AlphaZero::ai::Agent::reset()
+{
+	this->tree.clear();
+}
+
+inline void AlphaZero::ai::Agent::runSimulations(Node* node, MCTS* tree)
+{
+	std::pair<Node*, std::list<Edge*>> serchResults = tree->moveToLeaf(node, ProbabiliticMoves);
+	float val = this->evaluateLeaf(serchResults.first, tree);
+	tree->backFill(serchResults.second, serchResults.first, val);
+	tree->addMCTSIter();
+}
+
+inline void AlphaZero::ai::runSimulationsCaller(AlphaZero::ai::Agent* agent, Node* node, MCTS* tree)
+{
+	while (tree->MCTSIter < MCTSSimulations) {
+		agent->runSimulations(node, tree);
+	}
+}
+
+inline float AlphaZero::ai::Agent::evaluateLeaf(Node* node, MCTS* tree)
 {
 	if (!node->state->done){
 		std::shared_ptr<Game::GameState> nextState;
@@ -57,7 +80,7 @@ inline float AlphaZero::ai::Agent::evaluateLeaf(Node* node)
 		auto NNvals = this->predict(node->state);
 		for (auto& action : node->state->allowedActions) {
 			nextState = node->state->takeAction(action);
-			nextNode = this->tree->addNode(nextState);
+			nextNode = tree->addNode(nextState);
 			Edge newEdge = Edge(nextNode, node, action, NNvals.second[action]); //the last is the prob
 			node->addEdge( action, newEdge);
 		}
@@ -110,12 +133,12 @@ inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::s
 
 inline void AlphaZero::ai::Agent::predict(ModelData* data)
 {
-	this->model->predict(data);
+	//this->model->predict(data);
 }
 
 inline void AlphaZero::ai::Agent::predict(std::list<ModelData*> data)
 {
-	this->model->predict(data);
+	//this->model->predict(data);
 }
 
 inline std::pair<int, std::vector<int>> AlphaZero::ai::Agent::derministicAction(Node* node)

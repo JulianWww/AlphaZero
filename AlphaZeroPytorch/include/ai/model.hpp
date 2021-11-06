@@ -69,9 +69,9 @@ namespace AlphaZero {
 		typedef torch::nn::MSELoss Loss;
 		typedef torch::optim::SGD Optimizer;
 		typedef torch::optim::SGDOptions OptimizerOptions;
-		
+
 		class Model : public torch::nn::Module {
-		//private: torch::nn::Conv2d headLayer;
+			//private: torch::nn::Conv2d headLayer;
 		private: TopLayer top;
 		private: ResNet res1, res2, res3, res4, res5, res6;
 		private: Value_head value_head;
@@ -81,14 +81,12 @@ namespace AlphaZero {
 
 		private: Loss loss;
 		private: Optimizer optim;
-			
+
 		public: Model();
 		public: std::pair<torch::Tensor, torch::Tensor> forward(torch::Tensor);
-		public: std::pair<float, float> train(const std::pair<torch::Tensor, torch::Tensor>&x, const std::pair<torch::Tensor, torch::Tensor>&y);
+		public: std::pair<float, float> train(const std::pair<torch::Tensor, torch::Tensor>& x, const std::pair<torch::Tensor, torch::Tensor>& y);
 
 		public: std::pair<float, torch::Tensor>predict(std::shared_ptr<Game::GameState> state);
-		public: void predict(ModelData* data);
-		public: void predict(std::list<ModelData*> data);
 		public: static std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> getBatch(std::shared_ptr<Memory> memory, unsigned int batchSize);
 		public: void fit(const std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>& batch, const unsigned short& run, const unsigned short& trainingLoop);
 
@@ -221,7 +219,7 @@ inline AlphaZero::ai::Value_head::Value_head(int inp, int hidden_size, int out, 
 {
 	this->size = hidden_size;
 
-	if (torch::cuda::is_available()) 
+	if (torch::cuda::is_available())
 	{
 		this->moveTo(c10::Device("cuda:0"));
 	}
@@ -295,60 +293,7 @@ inline std::pair<float, torch::Tensor> AlphaZero::ai::Model::predict(std::shared
 		NNInput = NNInput.cuda();
 	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
 	float value = NNOut.first[0].item<float>();
-	return {value, NNOut.second };
-}
-
-inline void AlphaZero::ai::Model::predict(ModelData* data)
-{
-	torch::Tensor NNInput = data->node->state->toTensor();
-	if (torch::cuda::cudnn_is_available())
-		NNInput = NNInput.cuda();
-	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
-
-	torch::Tensor mask = torch::ones(
-		{ 1, action_count },
-		c10::TensorOptions().device(c10::Device("cpu")).dtype(at::kBool)
-	);
-
-	for (auto idx : data->node->state->allowedActions)
-	{
-		mask[0][idx] = false;
-	}
-	//std::cout << std::endl << NNOut.first << std::endl << NNOut.second << std::endl;
-	data->value = NNOut.first[0].item<float>();
-	data->polys = torch::softmax(torch::masked_fill(NNOut.second.cpu(), mask, -1000.0f), 1)[0];
-}
-
-inline void AlphaZero::ai::Model::predict(std::list<ModelData*> data)
-{
-	torch::Tensor NNInput = torch::zeros({ (int)data.size(), input_snape_z, input_shape_y, input_shape_x });
-	torch::Tensor mask = torch::ones(
-		{ (int)data.size(), action_count },
-		c10::TensorOptions().device(c10::Device("cpu")).dtype(at::kBool)
-	);
-	auto iter = data.begin();
-	for (unsigned short idx = 0; idx < data.size(); idx++)
-	{
-		NNInput[idx] = (*iter)->node->state->toTensor()[0];
-		for (auto action : (*iter)->node->state->allowedActions)
-		{
-			mask[idx][action] = false;
-		}
-		iter++;
-	}
-
-	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
-
-	//std::cout << std::endl << NNOut.first << std::endl << NNOut.second << std::endl;
-	auto soft = torch::softmax(torch::masked_fill(NNOut.second.cpu(), mask, -1000.0f), 1);
-
-	iter = data.begin();
-	for (unsigned int idx = 0; idx < data.size(); idx++)
-	{
-		(*iter)->value = NNOut.first[idx].item<float>();
-		(*iter)->polys = soft[idx];
-		iter++;
-	}
+	return { value, NNOut.second };
 }
 
 inline std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> AlphaZero::ai::Model::getBatch(std::shared_ptr<Memory> memory, unsigned int batchSize)

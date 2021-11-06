@@ -10,8 +10,8 @@ void AlphaZero::test::playGame(std::shared_ptr<Game::Game> game, std::shared_ptr
 			goesFirst = -1;
 		}
 	}
-	player1->tree->reset();
-	player2->tree->reset();
+	player1->reset();
+	player2->reset();
 	std::unordered_map<int, std::shared_ptr<ai::Agent>> players = { {goesFirst, player1},{-goesFirst, player2} };
 	int action;
 	while (!game->state->done) {
@@ -27,6 +27,7 @@ void AlphaZero::ai::train(int version)
 	std::shared_ptr<Game::Game> game = std::make_shared<Game::Game>();
 	std::shared_ptr<Agent> currentAgent = std::make_shared<Agent>();
 	std::shared_ptr<Agent> bestAgent = std::make_shared<Agent>();
+	bestAgent->model->load_from_file("tmp.torch");
 
 	memory->load();
 	char nameBuff[100];
@@ -125,8 +126,8 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 			{goesFist, agent1},
 			{-goesFist,agent2}
 		};
-		agent1->tree->reset();
-		agent2->tree->reset();
+		agent1->getTree()->reset();
+		agent2->getTree()->reset();
 
 #if MainLogger
 		if (epoch == 0) {
