@@ -27,7 +27,6 @@ void AlphaZero::ai::train(int version)
 	std::shared_ptr<Game::Game> game = std::make_shared<Game::Game>();
 	std::shared_ptr<Agent> currentAgent = std::make_shared<Agent>();
 	std::shared_ptr<Agent> bestAgent = std::make_shared<Agent>();
-	bestAgent->model->load_from_file("tmp.torch");
 
 	memory->load();
 	char nameBuff[100];
