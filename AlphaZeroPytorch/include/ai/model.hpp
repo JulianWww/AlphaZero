@@ -77,6 +77,9 @@ namespace AlphaZero {
 		private: Value_head value_head;
 		private: Policy_head policy_head;
 
+		private: torch::Tensor lastTensor;
+		private: bool isNotFirstRun = false;
+
 		private: bool CUDA;
 
 		private: Loss loss;
@@ -130,9 +133,12 @@ inline AlphaZero::ai::Model::Model() :
 
 inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(torch::Tensor x)
 {
-	if (!x.is_cuda() && torch::cuda::cudnn_is_available()) {
-		x = x.cuda();
+	if (this->isNotFirstRun)
+	{
+		std::cout << torch::eq(x[0], this->lastTensor);
 	}
+	this->lastTensor = x[0];
+	this->isNotFirstRun = true;
 	x = this->top.forward(x);
 	x = this->res1.forward(x);
 	x = this->res2.forward(x);
