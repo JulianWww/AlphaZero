@@ -10,7 +10,7 @@ void AlphaZero::test::runTests()
 	testCoppying();
 	testSave();
 	testLossLog();
-	testTraining();
+	//testTraining();
 }
 
 
