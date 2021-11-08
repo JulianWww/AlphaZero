@@ -10,7 +10,7 @@ void AlphaZero::test::runTests()
 	testCoppying();
 	testSave();
 	testLossLog();
-	//testTraining();
+	testTraining();
 }
 
 
@@ -95,7 +95,6 @@ void AlphaZero::test::testModelData()
 		{
 			if (std::abs((*iter)->polys[idx].item<float>() - a.second[idx]) > epsilon)
 			{
-				std::cout << std::endl << (*iter)->polys[idx].item<float>() << std::endl << a.second[idx] << std::endl;
 				isValid = false;
 			}
 		}
@@ -113,15 +112,15 @@ void AlphaZero::test::testTraining()
 	vec[0] = 1;
 	std::cout << model->model->predict(state) << std::endl;
 	std::shared_ptr<ai::Memory> memory = std::make_shared<ai::Memory>();
-	for (size_t loop = 0; loop < 128; loop++)
+	for (size_t loop = 0; loop < 10; loop++)
 	{
-		for (size_t idx = 0; idx < 2; idx++)
+		while (memory->tempMemory.size() < Training_batch * Training_loops)
 		{
 			//state = getRandomState();
 			memory->commit(state, vec);
 		}
 		memory->updateMemory(0, 0);
-		model->fit(memory, 2);
+		model->fit(memory, Training_loops);
 	}
 	std::cout << model->model->predict(state) << std::endl;
 	return;
