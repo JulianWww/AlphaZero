@@ -26,6 +26,9 @@ namespace AlphaZero {
 		public: torch::nn::LeakyReLU relu;
 		private: int kernel1;
 
+		private: torch::Tensor lastTensor;
+		private: bool isNotFirstRun = false;
+
 		public: TopLayer(int inp, int out, int kernelsize1);
 		public: torch::Tensor forward(torch::Tensor);
 		public: void moveTo(c10::Device device);
@@ -76,9 +79,6 @@ namespace AlphaZero {
 		private: ResNet res1, res2, res3, res4, res5, res6;
 		private: Value_head value_head;
 		private: Policy_head policy_head;
-
-		private: torch::Tensor lastTensor;
-		private: bool isNotFirstRun = false;
 
 		private: bool CUDA;
 
@@ -138,12 +138,6 @@ inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(tor
 		x = x.cuda();
 	}
 	x = this->top.forward(x);
-	if (this->isNotFirstRun)
-	{
-		std::cout << torch::equal(x[0], this->lastTensor) << std::endl;
-	}
-	this->lastTensor = x[0];
-	this->isNotFirstRun = true;
 	x = this->res1.forward(x);
 	x = this->res2.forward(x);
 	x = this->res3.forward(x);
@@ -174,6 +168,12 @@ inline torch::Tensor AlphaZero::ai::TopLayer::forward(torch::Tensor x)
 {
 	x = torch::nn::functional::pad(x, torch::nn::functional::PadFuncOptions({ kernel1, kernel1, kernel1, kernel1 }));
 	x = this->conv1(x);
+	if (this->isNotFirstRun)
+	{
+		std::cout << torch::equal(x[0], this->lastTensor) << std::endl;
+	}
+	this->lastTensor = x[0];
+	this->isNotFirstRun = true;
 	x = this->batch(x);
 	x = this->relu(x);
 	return x;
