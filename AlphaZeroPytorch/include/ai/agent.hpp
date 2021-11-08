@@ -15,7 +15,7 @@ namespace AlphaZero {
 		public: MCTS* getTree();
 		public: void reset();
 #if Training
-		public: std::pair<int, std::vector<int>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
+		public: std::pair<int, std::pair<std::vector<int>, float>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
 #else
 		public: virtual std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
 #endif
@@ -25,8 +25,8 @@ namespace AlphaZero {
 		public: std::pair<float, std::vector<float>> predict(std::shared_ptr<Game::GameState> state);
 		public: void predict(ModelData* data);
 		public: void predict(std::list<ModelData*> data);
-		private: std::pair<int, std::vector<int>> derministicAction(Node* node);
-		private: std::pair<int, std::vector<int>> prabilisticAction(Node* node);
+		private: std::pair<int, std::pair<std::vector<int>, float>> derministicAction(Node* node);
+		private: std::pair<int, std::pair<std::vector<int>, float>> prabilisticAction(Node* node);
 		};
 #if not Training
 		class User : public Agent {
@@ -149,7 +149,7 @@ inline void AlphaZero::ai::Agent::predict(std::list<ModelData*> data)
 	this->model->predict(data);
 }
 
-inline std::pair<int, std::vector<int>> AlphaZero::ai::Agent::derministicAction(Node* node)
+inline std::pair<int, std::pair<std::vector<int>, float>> AlphaZero::ai::Agent::derministicAction(Node* node)
 {
 	int action = 0;
 	unsigned int max_N = 0;
@@ -162,10 +162,10 @@ inline std::pair<int, std::vector<int>> AlphaZero::ai::Agent::derministicAction(
 		}
 		probs[iter.second.action] = iter.second.N;
 	}
-	return { action, probs };
+	return { action, { probs, node->edges[action].Q } };
 }
 
-inline std::pair<int, std::vector<int>> AlphaZero::ai::Agent::prabilisticAction(Node* node)
+inline std::pair<int, std::pair<std::vector<int>, float>> AlphaZero::ai::Agent::prabilisticAction(Node* node)
 {
 	int action = -1;
 	int idx = 0;
@@ -186,5 +186,5 @@ inline std::pair<int, std::vector<int>> AlphaZero::ai::Agent::prabilisticAction(
 		}
 		idx++;
 	}
-	return { action, probs };
+	return { action, { probs, node->edges[action].Q } };
 }

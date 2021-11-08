@@ -50,7 +50,7 @@ void AlphaZero::ai::train(int version)
 		std::cout << "playing Generational Games:" << std::endl;
 
 		sprintf(nameBuff, "logs/games/game_%d_Generator.gameLog", iteration);
-		playGames(game, bestAgent, bestAgent, memory, probabilitic_moves, EPOCHS, nameBuff);
+		playGames(game, bestAgent, bestAgent, memory, probabilitic_moves, EPOCHS, nameBuff, 1, false);
 		std::cout << "memory size is: " << memory->memory.size() << std::endl;
 		if (memory->memory.size() > memory_size) {
 #if ProfileLogger
@@ -62,9 +62,12 @@ void AlphaZero::ai::train(int version)
 #endif
 			memory->active = false;
 			std::cout << "playing Tournement Games:" << std::endl;
+#if MainLogger
+			debug::log::mainLogger->info("RETRAINING =========================================================");
+#endif
 
 			sprintf(nameBuff, "logs/games/game_%d_Turney.gameLog", iteration);
-			auto score = playGames(game, bestAgent, currentAgent, memory, Turnement_probabiliticMoves, TurneyEpochs, nameBuff);
+			auto score = playGames(game, bestAgent, currentAgent, memory, Turnement_probabiliticMoves, TurneyEpochs, nameBuff, 0, true);
 
 			std::cout << "Turney ended with: " << score[currentAgent->identity] << " : " << score[bestAgent->identity] << std::endl;
 			if (score[currentAgent->identity] > score[bestAgent->identity] * scoringThreshold) {
@@ -81,7 +84,7 @@ void AlphaZero::ai::train(int version)
 	}
 }
 
-std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game> game, std::shared_ptr<Agent> agent1, std::shared_ptr<Agent> agent2, std::shared_ptr<Memory> memory, int probMoves, int Epochs, char RunId[], int _goesFist)
+std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game> game, std::shared_ptr<Agent> agent1, std::shared_ptr<Agent> agent2, std::shared_ptr<Memory> memory, int probMoves, int Epochs, char RunId[], int _goesFist, bool do_log)
 {
 	int goesFist = (_goesFist == 0) ? 1 : _goesFist;
 #if ProfileLogger
@@ -110,7 +113,7 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 		saver.addGame();
 #endif
 #if MainLogger
-		if (epoch == 0) {
+		if (epoch == 0 && do_log) {
 			debug::log::mainLogger->info("================================================================");
 			debug::log::mainLogger->info("====================== playing Next match ======================");
 			debug::log::mainLogger->info("================================================================");
@@ -129,7 +132,7 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 		agent2->getTree()->reset();
 
 #if MainLogger
-		if (epoch == 0) {
+		if (epoch == 0 && do_log) {
 			debug::log::mainLogger->info("player {} will start", goesFist);
 		}
 #endif
@@ -138,19 +141,20 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 		while (!game->state->done) {
 			turn++;
 			auto actionData = players[game->state->player]->getAction(game->state, probMoves > turn);
-			memory->commit(game->state, actionData.second);
+			memory->commit(game->state, actionData.second.first);
 #if SaverType == 1
 			saver.addState(game->state);
 #elif SaverType == 2
 			saver.addState(actionData.first);
 #endif
 #if MainLogger
-			if (epoch == 0) {
+			if (epoch == 0 && do_log) {
 				game->state->render(debug::log::mainLogger);
-				debug::log::mainLogger->info("MSCT vals:");
-				debug::log::logVector(debug::log::mainLogger, actionData.second);
-				debug::log::mainLogger->info("NN vals:");
+				debug::log::mainLogger->info("MSCT vals: {:1.5f}", actionData.second.second);
+				debug::log::logVector(debug::log::mainLogger, actionData.second.first);
+				debug::log::mainLogger->info("NN vals: {:1.5f}", players[game->state->player]->predict(game->state).first);
 				debug::log::logVector(debug::log::mainLogger, players[game->state->player]->predict(game->state).second);
+
 				debug::log::mainLogger->info("selected action is: {}", actionData.first);
 			}
 #endif
@@ -161,7 +165,7 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 		saver.addState(game->state);
 #endif
 #if MainLogger
-		if (epoch == 0) {
+		if (epoch == 0 && do_log) {
 			game->state->render(debug::log::mainLogger);
 		}
 #endif
