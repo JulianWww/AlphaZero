@@ -144,7 +144,7 @@ inline void debug::log::logVector(std::shared_ptr<spdlog::logger> logger, std::v
 
 inline void debug::log::logVector(std::shared_ptr<spdlog::logger> logger, std::vector<float> vec)
 {
-	char out[] = "Action vals are: {:2d}, {:2d}, {:2d}, {:2d}, {:2d}, {:2d}, {:2d}";
+	char out[] = "Action vals are: {:1.2f}, {:1.2f}, {:1.2f}, {:1.2f}, {:1.2f}, {:1.2f}, {:1.2f}";
 	logVector(logger, vec, out);
 }
 #if ProfileLogger
