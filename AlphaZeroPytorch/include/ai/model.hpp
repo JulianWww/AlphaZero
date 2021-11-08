@@ -167,13 +167,13 @@ inline AlphaZero::ai::TopLayer::TopLayer(int inp, int out, int kernelsize1) :
 inline torch::Tensor AlphaZero::ai::TopLayer::forward(torch::Tensor x)
 {
 	x = torch::nn::functional::pad(x, torch::nn::functional::PadFuncOptions({ kernel1, kernel1, kernel1, kernel1 }));
-	x = this->conv1(x);
 	if (this->isNotFirstRun)
 	{
 		std::cout << torch::equal(x[0], this->lastTensor) << std::endl;
 	}
 	this->lastTensor = x[0];
 	this->isNotFirstRun = true;
+	x = this->conv1(x);
 	x = this->batch(x);
 	x = this->relu(x);
 	return x;
