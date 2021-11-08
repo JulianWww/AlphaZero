@@ -174,6 +174,7 @@ inline torch::Tensor AlphaZero::ai::TopLayer::forward(torch::Tensor x)
 	this->lastTensor = x[0];
 	this->isNotFirstRun = true;
 	x = this->conv1(x);
+	std::cout << x << std::endl << std::endl;
 	x = this->batch(x);
 	x = this->relu(x);
 	return x;
