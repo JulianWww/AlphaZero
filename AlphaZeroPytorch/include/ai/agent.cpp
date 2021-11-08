@@ -18,7 +18,7 @@ std::pair<int, std::vector<float>> AlphaZero::ai::User::getAction(std::shared_pt
 AlphaZero::ai::Agent::Agent() // TODO remove int version from this function
 {
 	this->model = std::make_shared<AlphaZero::ai::Model>();
-	this->tree = std::make_shared<AlphaZero::ai::MCTS>();
+	this->tree = {};
 }
 
 std::pair<int, std::vector<int>> AlphaZero::ai::Agent::getAction(std::shared_ptr<Game::GameState> state, bool proabilistic)
@@ -26,15 +26,16 @@ std::pair<int, std::vector<int>> AlphaZero::ai::Agent::getAction(std::shared_ptr
 #if ProfileLogger
 	debug::Profiler::profiler.switchOperation(0);
 #endif
-	this->tree->MCTSIter = 0;
-	Node* node = this->tree->addNode(state);
+	auto tree = this->getTree();
+	tree->MCTSIter = 0;
+	Node* node = tree->addNode(state);
 #if threads > 0
 	std::vector<std::thread> threadvec;
 	for (int i = 0; i < threads; i++) {
 		threadvec.push_back(std::thread(runSimulationsCaller, this, node));
 	}
 #endif
-	runSimulationsCaller(this, node);
+	runSimulationsCaller(this, node, tree);
 #if threads > 0
 	for (auto& thread : threadvec) {
 		thread.join();

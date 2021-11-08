@@ -13,7 +13,6 @@ class ConvLayer(nn.Module):
         x = self.conv1(x)
         x = self.batch(x)
         x = self.activ(x)
-        print(x.shape)
         return x
 
 class ResLayer(nn.Module):
@@ -27,16 +26,15 @@ class ResLayer(nn.Module):
             (kernelsize2)//2,
             (kernelsize2)//2)
         )
-        self.batch = nn.BatchNorm2d(out)
+        self.batch1 = nn.LayerNorm([out, 7, 6])
+        self.batch2 = nn.LayerNorm([out, 7, 6])
         self.activ = nn.LeakyReLU()
 
     def forward(self, x):
-        print("reslayer")
-        print(x.shape)
         x = self.conv1(x)
+        x = self.batch1(x)
         y = self.conv2(x)
-        y = self.batch(y)
-        print(x.shape, y.shape)
+        y = self.batch2(y)
         return self.activ(x+y)
 
 class ValueHead(nn.Module):
@@ -50,10 +48,8 @@ class ValueHead(nn.Module):
         self.size = hidden_size
 
     def forward(self, x):
-        print("value head")
         x = self.conv(x)
         x = torch.reshape(x, (x.shape[0], self.size))
-        print("first arg", x.shape)
         x = self.lin1(x)
         x = self.relu(x)
         x = self.lin2(x)
@@ -69,10 +65,8 @@ class PolicyHead(nn.Module):
         self.size = hidden
 
     def forward(self, x):
-        print("policy head")
         x = self.conv(x)
         x = torch.reshape(x, (x.shape[0], self.size))
-        print("first arg", x.shape)
         x = self.lin1(x)
         return self.activ(x)
 
@@ -92,9 +86,7 @@ class Net(nn.Module):
 
     def forward(self, x):
         x = self.conv1(x)
-        print(x.shape)
         x = self.conv2(x)
-        print(x.shape)
         return self.value_head(x), self.policy_head(x)
 
 
@@ -103,27 +95,22 @@ net = Net()
 optim = torch.optim.SGD(net.parameters(), lr=0.01)
 
 # create input "image"
-input = torch.tensor(np.random.rand(2,2,7,6))
+input = torch.ones(2,2,7,6)
+
+print(input)
 
 # run model
 out = net(input.float())
 print(out)
 
-for i in range(0):
+for i in range(10):
     out = net(input.float())
     loss = torch.nn.MSELoss()
-    l1 = loss(out[0], torch.tensor([[1.0],[0.0]]))
-    l2 = loss(out[1], torch.tensor([[0.0,1.0],[0.0,1.0]]))
+    l1 = loss(out[0], torch.tensor([[1.0], [0.0]]))
+    l2 = loss(out[1], torch.tensor([[0.0, 1.0], [0.0, 1.0]]))
 
     (l2+l1).backward()
     optim.step()
 
 
 print(net(input.float()))
-
-torch.save(net.state_dict(), "myModel.torch")
-
-net2 = Net()
-net2.load_state_dict(torch.load("myModel.torch"))
-print(net2(input.float()))
-

@@ -13,6 +13,7 @@
 #include <jce/string.hpp>
 #include <string>
 #include <cmath>
+#include "modelWorker.hpp"
 
 #define COPY(x) this-> ## x ## . ## copyModel(&model ## ->  ## x)
 
@@ -21,7 +22,7 @@ namespace AlphaZero {
 	namespace ai {
 		class TopLayer : public torch::nn::Module {
 		public: torch::nn::Conv2d conv1;
-		public: torch::nn::BatchNorm2d batch;
+		public: torch::nn::LayerNorm batch;
 		public: torch::nn::LeakyReLU relu;
 		private: int kernel1;
 
@@ -31,7 +32,7 @@ namespace AlphaZero {
 		};
 		class ResNet : public torch::nn::Module {
 		public: torch::nn::Conv2d conv1, conv2;
-		public: torch::nn::BatchNorm2d batch, batch2;
+		public: torch::nn::LayerNorm batch, batch2;
 		public: torch::nn::LeakyReLU activ;
 		private: int kernel1, kernel2;
 
@@ -41,6 +42,9 @@ namespace AlphaZero {
 		};
 
 		class Value_head : torch::nn::Module {
+		private: bool isSecondRun = false;
+		private: torch::Tensor tmpX;
+
 		public: torch::nn::Conv2d conv;
 		public: torch::nn::Linear lin1, lin2;
 		public: torch::nn::ReLU relu;
@@ -65,25 +69,30 @@ namespace AlphaZero {
 		typedef torch::nn::MSELoss Loss;
 		typedef torch::optim::SGD Optimizer;
 		typedef torch::optim::SGDOptions OptimizerOptions;
-		
+
 		class Model : public torch::nn::Module {
-		//private: torch::nn::Conv2d headLayer;
+			//private: torch::nn::Conv2d headLayer;
 		private: TopLayer top;
 		private: ResNet res1, res2, res3, res4, res5, res6;
 		private: Value_head value_head;
 		private: Policy_head policy_head;
 
+		private: torch::Tensor lastTensor;
+		private: bool isNotFirstRun = false;
+
 		private: bool CUDA;
 
 		private: Loss loss;
 		private: Optimizer optim;
-			
+
 		public: Model();
 		public: std::pair<torch::Tensor, torch::Tensor> forward(torch::Tensor);
-		public: std::pair<float, float> train(const std::pair<torch::Tensor, torch::Tensor>&x, const std::pair<torch::Tensor, torch::Tensor>&y);
+		public: std::pair<float, float> train(const std::pair<torch::Tensor, torch::Tensor>& x, const std::pair<torch::Tensor, torch::Tensor>& y);
 
 		public: std::pair<float, torch::Tensor>predict(std::shared_ptr<Game::GameState> state);
 		public: static std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> getBatch(std::shared_ptr<Memory> memory, unsigned int batchSize);
+		public: void predict(ModelData* data);
+		public: void predict(std::list<ModelData*> data);
 		public: void fit(const std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>& batch, const unsigned short& run, const unsigned short& trainingLoop);
 
 		public: void save_version(unsigned int version);
@@ -109,7 +118,6 @@ namespace AlphaZero {
 #define modelTest false
 
 inline AlphaZero::ai::Model::Model() :
-	//headLayer(register_module("conv", torch::nn::Conv2d()))
 	top(this->register_custom_module(TopLayer(2, 75, 5))),
 	res1(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_1")),
 	res2(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_2")),
@@ -119,15 +127,18 @@ inline AlphaZero::ai::Model::Model() :
 	res6(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_6")),
 	value_head(this->register_custom_module(Value_head(75, 420, 210, 10))),
 	policy_head(this->register_custom_module(Policy_head(75, 84, 42))),
-	optim(Optimizer(this->parameters(), OptimizerOptions(0.0001).momentum(Momentum)))
+	optim(Optimizer(this->parameters(), OptimizerOptions(0.01).momentum(Momentum)))
 {
 }
 
 inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(torch::Tensor x)
 {
-	if (!x.is_cuda() && torch::cuda::cudnn_is_available()) {
-		x = x.cuda();
+	if (this->isNotFirstRun)
+	{
+		std::cout << torch::eq(x[0], this->lastTensor);
 	}
+	this->lastTensor = x[0];
+	this->isNotFirstRun = true;
 	x = this->top.forward(x);
 	x = this->res1.forward(x);
 	x = this->res2.forward(x);
@@ -137,16 +148,17 @@ inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(tor
 	x = this->res6.forward(x);
 
 	// compute individual heads
-	torch::Tensor value = this->value_head.forward(x);
-	torch::Tensor poly = this->policy_head.forward(x);
+	torch::Tensor value = this->value_head.forward(x.clone());
+	torch::Tensor poly = this->policy_head.forward(x.clone());
+
 	return { value, poly };
 };
 // end of cutimizable section
 
 inline AlphaZero::ai::TopLayer::TopLayer(int inp, int out, int kernelsize1) :
-	conv1(torch::nn::Conv2d(torch::nn::Conv2dOptions(inp, out, kernelsize1))),
-	batch(torch::nn::BatchNorm2d(torch::nn::BatchNorm2dOptions(out))),
-	relu(torch::nn::LeakyReLU(torch::nn::LeakyReLU())),
+	conv1(this->register_module("conv1", torch::nn::Conv2d(torch::nn::Conv2dOptions(inp, out, kernelsize1)))),
+	batch(this->register_module("batch", torch::nn::LayerNorm(torch::nn::LayerNormOptions({ out, input_shape_y, input_shape_x })))),
+	relu(this->register_module("ReLU", torch::nn::LeakyReLU(torch::nn::LeakyReLU()))),
 	kernel1(kernelsize1 / 2)
 {
 	if (torch::cuda::cudnn_is_available())
@@ -172,11 +184,11 @@ inline void AlphaZero::ai::TopLayer::moveTo(c10::Device device)
 
 inline AlphaZero::ai::ResNet::ResNet(int inp, int out, int kernelsize1, int kernelsize2) :
 	kernel1(kernelsize1), kernel2(kernelsize2),
-	conv1(torch::nn::Conv2d(torch::nn::Conv2dOptions(inp, out, kernelsize1))),
-	conv2(torch::nn::Conv2d(torch::nn::Conv2dOptions(out, out, kernelsize2))),
-	batch(torch::nn::BatchNorm2d(torch::nn::BatchNorm2dOptions(out))),
-	batch2(torch::nn::BatchNorm2d(torch::nn::BatchNorm2dOptions(out))),
-	activ(torch::nn::LeakyReLU(torch::nn::LeakyReLU()))
+	conv1(this->register_module("conv1", torch::nn::Conv2d(torch::nn::Conv2dOptions(inp, out, kernelsize1)))),
+	conv2(this->register_module("conv2", torch::nn::Conv2d(torch::nn::Conv2dOptions(out, out, kernelsize2)))),
+	batch(this->register_module("batch1", torch::nn::LayerNorm(torch::nn::LayerNormOptions({ out, input_shape_y, input_shape_x })))),
+	batch2(this->register_module("batch2", torch::nn::LayerNorm(torch::nn::LayerNormOptions({ out, input_shape_y, input_shape_x })))),
+	activ(this->register_module("activ", torch::nn::LeakyReLU(torch::nn::LeakyReLU())))
 {
 	if (torch::cuda::is_available()) {
 		this->moveTo(c10::Device("cuda:0"));
@@ -207,14 +219,15 @@ inline void AlphaZero::ai::ResNet::moveTo(c10::Device device)
 }
 
 inline AlphaZero::ai::Value_head::Value_head(int inp, int hidden_size, int out, int convOut) :
-	conv(torch::nn::Conv2d(torch::nn::Conv2dOptions(inp, convOut, 1))),
-	lin1(torch::nn::Linear(torch::nn::LinearOptions(hidden_size, out))),
-	lin2(torch::nn::Linear(torch::nn::LinearOptions(out, 1))),
-	relu(torch::nn::ReLU()), tanh(torch::nn::Tanh())
+	conv(this->register_module("conv", torch::nn::Conv2d(torch::nn::Conv2dOptions(inp, convOut, 1)))),
+	lin1(this->register_module("lin1", torch::nn::Linear(torch::nn::LinearOptions(hidden_size, out)))),
+	lin2(this->register_module("lin2", torch::nn::Linear(torch::nn::LinearOptions(out, 1)))),
+	relu(this->register_module("relu", torch::nn::ReLU())), 
+	tanh(this->register_module("tanh", torch::nn::Tanh()))
 {
 	this->size = hidden_size;
 
-	if (torch::cuda::is_available()) 
+	if (torch::cuda::is_available())
 	{
 		this->moveTo(c10::Device("cuda:0"));
 	}
@@ -244,8 +257,8 @@ inline void AlphaZero::ai::Value_head::moveTo(c10::Device device)
 }
 
 inline AlphaZero::ai::Policy_head::Policy_head(int inp, int hidden, int out) :
-	conv(torch::nn::Conv2d(torch::nn::Conv2dOptions(inp, 2, 1))),
-	lin1(torch::nn::Linear(hidden, out))
+	conv(this->register_module("conv", torch::nn::Conv2d(torch::nn::Conv2dOptions(inp, 2, 1)))),
+	lin1(this->register_module("lin1", torch::nn::Linear(hidden, out)))
 {
 	this->size = hidden;
 
@@ -271,14 +284,38 @@ inline void AlphaZero::ai::Policy_head::moveTo(c10::Device device)
 	this->lin1->to(device, true);
 }
 
+inline torch::Tensor polyLoss(torch::Tensor a, torch::Tensor b)
+{
+#if true
+	auto c = torch::where(b == 0, a, b);
+	return torch::mse_loss(a, c);
+#else
+	return torch::mse_loss(a, b);
+#endif
+}
+
 inline std::pair<float, float> AlphaZero::ai::Model::train(const std::pair<torch::Tensor, torch::Tensor>& x, const std::pair<torch::Tensor, torch::Tensor>& y)
 {
+	//std::cout << x.first << std::endl << y.first << std::endl;
+
 	auto valLoss = torch::mse_loss(x.first, y.first);
-	auto plyLoss = torch::mse_loss(x.second, y.second); // TODO get cce  
-	torch::autograd::backward({ valLoss, plyLoss });
-	torch::nn::utils::clip_grad_norm_(this->parameters(), 2.0, 2.0, true); // TODO find good values
+	auto plyLoss = 0.5f * polyLoss(x.second, y.second);
+	auto loss = (valLoss + plyLoss);
+
+	loss.backward();
 	this->optim.step();
-	return { torch::mean(valLoss).item().toFloat(), torch::mean(plyLoss).item().toFloat() };
+	this->optim.zero_grad();
+	std::pair<float, float> error = { torch::mean(valLoss).item().toFloat(), torch::mean(plyLoss).item().toFloat()};
+
+	if (std::isnan(error.first))
+	{
+		//std::cout << valLoss << std::endl << plyLoss << std::endl;
+		std::cout << x.first  << std::endl << y.first  << std::endl;
+		std::cout << x.second << std::endl << y.second << std::endl;
+		return error;
+	}
+
+	return error;
 }
 
 inline std::pair<float, torch::Tensor> AlphaZero::ai::Model::predict(std::shared_ptr<Game::GameState> state)
@@ -288,7 +325,60 @@ inline std::pair<float, torch::Tensor> AlphaZero::ai::Model::predict(std::shared
 		NNInput = NNInput.cuda();
 	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
 	float value = NNOut.first[0].item<float>();
-	return {value, NNOut.second };
+	return { value, NNOut.second };
+}
+
+inline void AlphaZero::ai::Model::predict(ModelData* data)
+{
+	torch::Tensor NNInput = data->node->state->toTensor();
+	if (torch::cuda::cudnn_is_available())
+		NNInput = NNInput.cuda();
+	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
+
+	torch::Tensor mask = torch::ones(
+		{ 1, action_count },
+		c10::TensorOptions().device(c10::Device("cpu")).dtype(at::kBool)
+	);
+
+	for (auto idx : data->node->state->allowedActions)
+	{
+		mask[0][idx] = false;
+	}
+	//std::cout << std::endl << NNOut.first << std::endl << NNOut.second << std::endl;
+	data->value = NNOut.first[0].item<float>();
+	data->polys = torch::softmax(torch::masked_fill(NNOut.second.cpu(), mask, -1000.0f), 1)[0];
+}
+
+inline void AlphaZero::ai::Model::predict(std::list<ModelData*> data)
+{
+	torch::Tensor NNInput = torch::zeros({ (int)data.size(), input_snape_z, input_shape_y, input_shape_x });
+	torch::Tensor mask = torch::ones(
+		{ (int)data.size(), action_count },
+		c10::TensorOptions().device(c10::Device("cpu")).dtype(at::kBool)
+	);
+	auto iter = data.begin();
+	for (unsigned short idx = 0; idx < data.size(); idx++)
+	{
+		NNInput[idx] = (*iter)->node->state->toTensor()[0];
+		for (auto action : (*iter)->node->state->allowedActions)
+		{
+			mask[idx][action] = false;
+		}
+		iter++;
+	}
+
+	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
+
+	//std::cout << std::endl << NNOut.first << std::endl << NNOut.second << std::endl;
+	auto soft = torch::softmax(torch::masked_fill(NNOut.second.cpu(), mask, -1000.0f), 1);
+
+	iter = data.begin();
+	for (unsigned int idx = 0; idx < data.size(); idx++)
+	{
+		(*iter)->value = NNOut.first[idx].item<float>();
+		(*iter)->polys = soft[idx];
+		iter++;
+	}
 }
 
 inline std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> AlphaZero::ai::Model::getBatch(std::shared_ptr<Memory> memory, unsigned int batchSize)
@@ -310,18 +400,13 @@ inline std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> AlphaZero::ai::Mo
 
 inline void AlphaZero::ai::Model::fit(const std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>& batch, const unsigned short& run, const unsigned short& trainingLoop)
 {
-	std::pair<torch::Tensor, torch::Tensor> trueVals = this->forward(std::get<0>(batch).cuda());
-	std::pair<float, float> error = this->train(trueVals, { std::get<2>(batch).cuda(), std::get<1>(batch).cuda() });
+	std::pair<torch::Tensor, torch::Tensor> NNVals = this->forward(std::get<0>(batch));
+	std::pair<float, float> error = this->train(NNVals, { std::get<2>(batch), std::get<1>(batch) });
 #if ModelLogger
 	debug::log::modelLogger->info("model error in iteration {} on batch {} had valueError of {} and polyError of {}", run, trainingLoop, std::get<0>(error), std::get<1>(error));
 #endif
-	if (std::isnan(error.first))
-	{
-		std::cout << "\33[31;1mNaN in Loss Function\33[0m" << std::endl;
-	}
 #if LossLogger
 	debug::log::_lossLogger.addValue(error);
-	debug::log::_lossLogger.save("logs/games/loss.bin");
 #endif
 }
 

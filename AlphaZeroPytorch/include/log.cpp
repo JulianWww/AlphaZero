@@ -58,9 +58,19 @@ bool debug::log::lossLogger::operator==(const lossLogger& other)
 {
 	if (other.vals.size() == this->vals.size())
 	{
-		for (size_t idx = 0; idx < other.vals.size(); idx++)
+		for (size_t batch = 0; batch < other.vals.size(); batch++)
 		{
-			if (other[idx] != (*this)[idx])
+			if (other.vals[batch].size() == this->vals[batch].size())
+			{
+				for (size_t idx = 0; idx < other.vals[batch].size(); idx++)
+				{
+					if (other[idx] != (*this)[idx])
+					{
+						return false;
+					}
+				}
+			}
+			else
 			{
 				return false;
 			}

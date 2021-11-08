@@ -1,13 +1,16 @@
 #include "testSuit.hpp"
 #include <stdio.h>
+#include <ai/memory.hpp>
 
 
 void AlphaZero::test::runTests()
 {
 	std::cout << "running Test" << std::endl;
+	testModelData();
 	testCoppying();
 	testSave();
 	testLossLog();
+	testTraining();
 }
 
 
@@ -45,6 +48,8 @@ void AlphaZero::test::testLossLog()
 	auto log1 = debug::log::lossLogger();
 	log1.addValue(1.0f, 2.3f);
 	log1.addValue(5.234f, 9834.2345789f);
+	log1.newBatch();
+	log1.addValue({ 44.634f, 234.4344f });
 
 	char folder[] = "temp.log.bin";
 	log1.save(folder);
@@ -55,4 +60,68 @@ void AlphaZero::test::testLossLog()
 #else
 	std::cout << "\33[1;33mDeactivated\33[0m" << std::endl;
 #endif
+}
+
+void AlphaZero::test::testModelData()
+{
+	std::cout << "Testing model prediction ...\t";
+	float epsilon = 0.000001f;
+	auto model = std::make_shared<ai::Agent>();
+	auto states = std::vector<std::shared_ptr<Game::GameState>>({ getRandomState(), getRandomState() });
+
+	auto nodes = std::vector<ai::Node*>();
+	auto data = std::list<ai::ModelData*>();
+	for (auto const& state : states)
+	{
+		auto node = new ai::Node(state);
+		nodes.push_back(node);
+		data.push_back(new ai::ModelData(node));
+	}
+	model->predict(data);
+
+	auto iter = data.begin();
+	bool isValid = true;
+	for (size_t idx = 0; idx < data.size(); idx++)
+	{
+		auto a = model->predict(states[idx]);
+		if (std::abs((*iter)->value - a.first) > epsilon)
+		{
+			std::cout << std::endl << (*iter)->value << std::endl << a.first << std::endl;
+			isValid = false;
+		}
+//		(*iter)->print();
+
+		for (size_t idx = 0; idx < action_count; idx++)
+		{
+			if (std::abs((*iter)->polys[idx].item<float>() - a.second[idx]) > epsilon)
+			{
+				isValid = false;
+			}
+		}
+		iter++;
+	}
+
+	printSuccess(isValid);
+}
+
+void AlphaZero::test::testTraining()
+{
+	auto model = std::make_shared<ai::Agent>();
+	auto state = getRandomState();
+	auto vec = jce::vector::gen(42, 0);
+	vec[0] = 1;
+	std::cout << model->model->predict(state) << std::endl;
+	std::shared_ptr<ai::Memory> memory = std::make_shared<ai::Memory>();
+	for (size_t loop = 0; loop < 10; loop++)
+	{
+		while (memory->tempMemory.size() < Training_batch * Training_loops)
+		{
+			//state = getRandomState();
+			memory->commit(state, vec);
+		}
+		memory->updateMemory(0, 0);
+		model->fit(memory, Training_loops);
+	}
+	std::cout << model->model->predict(state) << std::endl;
+	return;
 }

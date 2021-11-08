@@ -45,20 +45,24 @@ namespace debug {
 	namespace log {
 		std::shared_ptr<spdlog::logger> createLogger(const char* name, const char* file);
 		template<typename T>
-		void logVector(std::shared_ptr<spdlog::logger> logger, std::vector<T>);
+		void logVector(std::shared_ptr<spdlog::logger> logger, std::vector<T>, char out[]);
+		void logVector(std::shared_ptr<spdlog::logger> logger, std::vector<int>);
+		void logVector(std::shared_ptr<spdlog::logger> logger, std::vector<float>);
 
 		class lossLogger
 		{
 		public: lossLogger();
 		public: lossLogger(const char file[]);
 
-		protected: std::vector<std::pair<float, float>> vals;
+		protected: std::vector<std::vector<std::pair<float, float>>> vals;
 
 		public: void addValue(const float val, const float poly);
 		public: void addValue(const std::pair<float, float>& val);
+		public: void newBatch();
 		public: void save(const char file[]);
 
-		public: std::pair<float, float> operator[](size_t idx) const;
+		public: std::pair<float, float> operator[](std::pair<size_t, size_t> idx) const;
+		public: std::vector<std::pair<float, float>> operator[](size_t idx) const;
 		public: bool operator==(const lossLogger&);
 		};
 
@@ -92,6 +96,7 @@ inline std::shared_ptr<spdlog::logger> debug::log::createLogger(const char* name
 
 inline debug::log::lossLogger::lossLogger()
 {
+	this->newBatch();
 }
 
 inline void debug::log::lossLogger::addValue(const float a, const float b)
@@ -102,24 +107,45 @@ inline void debug::log::lossLogger::addValue(const float a, const float b)
 
 inline void debug::log::lossLogger::addValue(const std::pair<float, float>& val)
 {
-	this->vals.push_back(val);
+	this->vals.back().push_back(val);
 }
 
-inline std::pair<float, float> debug::log::lossLogger::operator[](size_t idx) const
+inline void debug::log::lossLogger::newBatch()
+{
+	this->vals.push_back({});
+}
+
+inline std::pair<float, float> debug::log::lossLogger::operator[](std::pair<size_t, size_t> idx) const
+{
+	return this->vals[idx.first][idx.second];
+}
+
+inline std::vector<std::pair<float, float>> debug::log::lossLogger::operator[](size_t idx) const
 {
 	return this->vals[idx];
 }
 
 template<typename T>
-inline void debug::log::logVector(std::shared_ptr<spdlog::logger> logger, std::vector<T> vec)
+inline void debug::log::logVector(std::shared_ptr<spdlog::logger> logger, std::vector<T> vec, char out[])
 {
-	char out[] = "Action vals are: {}, {}, {}, {}, {}, {}, {}";
 	logger->info(out, (vec[0]),  (vec[1]),  (vec[2]),  (vec[3]),  (vec[4]),  (vec[5]),  (vec[6]));
 	logger->info(out, (vec[7]),  (vec[8]),  (vec[9]),  (vec[10]), (vec[11]), (vec[12]), (vec[13]));
 	logger->info(out, (vec[14]), (vec[15]), (vec[16]), (vec[17]), (vec[18]), (vec[19]), (vec[20]));
 	logger->info(out, (vec[21]), (vec[22]), (vec[23]), (vec[24]), (vec[25]), (vec[26]), (vec[27]));
 	logger->info(out, (vec[28]), (vec[29]), (vec[30]), (vec[31]), (vec[32]), (vec[33]), (vec[34]));
 	logger->info(out, (vec[35]), (vec[36]), (vec[37]), (vec[38]), (vec[39]), (vec[40]), (vec[41]));
+}
+
+inline void debug::log::logVector(std::shared_ptr<spdlog::logger> logger, std::vector<int> vec)
+{
+	char out[] = "Action vals are: {:2d}, {:2d}, {:2d}, {:2d}, {:2d}, {:2d}, {:2d}";
+	logVector(logger, vec, out);
+}
+
+inline void debug::log::logVector(std::shared_ptr<spdlog::logger> logger, std::vector<float> vec)
+{
+	char out[] = "Action vals are: {:2d}, {:2d}, {:2d}, {:2d}, {:2d}, {:2d}, {:2d}";
+	logVector(logger, vec, out);
 }
 #if ProfileLogger
 inline void debug::Profiler::MCTSProfiler::switchOperation(unsigned int id)

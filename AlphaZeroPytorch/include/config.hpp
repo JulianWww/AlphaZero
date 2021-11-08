@@ -51,7 +51,7 @@
 // training
 #define Training_loops 20
 #define Training_batch 256
-#define Training_epochs 1
+#define Training_epochs 20
 
 // turney
 #define Turnement_probabiliticMoves 2

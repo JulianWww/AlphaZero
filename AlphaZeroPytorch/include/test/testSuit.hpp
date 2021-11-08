@@ -11,20 +11,18 @@ namespace AlphaZero
 		void testCoppying();
 		void testSave();
 		void testLossLog();
+		void testModelData();
+		void testTraining();
 
 		bool compareAgents(std::shared_ptr<ai::Agent> anget1, std::shared_ptr<ai::Agent> anget2);
 		void printSuccess(bool val);
+		std::shared_ptr<Game::GameState> getRandomState();
 	}
 }
 
 inline bool AlphaZero::test::compareAgents(std::shared_ptr<ai::Agent> anget1, std::shared_ptr<ai::Agent> anget2)
 {
-	std::bitset<stateSize> board;
-	for (size_t idx = 0; idx < stateSize; idx++)
-	{
-		board.set(idx, rand() % 2);
-	}
-	auto state = std::make_shared<Game::GameState>(board, rand() % 2);
+	auto state = getRandomState();
 
 	auto valsA = anget1->predict(state);
 	auto valsB = anget2->predict(state);
@@ -47,4 +45,16 @@ inline void AlphaZero::test::printSuccess(bool val)
 	{
 	std::cout << "\33[31;1mFailed\33[0m" << std::endl;
 	}
+}
+
+
+inline std::shared_ptr<AlphaZero::Game::GameState> AlphaZero::test::getRandomState()
+{
+	std::bitset<stateSize> board;
+	for (size_t idx = 0; idx < stateSize; idx++)
+	{
+		board.set(idx, rand() % 2);
+	}
+	auto state = std::make_shared<Game::GameState>(board, rand() % 2);
+	return state;
 }
