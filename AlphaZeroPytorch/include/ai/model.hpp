@@ -137,13 +137,13 @@ inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(tor
 	{
 		x = x.cuda();
 	}
+	x = this->top.forward(x);
 	if (this->isNotFirstRun)
 	{
 		std::cout << torch::equal(x[0], this->lastTensor) << std::endl;
 	}
 	this->lastTensor = x[0];
 	this->isNotFirstRun = true;
-	x = this->top.forward(x);
 	x = this->res1.forward(x);
 	x = this->res2.forward(x);
 	x = this->res3.forward(x);
