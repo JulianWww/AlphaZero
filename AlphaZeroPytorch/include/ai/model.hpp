@@ -133,6 +133,10 @@ inline AlphaZero::ai::Model::Model() :
 
 inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(torch::Tensor x)
 {
+	if (torch::cuda::cudnn_is_available())
+	{
+		x = x.cuda();
+	}
 	if (this->isNotFirstRun)
 	{
 		std::cout << torch::equal(x[0], this->lastTensor) << std::endl;
