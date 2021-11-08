@@ -26,9 +26,6 @@ namespace AlphaZero {
 		public: torch::nn::LeakyReLU relu;
 		private: int kernel1;
 
-		private: torch::Tensor lastTensor;
-		private: bool isNotFirstRun = false;
-
 		public: TopLayer(int inp, int out, int kernelsize1);
 		public: torch::Tensor forward(torch::Tensor);
 		public: void moveTo(c10::Device device);
@@ -133,7 +130,7 @@ inline AlphaZero::ai::Model::Model() :
 
 inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(torch::Tensor x)
 {
-	if (torch::cuda::cudnn_is_available())
+	if (torch::cuda::cudnn_is_available() && ! x.is_cuda())
 	{
 		x = x.cuda();
 	}
@@ -167,14 +164,7 @@ inline AlphaZero::ai::TopLayer::TopLayer(int inp, int out, int kernelsize1) :
 inline torch::Tensor AlphaZero::ai::TopLayer::forward(torch::Tensor x)
 {
 	x = torch::nn::functional::pad(x, torch::nn::functional::PadFuncOptions({ kernel1, kernel1, kernel1, kernel1 }));
-	if (this->isNotFirstRun)
-	{
-		std::cout << torch::equal(x[0], this->lastTensor) << std::endl;
-	}
-	this->lastTensor = x[0];
-	this->isNotFirstRun = true;
 	x = this->conv1(x);
-	std::cout << x << std::endl << std::endl;
 	x = this->batch(x);
 	x = this->relu(x);
 	return x;
@@ -405,8 +395,13 @@ inline std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> AlphaZero::ai::Mo
 
 inline void AlphaZero::ai::Model::fit(const std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>& batch, const unsigned short& run, const unsigned short& trainingLoop)
 {
-	std::pair<torch::Tensor, torch::Tensor> NNVals = this->forward(std::get<0>(batch));
-	std::pair<float, float> error = this->train(NNVals, { std::get<2>(batch), std::get<1>(batch) });
+	c10::Device device("cpu");
+	if (torch::cuda::cudnn_is_available())
+	{
+		device = c10::Device("cuda:0");
+	}
+	std::pair<torch::Tensor, torch::Tensor> NNVals = this->forward(std::get<0>(batch).to(device));
+	std::pair<float, float> error = this->train(NNVals, { std::get<2>(batch).to(device), std::get<1>(batch).to(device) });
 #if ModelLogger
 	debug::log::modelLogger->info("model error in iteration {} on batch {} had valueError of {} and polyError of {}", run, trainingLoop, std::get<0>(error), std::get<1>(error));
 #endif
