@@ -58,7 +58,7 @@ inline AlphaZero::ai::Memory::Memory()
 inline void AlphaZero::ai::Memory::commit(std::shared_ptr<Game::GameState> state, std::vector<int>& av)
 {
 	if (active) {
-		auto idents = Game::identities(state, av);
+		std::vector<std::pair<std::shared_ptr<Game::GameState>, std::vector<int>>> idents = Game::identities(state, av);
 		for (auto const& data : idents) {
 			tempMemory.push_back(std::make_shared<MemoryElement>(data.first, data.second));
 		}

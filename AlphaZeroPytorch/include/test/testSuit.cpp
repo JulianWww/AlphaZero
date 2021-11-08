@@ -1,5 +1,6 @@
 #include "testSuit.hpp"
 #include <stdio.h>
+#include <ai/memory.hpp>
 
 
 void AlphaZero::test::runTests()
@@ -9,6 +10,7 @@ void AlphaZero::test::runTests()
 	testCoppying();
 	testSave();
 	testLossLog();
+	//testTraining();
 }
 
 
@@ -46,6 +48,8 @@ void AlphaZero::test::testLossLog()
 	auto log1 = debug::log::lossLogger();
 	log1.addValue(1.0f, 2.3f);
 	log1.addValue(5.234f, 9834.2345789f);
+	log1.newBatch();
+	log1.addValue({ 44.634f, 234.4344f });
 
 	char folder[] = "temp.log.bin";
 	log1.save(folder);
@@ -99,4 +103,26 @@ void AlphaZero::test::testModelData()
 	}
 
 	printSuccess(isValid);
+}
+
+void AlphaZero::test::testTraining()
+{
+	auto model = std::make_shared<ai::Agent>();
+	auto state = getRandomState();
+	auto vec = jce::vector::gen(42, 0);
+	vec[0] = 1;
+	std::cout << model->model->predict(state) << std::endl;
+	std::shared_ptr<ai::Memory> memory = std::make_shared<ai::Memory>();
+	for (size_t loop = 0; loop < 128; loop++)
+	{
+		for (size_t idx = 0; idx < 2; idx++)
+		{
+			//state = getRandomState();
+			memory->commit(state, vec);
+		}
+		memory->updateMemory(0, 0);
+		model->fit(memory, 2);
+	}
+	std::cout << model->model->predict(state) << std::endl;
+	return;
 }

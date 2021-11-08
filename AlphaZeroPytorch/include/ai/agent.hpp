@@ -97,8 +97,16 @@ inline void AlphaZero::ai::Agent::fit(std::shared_ptr<Memory> memory, unsigned s
 		jce::consoleUtils::render_progress_bar((float)idx / (float)Training_loops);
 #endif
 		auto batch = Model::getBatch(memory, Training_batch);
-		this->model->fit(batch, run, idx);
+		for (size_t trainingEpoch = 0; trainingEpoch < Training_epochs; trainingEpoch++)
+			this->model->fit(batch, run, idx);
+		
+#if LossLogger
+		debug::log::_lossLogger.newBatch();
+#endif
 	}
+#if LossLogger
+	debug::log::_lossLogger.save("logs/games/loss.bin");
+#endif
 #if RenderTrainingProgress
 	jce::consoleUtils::render_progress_bar(1.0f, true);
 #endif
@@ -133,12 +141,12 @@ inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::s
 
 inline void AlphaZero::ai::Agent::predict(ModelData* data)
 {
-	//this->model->predict(data);
+	this->model->predict(data);
 }
 
 inline void AlphaZero::ai::Agent::predict(std::list<ModelData*> data)
 {
-	//this->model->predict(data);
+	this->model->predict(data);
 }
 
 inline std::pair<int, std::vector<int>> AlphaZero::ai::Agent::derministicAction(Node* node)
