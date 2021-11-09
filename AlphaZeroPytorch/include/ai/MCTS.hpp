@@ -26,6 +26,7 @@ namespace AlphaZero {
 		public: Node* outNode;
 		public: Node* inNode;
 		public: Edge(Node* outNode, Node* inNode, int action, float p);
+		public: Edge();
 		public: void traverse();
 		};
 

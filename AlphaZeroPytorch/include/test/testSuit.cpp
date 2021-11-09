@@ -84,20 +84,8 @@ void AlphaZero::test::testModelData()
 	for (size_t idx = 0; idx < data.size(); idx++)
 	{
 		auto a = model->predict(states[idx]);
-		if (std::abs((*iter)->value - a.first) > epsilon)
-		{
-			std::cout << std::endl << (*iter)->value << std::endl << a.first << std::endl;
-			isValid = false;
-		}
-//		(*iter)->print();
-
-		for (size_t idx = 0; idx < action_count; idx++)
-		{
-			if (std::abs((*iter)->polys[idx].item<float>() - a.second[idx]) > epsilon)
-			{
-				isValid = false;
-			}
-		}
+		auto error = torch::mse_loss(torch::from_blob(a.second.data(), a.second.size()), (*iter)->polys);
+		std::cout << error << std::endl;
 		iter++;
 	}
 

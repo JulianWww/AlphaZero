@@ -21,7 +21,7 @@ AlphaZero::ai::Agent::Agent() // TODO remove int version from this function
 	this->tree = {};
 }
 
-std::pair<int, std::vector<int>> AlphaZero::ai::Agent::getAction(std::shared_ptr<Game::GameState> state, bool proabilistic)
+std::pair<int, std::pair<std::vector<int>, float>> AlphaZero::ai::Agent::getAction(std::shared_ptr<Game::GameState> state, bool proabilistic)
 {
 #if ProfileLogger
 	debug::Profiler::profiler.switchOperation(0);

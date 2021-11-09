@@ -22,6 +22,12 @@ AlphaZero::ai::Edge::Edge(Node* _outNode, Node* _inNode, int _action, float _p)
 	this->Q = 0;
 }
 
+AlphaZero::ai::Edge::Edge()
+{
+	std::cout << "Edge default constructor" << std::endl;
+	return;
+}
+
 std::pair<AlphaZero::ai::Node*, std::list<AlphaZero::ai::Edge*>> AlphaZero::ai::MCTS::moveToLeaf(Node* node, int randomMovesRemaining)
 {
 	std::list<Edge*> backTrackList;
