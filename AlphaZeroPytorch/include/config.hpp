@@ -39,7 +39,7 @@ extern std::mutex rand_mutex;
 #define Momentum 0.9
 
 // simulation setting
-#define MCTSSimulations 5//0
+#define MCTSSimulations 50
 #define cpuct_ 1.0f
 #define ProbabiliticMoves 10
 #define Alpha 0.9
