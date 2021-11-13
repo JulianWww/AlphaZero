@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <ai/memory.hpp>
 #include <ai/modelSynchronizer.hpp>
+#include <ai/playGame.hpp>
+#include <timer.hpp>
 
 
 void AlphaZero::test::runTests()
@@ -11,6 +13,7 @@ void AlphaZero::test::runTests()
 	testCoppying();
 	testSave();
 	testLossLog();
+	testModelSpeed();
 	//testTraining();
 }
 
@@ -122,4 +125,17 @@ void AlphaZero::test::testTraining()
 	}
 	std::cout << model->model->predict(state) << std::endl;
 	return;
+}
+
+void AlphaZero::test::testModelSpeed()
+{
+	std::cout << "testing Prediction speed ...";
+	std::shared_ptr<ai::Memory> memory = std::make_shared<ai::Memory>();
+	std::shared_ptr<ai::Agent> bestAgent = std::make_shared<ai::Agent>();
+	std::shared_ptr<Game::Game> game = std::make_shared<Game::Game>();
+	char nameBuff[100];
+	utils::Timer timer;
+	timer.reset();
+	auto score = ai::playGames_inThreads(game.get(), bestAgent.get(), bestAgent.get(), memory.get(), Turnement_probabiliticMoves, TurneyEpochs, TurneyThreads, nameBuff, 0, true);
+	std::cout << timer.elapsed() << std::endl;
 }
