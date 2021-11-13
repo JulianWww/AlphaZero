@@ -68,7 +68,9 @@ inline void AlphaZero::ai::ModelSynchronizer::addData(ModelData* _data)
 {
 	_data->value = 2;
 	//this->waitForData(_data);
-	this->model->predict(std::list<ModelData*>{data});
+	std::list<ModelData*>data_l;
+	data_l.push_back(_data);
+	this->model->predict(data_l);
 }
 
 inline void AlphaZero::ai::ModelSynchronizer::waitForData(ModelData* _data)
@@ -100,7 +102,6 @@ inline void AlphaZero::ai::ModelSynchronizer::predictData()
 	this->dataAddMutex.unlock();
 
 	this->model->predict(tmpData);
-	this->data.clear();
 	this->NNProcessingSynchronizer.notify_all();
 }
 

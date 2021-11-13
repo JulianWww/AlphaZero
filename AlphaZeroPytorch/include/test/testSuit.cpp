@@ -129,7 +129,7 @@ void AlphaZero::test::testTraining()
 
 void AlphaZero::test::testModelSpeed()
 {
-	std::cout << "testing Prediction speed ...";
+	std::cout << "testing Prediction speed ...\t";
 	std::shared_ptr<ai::Memory> memory = std::make_shared<ai::Memory>();
 	std::shared_ptr<ai::Agent> bestAgent = std::make_shared<ai::Agent>();
 	std::shared_ptr<Game::Game> game = std::make_shared<Game::Game>();
