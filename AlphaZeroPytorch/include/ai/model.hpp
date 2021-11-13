@@ -367,6 +367,7 @@ inline void AlphaZero::ai::Model::predict(std::list<ModelData*> data)
 	{
 		mask = mask.cuda();
 	}
+
 	auto soft = torch::softmax(torch::masked_fill(NNOut.second, mask, -1000.0f), 1).cpu();
 
 	iter = data.begin();
