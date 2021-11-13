@@ -31,8 +31,6 @@ namespace AlphaZero
 
 			   // add Data vor evaluation 
 		public: void addData(ModelData* data);
-			  // makes TotalRequiredThreads one smaller
-		public: void finischThread();
 
 			  // function used for synchronization 
 		private: void waitForData(ModelData* _data);
@@ -69,7 +67,8 @@ inline AlphaZero::ai::ModelSynchronizer::~ModelSynchronizer()
 inline void AlphaZero::ai::ModelSynchronizer::addData(ModelData* _data)
 {
 	_data->value = 2;
-	this->waitForData(_data);
+	//this->waitForData(_data);
+	this->model->predict(std::list<ModelData*>{data});
 }
 
 inline void AlphaZero::ai::ModelSynchronizer::waitForData(ModelData* _data)
