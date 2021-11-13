@@ -19,12 +19,12 @@ namespace AlphaZero
 		{
 		public: Model* model;
 		public: bool isStillValid = true;
+		private: unsigned short waitingThreads = 0;
 		private: std::unique_ptr<std::thread> thread;
 		private: std::list<ModelData*> data;
-		private: std::mutex dataAddMutex, threadFinischMutex;
+		private: std::mutex dataAddMutex, waitingThreadsMutex;
 
 		private: std::condition_variable NNProcessingSynchronizer;
-		public: std::condition_variable waitForDataLocker;
 
 		public: ModelSynchronizer(ai::Model* model);
 		public: ~ModelSynchronizer();
@@ -38,6 +38,9 @@ namespace AlphaZero
 		private: void waitForData(ModelData* _data);
 		private: void predictData();
 		public: static void mainloop(ModelSynchronizer* _this);
+
+		private: void addWaitingThread();
+		private: void removeWaitingThread();
 		};
 	}
 	namespace test
@@ -59,7 +62,7 @@ inline AlphaZero::ai::ModelSynchronizer::ModelSynchronizer(ai::Model* model)
 inline AlphaZero::ai::ModelSynchronizer::~ModelSynchronizer()
 {
 	this->isStillValid = false;
-	waitForDataLocker.notify_all();
+	//this->waitForDataLocker.notify_all();
 	this->thread->join();
 }
 
@@ -71,19 +74,19 @@ inline void AlphaZero::ai::ModelSynchronizer::addData(ModelData* _data)
 
 inline void AlphaZero::ai::ModelSynchronizer::waitForData(ModelData* _data)
 {
+	this->addWaitingThread();
 	std::mutex mutex;
 	std::unique_lock<std::mutex>lock(mutex);
 
 	while (_data->value == 2)
 	{
-		this->waitForDataLocker.wait(lock);
-
 		this->dataAddMutex.lock();
 		this->data.push_back(_data);
 		this->dataAddMutex.unlock();
 
 		this->NNProcessingSynchronizer.wait(lock);
 	}
+	this->removeWaitingThread();
 	return;
 }
 
@@ -95,7 +98,6 @@ inline void AlphaZero::ai::ModelSynchronizer::predictData()
 #endif
 	std::list<ModelData*> tmpData(this->data.begin(), this->data.end());
 	this->data.clear();
-	this->waitForDataLocker.notify_all();
 	this->dataAddMutex.unlock();
 
 	this->model->predict(tmpData);
@@ -105,18 +107,27 @@ inline void AlphaZero::ai::ModelSynchronizer::predictData()
 
 inline void AlphaZero::ai::ModelSynchronizer::mainloop(ModelSynchronizer* _this)
 {
-	std::mutex mu;
-	std::unique_lock<std::mutex> lock(mu);
 	while (_this->isStillValid)
 	{
-		if(_this->data.size())
+		if (_this->data.size() == _this->waitingThreads && _this->data.size())
+		{
 			_this->predictData();
-		std::this_thread::sleep_for(std::chrono::microseconds(10));
+		}
 	}
 }
 
-inline void AlphaZero::ai::ModelSynchronizer::finischThread()
+inline void AlphaZero::ai::ModelSynchronizer::addWaitingThread()
 {
+	this->waitingThreadsMutex.lock();
+	this->waitingThreads++;
+	this->waitingThreadsMutex.unlock();
+}
+
+inline void AlphaZero::ai::ModelSynchronizer::removeWaitingThread()
+{
+	this->waitingThreadsMutex.lock();
+	this->waitingThreads--;
+	this->waitingThreadsMutex.unlock();
 }
 
 
