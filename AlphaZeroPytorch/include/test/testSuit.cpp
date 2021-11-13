@@ -68,9 +68,9 @@ void AlphaZero::test::testModelData()
 	std::cout << "Testing model prediction ...\t";
 	float epsilon = 0.000001f;
 	auto model = std::make_shared<ai::Agent>();
-	auto states = std::vector<std::shared_ptr<Game::GameState>>({ getRandomState(), getRandomState() });
+	auto states = std::vector<std::shared_ptr<Game::GameState>>({ getRandomState(), getRandomState(),getRandomState(),getRandomState(),getRandomState(),getRandomState(),getRandomState(),getRandomState(),getRandomState(),getRandomState() });
 
-	ai::ModelSynchronizer syncher(states.size(), model->model.get());
+	ai::ModelSynchronizer syncher(model->model.get());
 
 	auto nodes = std::vector<ai::Node*>();
 	auto data = std::list<ai::ModelData*>();

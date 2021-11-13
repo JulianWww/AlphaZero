@@ -19,7 +19,7 @@ AlphaZero::ai::Agent::Agent() // TODO remove int version from this function
 {
 	this->model = std::make_shared<AlphaZero::ai::Model>();
 	this->tree = {};
-	this->synchronizer = std::make_unique<ModelSynchronizer>(0, this->model.get());
+	this->synchronizer = std::make_unique<ModelSynchronizer>(this->model.get());
 }
 
 std::pair<int, std::pair<std::vector<int>, float>> AlphaZero::ai::Agent::getAction(std::shared_ptr<Game::GameState> state, bool proabilistic)

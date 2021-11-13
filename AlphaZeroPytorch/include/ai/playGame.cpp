@@ -196,10 +196,4 @@ void AlphaZero::ai::playGames(gameOutput* output, Agent* agent1, Agent* agent2, 
 #if RenderGenAndTurneyProgress
 	jce::consoleUtils::render_progress_bar(1.0f, true);
 #endif
-	std::cout << "done";
-	agent1->synchronizer->finischThread();
-	if (agent2 != agent1)
-	{
-		agent2->synchronizer->finischThread();
-	}
 }

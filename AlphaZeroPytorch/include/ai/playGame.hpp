@@ -28,9 +28,6 @@ inline std::unordered_map<AlphaZero::ai::Agent*, int> AlphaZero::ai::playGames_i
 {
 	gameOutput output(agent1, agent2);
 
-	agent1->synchronizer->TotalRequiredThreads = Threads;
-	agent2->synchronizer->TotalRequiredThreads = Threads;
-
 	std::vector<std::thread> workers;
 	for (size_t idx = 0; idx < Threads; idx++)
 	{
