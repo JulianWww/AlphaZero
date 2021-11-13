@@ -110,6 +110,8 @@ inline void AlphaZero::ai::ModelSynchronizer::mainloop(ModelSynchronizer* _this)
 		//_this->waitForDataLocker.wait(lock);
 		if(_this->data.size())
 			_this->predictData();
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
 
