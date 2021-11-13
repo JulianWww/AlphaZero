@@ -76,11 +76,12 @@ inline void AlphaZero::ai::ModelSynchronizer::waitForData(ModelData* _data)
 
 	while (_data->value == 2)
 	{
+		this->waitForDataLocker.wait(lock);
+
 		this->dataAddMutex.lock();
 		this->data.push_back(_data);
 		this->dataAddMutex.unlock();
 
-		this->waitForDataLocker.notify_all();
 		this->NNProcessingSynchronizer.wait(lock);
 	}
 	return;
@@ -94,6 +95,7 @@ inline void AlphaZero::ai::ModelSynchronizer::predictData()
 #endif
 	std::list<ModelData*> tmpData(this->data.begin(), this->data.end());
 	this->data.clear();
+	this->waitForDataLocker.notify_all();
 	this->dataAddMutex.unlock();
 
 	this->model->predict(tmpData);
@@ -107,11 +109,9 @@ inline void AlphaZero::ai::ModelSynchronizer::mainloop(ModelSynchronizer* _this)
 	std::unique_lock<std::mutex> lock(mu);
 	while (_this->isStillValid)
 	{
-		//_this->waitForDataLocker.wait(lock);
 		if(_this->data.size())
 			_this->predictData();
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		std::this_thread::sleep_for(std::chrono::microseconds(10));
 	}
 }
 
