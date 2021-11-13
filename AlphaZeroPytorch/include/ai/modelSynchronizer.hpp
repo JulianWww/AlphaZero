@@ -89,6 +89,9 @@ inline void AlphaZero::ai::ModelSynchronizer::waitForData(ModelData* _data)
 inline void AlphaZero::ai::ModelSynchronizer::predictData()
 {
 	this->dataAddMutex.lock();
+#if ModelLogger
+	debug::log::modelLogger->info("model Predicted with {} states", this->data.size());
+#endif
 	std::list<ModelData*> tmpData(this->data.begin(), this->data.end());
 	this->data.clear();
 	this->dataAddMutex.unlock();

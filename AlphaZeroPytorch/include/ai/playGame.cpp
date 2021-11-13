@@ -49,6 +49,10 @@ void AlphaZero::ai::train(int version)
 
 		std::cout << "playing Generational Games:" << std::endl;
 
+#if ModelLogger
+		debug::log::modelLogger->info("Running Training Games");
+#endif
+		
 		sprintf(nameBuff, "logs/games/game_%d_Generator.gameLog", iteration);
 		playGames_inThreads(game.get(), bestAgent.get(), bestAgent.get(), memory.get(), probabilitic_moves, EPOCHS, GEN_THREADS, nameBuff, 1, false);
 		std::cout << "memory size is: " << memory->memory.size() << std::endl;
@@ -67,6 +71,9 @@ void AlphaZero::ai::train(int version)
 #endif
 
 			sprintf(nameBuff, "logs/games/game_%d_Turney.gameLog", iteration);
+#if ModelLogger
+			debug::log::modelLogger->info("Running Tourney Games");
+#endif
 			auto score = playGames_inThreads(game.get(), bestAgent.get(), currentAgent.get(), memory.get(), Turnement_probabiliticMoves, TurneyEpochs, TurneyThreads, nameBuff, 0, true);
 
 			std::cout << "Turney ended with: " << score[currentAgent.get()] << " : " << score[bestAgent.get()] << std::endl;

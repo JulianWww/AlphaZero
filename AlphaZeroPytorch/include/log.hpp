@@ -6,7 +6,7 @@
 #define MCTSLogger false
 #define MemoryLogger false
 #define ProfileLogger false
-#define ModelLogger false
+#define ModelLogger true
 #define LossLogger true
 
 
