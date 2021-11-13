@@ -363,7 +363,11 @@ inline void AlphaZero::ai::Model::predict(std::list<ModelData*> data)
 	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
 
 	//std::cout << std::endl << NNOut.first << std::endl << NNOut.second << std::endl;
-	auto soft = torch::softmax(torch::masked_fill(NNOut.second.cpu(), mask, -1000.0f), 1);
+	if (torch::cuda::cudnn_is_available())
+	{
+		mask = mask.cuda();
+	}
+	auto soft = torch::softmax(torch::masked_fill(NNOut.second, mask, -1000.0f), 1).cpu();
 
 	iter = data.begin();
 	for (unsigned int idx = 0; idx < data.size(); idx++)

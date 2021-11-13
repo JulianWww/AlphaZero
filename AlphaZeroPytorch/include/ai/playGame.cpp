@@ -163,7 +163,7 @@ void AlphaZero::ai::playGames(gameOutput* output, Agent* agent1, Agent* agent2, 
 		}
 		//std::cout << turn << std::endl;
 		//game->render();
-		tmpMemory.commit(game->state);//   add end game states to memory ??
+		//tmpMemory.commit(game->state);//   add end game states to memory ??
 #if SaverType == 1
 		saver.addState(game->state);
 #endif
