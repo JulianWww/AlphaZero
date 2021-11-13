@@ -111,12 +111,13 @@ void AlphaZero::test::testTraining()
 	std::shared_ptr<ai::Memory> memory = std::make_shared<ai::Memory>();
 	for (size_t loop = 0; loop < 10; loop++)
 	{
-		while (memory->tempMemory.size() < Training_batch * Training_loops)
+		ai::TemporaryMemory tmpMem(true);
+		while (tmpMem.tempMemory.size() < Training_batch * Training_loops)
 		{
 			//state = getRandomState();
-			memory->commit(state, vec);
+			tmpMem.commit(state, vec);
 		}
-		memory->updateMemory(0, 0);
+		memory->updateMemory(0, 0, &tmpMem);
 		model->fit(memory, Training_loops);
 	}
 	std::cout << model->model->predict(state) << std::endl;

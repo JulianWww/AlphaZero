@@ -33,7 +33,7 @@ file(GLOB TEST_SOURCE
 
 # Add source to this project's executable.
 add_executable (train "AlphaZeroPytorch.cpp" "AlphaZeroPytorch.h" ${SOURCES_Files} ${HEADER_Files})
-add_executable (GameReplayer "Replay.cpp" "include/game/game.cpp")
+add_executable (GameReplayer "Replay.cpp" "include/game/game.cpp" "include/config.cpp")
 add_executable (runTest "test.cpp" ${TEST_SOURCE} ${HEADER_Files})
 
 message("linking libs ...")
