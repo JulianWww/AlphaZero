@@ -158,12 +158,12 @@ void AlphaZero::ai::playGames(gameOutput* output, Agent* agent1, Agent* agent2, 
 				debug::log::mainLogger->info("selected action is: {}", actionData.first);
 			}
 #endif
-			game->render();
+			//game->render();
 			game->takeAction(actionData.first);
 		}
-		std::cout << turn << std::endl;
-		game->render();
-		// memory->commit(game->state);   add end game states to memory ??
+		//std::cout << turn << std::endl;
+		//game->render();
+		tmpMemory.commit(game->state);//   add end game states to memory ??
 #if SaverType == 1
 		saver.addState(game->state);
 #endif
