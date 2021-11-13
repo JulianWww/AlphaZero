@@ -140,6 +140,7 @@ void AlphaZero::ai::playGames(gameOutput* output, Agent* agent1, Agent* agent2, 
 		int turn = 0;
 		while (!game->state->done) {
 			turn++;
+			std::cout << turn << std::endl;
 			auto actionData = players[game->state->player]->getAction(game->state, probMoves > turn);
 			tmpMemory.commit(game->state, actionData.second.first);
 #if SaverType == 1
