@@ -1,6 +1,7 @@
 #include "testSuit.hpp"
 #include <stdio.h>
 #include <ai/memory.hpp>
+#include <ai/modelSynchronizer.hpp>
 
 
 void AlphaZero::test::runTests()
@@ -10,7 +11,7 @@ void AlphaZero::test::runTests()
 	testCoppying();
 	testSave();
 	testLossLog();
-	testTraining();
+	//testTraining();
 }
 
 
@@ -69,23 +70,31 @@ void AlphaZero::test::testModelData()
 	auto model = std::make_shared<ai::Agent>();
 	auto states = std::vector<std::shared_ptr<Game::GameState>>({ getRandomState(), getRandomState() });
 
+	ai::ModelSynchronizer syncher(states.size(), model->model.get());
+
 	auto nodes = std::vector<ai::Node*>();
 	auto data = std::list<ai::ModelData*>();
+	auto holders = std::vector<std::thread>();
+
 	for (auto const& state : states)
 	{
 		auto node = new ai::Node(state);
 		nodes.push_back(node);
 		data.push_back(new ai::ModelData(node));
+		holders.push_back(std::thread(ModelSynchronizer::_addTestData, data.back(), &syncher));
 	}
-	model->predict(data);
 
 	auto iter = data.begin();
 	bool isValid = true;
+	for (auto& holder : holders)
+	{
+		holder.join();
+	}
 	for (size_t idx = 0; idx < data.size(); idx++)
 	{
 		auto a = model->predict(states[idx]);
 		auto error = torch::mse_loss(torch::from_blob(a.second.data(), a.second.size()), (*iter)->polys);
-		std::cout << error << std::endl;
+		//std::cout << error << std::endl;
 		iter++;
 	}
 

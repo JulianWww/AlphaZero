@@ -50,7 +50,7 @@ void AlphaZero::ai::train(int version)
 		std::cout << "playing Generational Games:" << std::endl;
 
 		sprintf(nameBuff, "logs/games/game_%d_Generator.gameLog", iteration);
-		playGames(game, bestAgent, bestAgent, memory, probabilitic_moves, EPOCHS, nameBuff, 1, false);
+		playGames_inThreads(game.get(), bestAgent.get(), bestAgent.get(), memory.get(), probabilitic_moves, EPOCHS, GEN_THREADS, nameBuff, 1, false);
 		std::cout << "memory size is: " << memory->memory.size() << std::endl;
 		if (memory->memory.size() > memory_size) {
 #if ProfileLogger
@@ -67,10 +67,10 @@ void AlphaZero::ai::train(int version)
 #endif
 
 			sprintf(nameBuff, "logs/games/game_%d_Turney.gameLog", iteration);
-			auto score = playGames(game, bestAgent, currentAgent, memory, Turnement_probabiliticMoves, TurneyEpochs, nameBuff, 0, true);
+			auto score = playGames_inThreads(game.get(), bestAgent.get(), currentAgent.get(), memory.get(), Turnement_probabiliticMoves, TurneyEpochs, TurneyThreads, nameBuff, 0, true);
 
-			std::cout << "Turney ended with: " << score[currentAgent->identity] << " : " << score[bestAgent->identity] << std::endl;
-			if (score[currentAgent->identity] > score[bestAgent->identity] * scoringThreshold) {
+			std::cout << "Turney ended with: " << score[currentAgent.get()] << " : " << score[bestAgent.get()] << std::endl;
+			if (score[currentAgent.get()] > score[bestAgent.get()] * scoringThreshold) {
 				version++;
 				//TODO copy model weightsk
 				currentAgent->model->save_as_current();
@@ -84,17 +84,14 @@ void AlphaZero::ai::train(int version)
 	}
 }
 
-std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game> game, std::shared_ptr<Agent> agent1, std::shared_ptr<Agent> agent2, std::shared_ptr<Memory> memory, int probMoves, int Epochs, char RunId[], int _goesFist, bool do_log)
+void AlphaZero::ai::playGames(gameOutput* output, Agent* agent1, Agent* agent2, Memory* memory, int probMoves, int Epochs, char RunId[], int _goesFist, bool do_log)
 {
+	std::srand(std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now()).time_since_epoch().count());
+	auto game = std::make_unique<Game::Game>();
 	int goesFist = (_goesFist == 0) ? 1 : _goesFist;
 #if ProfileLogger
 	debug::Profiler::profiler.switchOperation(3);
 #endif
-	std::unordered_map<int, int> scores;
-	if (!agent1->identity == agent2->identity) {
-		scores.insert({ agent1->identity, 0 });
-		scores.insert({ agent2->identity, 0 });
-	}
 
 #if SaverType == 1
 	io::FullState::GameSaver saver = io::FullState::GameSaver();
@@ -124,15 +121,18 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 			goesFist = -goesFist;
 		}
 
-		std::unordered_map<int, std::shared_ptr<Agent>> players = {
+		std::unordered_map<int, Agent*> players = {
 			{goesFist, agent1},
 			{-goesFist,agent2}
 		};
 		agent1->getTree()->reset();
 		agent2->getTree()->reset();
 
+		auto tmpMemory = memory->getTempMemory();
+
 #if MainLogger
-		if (epoch == 0 && do_log) {
+		if (epoch == 0 && do_log) 
+		{
 			debug::log::mainLogger->info("player {} will start", goesFist);
 		}
 #endif
@@ -141,7 +141,7 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 		while (!game->state->done) {
 			turn++;
 			auto actionData = players[game->state->player]->getAction(game->state, probMoves > turn);
-			memory->commit(game->state, actionData.second.first);
+			tmpMemory.commit(game->state, actionData.second.first);
 #if SaverType == 1
 			saver.addState(game->state);
 #elif SaverType == 2
@@ -158,8 +158,11 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 				debug::log::mainLogger->info("selected action is: {}", actionData.first);
 			}
 #endif
+			game->render();
 			game->takeAction(actionData.first);
 		}
+		std::cout << turn << std::endl;
+		game->render();
 		// memory->commit(game->state);   add end game states to memory ??
 #if SaverType == 1
 		saver.addState(game->state);
@@ -172,12 +175,12 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 #if ProfileLogger
 		debug::Profiler::profiler.switchOperation(4);
 #endif
-		memory->updateMemory(game->state->player, std::get<0>(game->state->val));
-		if (!agent1->identity == agent2->identity)
+		memory->updateMemory(game->state->player, std::get<0>(game->state->val), &tmpMemory);
+		if (true)
 		{
 			if (std::get<0>(game->state->val) != 0)
 			{
-				scores[players[game->state->player * std::get<0>(game->state->val)]->identity] += 1;
+				output->updateValue(players[game->state->player * std::get<0>(game->state->val)]);
 			}
 		}
 #if ProfileLogger
@@ -192,7 +195,9 @@ std::unordered_map<int, int> AlphaZero::ai::playGames(std::shared_ptr<Game::Game
 #if RenderGenAndTurneyProgress
 	jce::consoleUtils::render_progress_bar(1.0f, true);
 #endif
-	return scores;
+	agent1->synchronizer->finischThread();
+	if (agent2 != agent1)
+	{
+		agent2->synchronizer->finischThread();
+	}
 }
-
-// https://github.com/JulianWww/AlphaZero/

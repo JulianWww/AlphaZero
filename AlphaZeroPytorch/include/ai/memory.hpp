@@ -18,14 +18,21 @@ namespace AlphaZero {
 		public: MemoryElement(std::shared_ptr<Game::GameState>, std::vector<int>);
 		public: MemoryElement();
 		};
+		class TemporaryMemory
+		{
+		public: bool active;
+		public: TemporaryMemory(bool);
+		public: std::vector<std::shared_ptr<MemoryElement>> tempMemory;
+		public: void commit(std::shared_ptr<Game::GameState>, std::vector<int>&);
+		};
 		class Memory {
 			//keep memory from doing annything
+		private: std::mutex mu;
 		public: bool active = true;
-		public: std::vector<std::shared_ptr<MemoryElement>> tempMemory;
+		public: TemporaryMemory getTempMemory();
 		public: std::vector<std::shared_ptr<MemoryElement>> memory;
 		public: Memory();
-		public: void commit(std::shared_ptr<Game::GameState>, std::vector<int>&);
-		public: void updateMemory(int player, int value);
+		public: void updateMemory(int player, int value, TemporaryMemory* memory);
 		public: std::shared_ptr<MemoryElement> getState();
 		public: void save(int version);
 		public: void save();
@@ -34,10 +41,22 @@ namespace AlphaZero {
 		public: void load();
 		public: void load(char filename[]);
 		public: void render();
-		private: void updateMemory(int val);
+		private: void updateMemory(int val, TemporaryMemory* memory);
 		};
 	}
 }
+
+inline AlphaZero::ai::TemporaryMemory::TemporaryMemory(bool val)
+{
+	this->active = val;
+}
+
+inline AlphaZero::ai::TemporaryMemory AlphaZero::ai::Memory::getTempMemory()
+{
+	AlphaZero::ai::TemporaryMemory memory(this->active);
+	return memory;
+}
+
 inline AlphaZero::ai::MemoryElement::MemoryElement(std::shared_ptr<Game::GameState> _state, std::vector<int> _av)
 {
 	this->state = _state;
@@ -55,9 +74,9 @@ inline AlphaZero::ai::MemoryElement::MemoryElement()
 inline AlphaZero::ai::Memory::Memory()
 {
 }
-inline void AlphaZero::ai::Memory::commit(std::shared_ptr<Game::GameState> state, std::vector<int>& av)
+inline void AlphaZero::ai::TemporaryMemory::commit(std::shared_ptr<Game::GameState> state, std::vector<int>& av)
 {
-	if (active) {
+	if (this->active) {
 		std::vector<std::pair<std::shared_ptr<Game::GameState>, std::vector<int>>> idents = Game::identities(state, av);
 		for (auto const& data : idents) {
 			tempMemory.push_back(std::make_shared<MemoryElement>(data.first, data.second));
@@ -65,9 +84,9 @@ inline void AlphaZero::ai::Memory::commit(std::shared_ptr<Game::GameState> state
 	}
 }
 
-inline void AlphaZero::ai::Memory::updateMemory(int player, int value)
+inline void AlphaZero::ai::Memory::updateMemory(int player, int value, TemporaryMemory* memory)
 {
-	this->updateMemory(player * value);
+	this->updateMemory(player * value, memory);
 }
 
 inline std::shared_ptr<AlphaZero::ai::MemoryElement> AlphaZero::ai::Memory::getState()
@@ -86,12 +105,14 @@ inline void AlphaZero::ai::Memory::render()
 	}
 }
 
-inline void AlphaZero::ai::Memory::updateMemory(int val)
+inline void AlphaZero::ai::Memory::updateMemory(int val, TemporaryMemory* memory)
 {
-	while (this->tempMemory.size() > 0) {
-		std::shared_ptr<MemoryElement>& element = this->tempMemory.back();
+	while (memory->tempMemory.size() > 0) {
+		std::shared_ptr<MemoryElement>& element = memory->tempMemory.back();
 		element->value = element->state->player * val;
-		this->memory.push_back(element); // insert new element at random postion after modification ??
-		this->tempMemory.pop_back();
+		this->mu.lock();
+		this->memory.push_back(element);
+		this->mu.unlock();
+		memory->tempMemory.pop_back();
 	}
 }

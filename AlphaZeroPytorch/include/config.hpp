@@ -1,8 +1,12 @@
 #pragma once
 #include <log.hpp>
 #include <bitset>
+#include <mutex>
 
 #define OPSMode 0
+
+extern std::mutex console_mutex;
+extern std::mutex rand_mutex;
 
 /*
 +---------+-------------+
@@ -35,7 +39,7 @@
 #define Momentum 0.9
 
 // simulation setting
-#define MCTSSimulations 50
+#define MCTSSimulations 5//0
 #define cpuct_ 1.0f
 #define ProbabiliticMoves 10
 #define Alpha 0.9
@@ -45,8 +49,9 @@
 #define memory_size 30000
 
 // self play
-#define EPOCHS 30
-#define probabilitic_moves 10// how manny moves are prabilistic in the begining of the game to aid in exploration
+#define EPOCHS 1
+#define GEN_THREADS 60
+#define probabilitic_moves 10 // how manny moves are prabilistic in the begining of the game to aid in exploration
 
 // training
 #define Training_loops 20
@@ -55,12 +60,13 @@
 
 // turney
 #define Turnement_probabiliticMoves 2
-#define TurneyEpochs 20
+#define TurneyEpochs 1
+#define TurneyThreads 20
 #define scoringThreshold 1.3
 
 // console
-#define RenderTrainingProgress true
-#define RenderGenAndTurneyProgress true
+#define RenderTrainingProgress false
+#define RenderGenAndTurneyProgress false
 //#define RenderGameProgress true;
 
 // Saving

@@ -199,6 +199,7 @@ void AlphaZero::Game::GameState::getAllowedActions()
 
 void AlphaZero::Game::GameState::render()
 {
+	console_mutex.lock();
 	for (int row = 0; row < action_count;) {
 		for (int iter = 0; iter < 7; iter++) {
 			std::cout << this->getPiece(row) << " ";
@@ -207,6 +208,7 @@ void AlphaZero::Game::GameState::render()
 		std::cout << std::endl;
 	}
 	std::cout << std::endl;
+	console_mutex.unlock();
 }
 
 #if (MainLogger || MCTSLogger || MemoryLogger || ProfileLogger || ModelLogger)

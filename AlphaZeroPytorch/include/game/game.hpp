@@ -20,6 +20,7 @@ this is the alpha Zero game for tick tack toe
 #define input_shape_y 6
 #define input_snape_z 2
 #define action_count 42
+#define action_shape 6, 7
 #define boardOfset 42 // the size of a layer of the board in the buffer. (the amount of felds)
 #define gameName "connect4"
 

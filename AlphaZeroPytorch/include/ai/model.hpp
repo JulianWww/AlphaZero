@@ -15,8 +15,6 @@
 #include <cmath>
 #include "modelWorker.hpp"
 
-#define COPY(x) this-> ## x ## . ## copyModel(&model ## ->  ## x)
-
 
 namespace AlphaZero {
 	namespace ai {
@@ -539,8 +537,3 @@ inline AlphaZero::ai::Policy_head AlphaZero::ai::Model::register_custom_module(P
 	register_module("policy_linear", net.lin1);
 	return net;
 }
-// TODO: Reference additional headers your program requires here.
-
-#undef COPY
-#undef COPY_CONV
-#undef C

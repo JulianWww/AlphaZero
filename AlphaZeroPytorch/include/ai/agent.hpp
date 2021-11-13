@@ -1,5 +1,5 @@
 #pragma once
-#include <ai/model.hpp>
+#include <ai/modelSynchronizer.hpp>
 #include <ai/memory.hpp>
 #include <jce/vector.hpp>
 #include "utils.hpp"
@@ -10,6 +10,7 @@ namespace AlphaZero {
 		class Agent {
 		public: std::unordered_map<size_t, std::shared_ptr<MCTS>> tree;
 		public: std::shared_ptr<Model> model;
+		public: std::unique_ptr<AlphaZero::ai::ModelSynchronizer> synchronizer;
 		public: Agent();
 		public: int identity;
 		public: MCTS* getTree();
@@ -77,14 +78,15 @@ inline float AlphaZero::ai::Agent::evaluateLeaf(Node* node, MCTS* tree)
 	if (!node->state->done){
 		std::shared_ptr<Game::GameState> nextState;
 		Node* nextNode;
-		auto NNvals = this->predict(node->state);
+		auto data = ModelData(node);
+		this->predict(&data);
 		for (auto& action : node->state->allowedActions) {
 			nextState = node->state->takeAction(action);
 			nextNode = tree->addNode(nextState);
-			Edge newEdge = Edge(nextNode, node, action, NNvals.second[action]); //the last is the prob
+			Edge newEdge = Edge(nextNode, node, action, data.polys[action].item<float>()); //the last is the prob
 			node->addEdge( action, newEdge);
 		}
-		return NNvals.first;
+		return data.value;
 	}
 	return (float)std::get<0>(node->state->val);
 }
@@ -141,7 +143,7 @@ inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::s
 
 inline void AlphaZero::ai::Agent::predict(ModelData* data)
 {
-	this->model->predict(data);
+	this->synchronizer->addData(data);
 }
 
 inline void AlphaZero::ai::Agent::predict(std::list<ModelData*> data)
@@ -175,8 +177,7 @@ inline std::pair<int, std::pair<std::vector<int>, float>> AlphaZero::ai::Agent::
 	for (auto const& iter : node->edges) {
 		probs[iter.second.action] = (iter.second.N);
 	}
-
-	int action_probs = (rand() % ai::getSumm(probs));
+	auto action_probs = (rand() % ai::getSumm(probs));
 
 	for (auto const& val : probs) {
 		action_probs -= val;
