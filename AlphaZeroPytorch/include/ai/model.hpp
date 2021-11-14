@@ -75,7 +75,7 @@ namespace AlphaZero {
 		private: Value_head value_head;
 		private: Policy_head policy_head;
 
-		private: c10::Device device;
+		private: char* device;
 
 		private: Loss loss;
 		private: Optimizer optim;
@@ -126,7 +126,7 @@ inline AlphaZero::ai::Model::Model(char* _device) :
 	optim(Optimizer(this->parameters(), OptimizerOptions(0.001).momentum(Momentum))),
 	device(_device)
 {
-	this->moveTo(this->device);
+	this->moveTo(c10::Device(_device));
 }
 
 inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(torch::Tensor x)
@@ -320,7 +320,7 @@ inline std::pair<float, float> AlphaZero::ai::Model::train(const std::pair<torch
 
 inline std::pair<float, torch::Tensor> AlphaZero::ai::Model::predict(std::shared_ptr<Game::GameState> state)
 {
-	torch::Tensor NNInput = state->toTensor().to(this->device);
+	torch::Tensor NNInput = state->toTensor().to(c10::Device(this->device));
 	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
 	float value = NNOut.first[0].item<float>();
 	return { value, NNOut.second };
@@ -328,7 +328,7 @@ inline std::pair<float, torch::Tensor> AlphaZero::ai::Model::predict(std::shared
 
 inline void AlphaZero::ai::Model::predict(ModelData* data)
 {
-	torch::Tensor NNInput = data->node->state->toTensor().to(this->device);
+	torch::Tensor NNInput = data->node->state->toTensor().to(c10::Device(this->device));
 	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
 
 	torch::Tensor mask = torch::ones(
@@ -363,10 +363,10 @@ inline void AlphaZero::ai::Model::predict(std::list<ModelData*> data)
 		iter++;
 	}
 
-	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput.to(this->device));
+	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput.to(c10::Device(this->device)));
 
 	//std::cout << std::endl << NNOut.first << std::endl << NNOut.second << std::endl;
-	mask = mask.to(this->device);
+	mask = mask.to(c10::Device(this->device));
 
 	auto soft = torch::softmax(torch::masked_fill(NNOut.second, mask, -1000.0f), 1).cpu();
 
@@ -398,11 +398,11 @@ inline std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> AlphaZero::ai::Mo
 
 inline void AlphaZero::ai::Model::fit(const std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>& batch, const unsigned short& run, const unsigned short& trainingLoop)
 {
-	std::pair<torch::Tensor, torch::Tensor> NNVals = this->forward(std::get<0>(batch).to(this->device));
+	std::pair<torch::Tensor, torch::Tensor> NNVals = this->forward(std::get<0>(batch).to(c10::Device(this->device)));
 	std::pair<float, float> error = this->train(NNVals, 
 		{ 
-		std::get<2>(batch).to(this->device), 
-		std::get<1>(batch).to(this->device) 
+		std::get<2>(batch).to(c10::Device(this->device)), 
+		std::get<1>(batch).to(c10::Device(this->device))
 		});
 #if ModelLogger
 	debug::log::modelLogger->info("model error in iteration {} on batch {} had valueError of {} and polyError of {}", run, trainingLoop, std::get<0>(error), std::get<1>(error));

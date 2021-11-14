@@ -74,6 +74,12 @@ int main(int argc, char ** argv)
 	else {
 		std::cout << "\33[1;31mWarning: cuDNN is unavailable, consider using a CUDA enabled GPU\33[0m" << std::endl;
 	}
+	std::vector<char*> devices = { DEVICES };
+	for (auto const& device : devices)
+	{
+		std::cout << device << ", ";
+	}
+	std::cout << std::endl;
 	train(-1);
 #if ProfileLogger
 	debug::Profiler::profiler.log();
