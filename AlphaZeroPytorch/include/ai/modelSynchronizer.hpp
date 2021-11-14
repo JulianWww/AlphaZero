@@ -67,7 +67,8 @@ inline AlphaZero::ai::ModelSynchronizer::~ModelSynchronizer()
 inline void AlphaZero::ai::ModelSynchronizer::addData(ModelData* _data)
 {
 	_data->value = 2;
-	//this->waitForData(_data);
+	this->waitForData(_data);
+	return;
 	std::list<ModelData*>data_l;
 	data_l.push_back(_data);
 	this->model->predict(data_l);
@@ -81,9 +82,15 @@ inline void AlphaZero::ai::ModelSynchronizer::waitForData(ModelData* _data)
 
 	while (_data->value == 2)
 	{
-		this->dataAddMutex.lock();
-		this->data.push_back(_data);
-		this->dataAddMutex.unlock();
+		auto pos = std::find(this->data.rbegin(), this->data.rend(), _data);
+
+		if (pos == this->data.rend())
+		{
+			this->dataAddMutex.lock();
+			this->data.push_back(_data);
+			std::cout << this->data.size() << ", " << std::this_thread::get_id() << std::endl;
+			this->dataAddMutex.unlock();
+		}
 
 		this->NNProcessingSynchronizer.wait(lock);
 	}
@@ -109,7 +116,7 @@ inline void AlphaZero::ai::ModelSynchronizer::mainloop(ModelSynchronizer* _this)
 {
 	while (_this->isStillValid)
 	{
-		if (_this->data.size() == _this->waitingThreads && _this->data.size())
+		if (_this->data.size())
 		{
 			_this->predictData();
 		}

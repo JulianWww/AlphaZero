@@ -13,8 +13,8 @@ void AlphaZero::test::runTests()
 	testCoppying();
 	testSave();
 	testLossLog();
-	testModelSpeed();
-	//testTraining();
+	if (torch::cuda::cudnn_is_available())
+		testModelSpeed();
 }
 
 
