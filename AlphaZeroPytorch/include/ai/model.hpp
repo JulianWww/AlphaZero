@@ -134,10 +134,6 @@ inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(tor
 #if randomModel
 	return { torch::rand({x.size(0), 1}), torch::rand({x.size(0), action_count}) };
 #else
-	if (torch::cuda::cudnn_is_available() && ! x.is_cuda())
-	{
-		x = x.cuda();
-	}
 	x = this->top.forward(x);
 	x = this->res1.forward(x);
 	x = this->res2.forward(x);
