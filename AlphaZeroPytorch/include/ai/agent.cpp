@@ -15,11 +15,10 @@ std::pair<int, std::vector<float>> AlphaZero::ai::User::getAction(std::shared_pt
 }
 #endif
 
-AlphaZero::ai::Agent::Agent() // TODO remove int version from this function
+AlphaZero::ai::Agent::Agent(std::vector<char*> devices)
 {
-	this->model = std::make_shared<AlphaZero::ai::Model>();
 	this->tree = {};
-	this->synchronizer = std::make_unique<ModelSynchronizer>(this->model.get());
+	this->model = std::make_unique<ModelSynchronizer>(devices);
 }
 
 std::pair<int, std::pair<std::vector<int>, float>> AlphaZero::ai::Agent::getAction(std::shared_ptr<Game::GameState> state, bool proabilistic)

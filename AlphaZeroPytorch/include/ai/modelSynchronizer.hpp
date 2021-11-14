@@ -1,14 +1,13 @@
 #pragma once
 
-#include <condition_variable>
 #include <mutex>
 #include <thread>
-#include <list>
 #include <thread>
 #include <iostream>
 #include <memory>
 #include "model.hpp"
 
+// mostly useless
 
 namespace AlphaZero
 {
@@ -17,28 +16,31 @@ namespace AlphaZero
 		// class that allows model prediction to be heald untill a certain amount of MCTS threads requested and evaluation or skiped
 		class ModelSynchronizer
 		{
-		public: Model* model;
-		public: bool isStillValid = true;
-		private: unsigned short waitingThreads = 0;
-		private: std::unique_ptr<std::thread> thread;
-		private: std::list<ModelData*> data;
-		private: std::mutex dataAddMutex, waitingThreadsMutex;
+		private: std::vector<std::unique_ptr<Model>> models;
+		private: unsigned short pos = 0;
+		private: std::mutex modelGetMutex;
 
-		private: std::condition_variable NNProcessingSynchronizer;
-
-		public: ModelSynchronizer(ai::Model* model);
-		public: ~ModelSynchronizer();
+		public: ModelSynchronizer(std::vector<char*> devices);
 
 			   // add Data vor evaluation 
 		public: void addData(ModelData* data);
+		private: Model* getModel();
 
-			  // function used for synchronization 
-		private: void waitForData(ModelData* _data);
-		private: void predictData();
-		public: static void mainloop(ModelSynchronizer* _this);
+			   
+		public: void copyModel(ModelSynchronizer*);
+		public: void fit(const std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>& batch, const unsigned short& run, const unsigned short& trainingLoop);
 
-		private: void addWaitingThread();
-		private: void removeWaitingThread();
+		public: void save_as_current();
+		public: void save_version(unsigned int version);
+		public: void save_to_file(char* filename);
+		public: void load_current();
+		public: void load_version(unsigned int version);
+		public: void load_from_file(char* filename);
+		public: void synchronizeModels();
+
+		public: std::pair<float, torch::Tensor>predict(std::shared_ptr<Game::GameState> state, size_t idx=0);
+		public: void predict(ModelData* data, size_t idx=0);
+		public: void predict(std::list<ModelData*> data, size_t idx=0);
 		};
 	}
 	namespace test
@@ -51,90 +53,93 @@ namespace AlphaZero
 	}
 }
 
-inline AlphaZero::ai::ModelSynchronizer::ModelSynchronizer(ai::Model* model)
+inline AlphaZero::ai::ModelSynchronizer::ModelSynchronizer(std::vector<char*> devices)
 {
-	this->model = model;
-	this->thread = std::make_unique<std::thread>(ModelSynchronizer::mainloop, this);
+	for (auto const& device : devices)
+	{
+		this->models.push_back(std::make_unique<Model>(device));
+	}
+	this->synchronizeModels();
 }
-
-inline AlphaZero::ai::ModelSynchronizer::~ModelSynchronizer()
-{
-	this->isStillValid = false;
-	//this->waitForDataLocker.notify_all();
-	this->thread->join();
-}
-
 inline void AlphaZero::ai::ModelSynchronizer::addData(ModelData* _data)
 {
-	_data->value = 2;
-	this->waitForData(_data);
-	return;
+	/*_data->value = 2;
 	std::list<ModelData*>data_l;
-	data_l.push_back(_data);
-	this->model->predict(data_l);
+	data_l.push_back(_data);*/
+	this->getModel()->predict(_data);
 }
-
-inline void AlphaZero::ai::ModelSynchronizer::waitForData(ModelData* _data)
+inline AlphaZero::ai::Model* AlphaZero::ai::ModelSynchronizer::getModel()
 {
-	this->addWaitingThread();
-	std::mutex mutex;
-	std::unique_lock<std::mutex>lock(mutex);
-
-	while (_data->value == 2)
+	this->modelGetMutex.lock();
+	auto outputModel = this->models[this->pos].get();
+	this->pos++;
+	if (this->pos >= this->models.size())
 	{
-		auto pos = std::find(this->data.rbegin(), this->data.rend(), _data);
-
-		if (pos == this->data.rend())
-		{
-			this->dataAddMutex.lock();
-			this->data.push_back(_data);
-			std::cout << this->data.size() << ", " << std::this_thread::get_id() << std::endl;
-			this->dataAddMutex.unlock();
-		}
-
-		this->NNProcessingSynchronizer.wait(lock);
+		this->pos = 0;
 	}
-	this->removeWaitingThread();
-	return;
+	this->modelGetMutex.unlock();
+	return outputModel;
 }
-
-inline void AlphaZero::ai::ModelSynchronizer::predictData()
+inline void AlphaZero::ai::ModelSynchronizer::copyModel(ModelSynchronizer* syncher)
 {
-	this->dataAddMutex.lock();
-#if ModelLogger
-	debug::log::modelLogger->info("model Predicted with {} states", this->data.size());
-#endif
-	std::list<ModelData*> tmpData(this->data.begin(), this->data.end());
-	this->data.clear();
-	this->dataAddMutex.unlock();
-
-	this->model->predict(tmpData);
-	this->NNProcessingSynchronizer.notify_all();
-}
-
-inline void AlphaZero::ai::ModelSynchronizer::mainloop(ModelSynchronizer* _this)
-{
-	while (_this->isStillValid)
+	for (auto const& model : this->models)
 	{
-		if (_this->data.size())
-		{
-			_this->predictData();
-		}
+		model->copyModel(syncher->models[0].get());
 	}
 }
-
-inline void AlphaZero::ai::ModelSynchronizer::addWaitingThread()
+inline void AlphaZero::ai::ModelSynchronizer::fit(const std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>& batch, const unsigned short& run, const unsigned short& trainingLoop)
 {
-	this->waitingThreadsMutex.lock();
-	this->waitingThreads++;
-	this->waitingThreadsMutex.unlock();
+	this->models[0]->fit(batch, run, trainingLoop);
 }
-
-inline void AlphaZero::ai::ModelSynchronizer::removeWaitingThread()
+inline void AlphaZero::ai::ModelSynchronizer::save_as_current()
 {
-	this->waitingThreadsMutex.lock();
-	this->waitingThreads--;
-	this->waitingThreadsMutex.unlock();
+	this->models[0]->save_as_current();
+}
+inline void AlphaZero::ai::ModelSynchronizer::save_to_file(char* filename)
+{
+	this->models[0]->save_to_file(filename);
+}
+inline void AlphaZero::ai::ModelSynchronizer::save_version(unsigned int version)
+{
+	this->models[0]->save_version(version);
+}
+inline void AlphaZero::ai::ModelSynchronizer::load_current()
+{
+	this->models[0]->load_current();
+	this->synchronizeModels();
+}
+inline void AlphaZero::ai::ModelSynchronizer::load_from_file(char* filename)
+{
+	this->models[0]->load_from_file(filename);
+	this->synchronizeModels();
+}
+inline void AlphaZero::ai::ModelSynchronizer::load_version(unsigned int version)
+{
+	this->models[0]->load_version(version);
+	this->synchronizeModels();
+}
+inline void AlphaZero::ai::ModelSynchronizer::synchronizeModels()
+{
+	auto copyFrom = this->models[0].get();
+	for (auto const& model : this->models)
+	{
+		if (model.get() != copyFrom)
+		{
+			model->copyModel(copyFrom);
+		}
+	}
+}
+inline void AlphaZero::ai::ModelSynchronizer::predict(ModelData* data, size_t idx)
+{
+	this->models[idx]->predict(data);
+}
+inline void AlphaZero::ai::ModelSynchronizer::predict(std::list<ModelData*> data, size_t idx)
+{
+	this->models[idx]->predict(data);
+}
+inline std::pair<float, torch::Tensor> AlphaZero::ai::ModelSynchronizer::predict(std::shared_ptr<Game::GameState> state, size_t idx)
+{
+	return this->models[idx]->predict(state);
 }
 
 

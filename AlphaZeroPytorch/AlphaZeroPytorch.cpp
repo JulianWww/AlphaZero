@@ -74,23 +74,7 @@ int main(int argc, char ** argv)
 	else {
 		std::cout << "\33[1;31mWarning: cuDNN is unavailable, consider using a CUDA enabled GPU\33[0m" << std::endl;
 	}
-#if OPSMode == 0
 	train(-1);
-#elif OPSMode == 1
-	//TODO remove game from initialization || its not technicly neded
-	std::shared_ptr<AlphaZero::Game::Game> game = std::make_shared<AlphaZero::Game::Game>();
-
-	std::shared_ptr<AlphaZero::ai::Agent> agent = std::make_shared<AlphaZero::ai::Agent>(game);
-	agent->model->load_current();
-
-	AlphaZero::Server::TCPServer server (agent);
-	server.mainLoop();
-
-#elif OPSMode == 2
-	std::cout << "\33[1;31mUsing Test Server! \n\tset OPSMode to 1 for server if not testing\33[0m" << std::endl;
-	AlphaZero::Server::TestServer server (PORT);
-	server.mainLoop();
-#endif
 #if ProfileLogger
 	debug::Profiler::profiler.log();
 #endif 

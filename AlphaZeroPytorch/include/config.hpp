@@ -3,7 +3,18 @@
 #include <bitset>
 #include <mutex>
 
-#define OPSMode 0
+#ifdef unix
+#define UNIX
+#endif
+
+#ifdef UNIX
+#define DEVICES "CUDA:0"
+#endif
+#ifndef UNIX
+#define DEVICES "cpu"
+#endif
+
+#define OPSMode 1
 
 extern std::mutex console_mutex;
 extern std::mutex rand_mutex;
@@ -11,8 +22,6 @@ extern std::mutex rand_mutex;
 /*
 +---------+-------------+
 | OPSMode | Description |
-+---------+-------------+
-| 0       | Train an AI |
 +---------+-------------+
 | 1       | Run Server  |
 +---------+-------------+
@@ -84,8 +93,3 @@ extern std::mutex rand_mutex;
 
 
 typedef std::bitset<stateSize> IDType;
-
-
-#ifdef unix
-#define UNIX
-#endif

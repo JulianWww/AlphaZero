@@ -35,11 +35,13 @@ file(GLOB TEST_SOURCE
 add_executable (train "AlphaZeroPytorch.cpp" "AlphaZeroPytorch.h" ${SOURCES_Files} ${HEADER_Files})
 add_executable (GameReplayer "Replay.cpp" "include/game/game.cpp" "include/config.cpp")
 add_executable (runTest "test.cpp" ${TEST_SOURCE} ${HEADER_Files})
+add_executable (runServer "runServer.cpp" ${SOURCES_Files} ${HEADER_Files})
 
 message("linking libs ...")
 target_link_libraries(train "${TORCH_LIBRARIES}")
 target_link_libraries(GameReplayer "${TORCH_LIBRARIES}")
 target_link_libraries(runTest "${TORCH_LIBRARIES}")
+target_link_libraries(runServer "${TORCH_LIBRARIES}")
 
 message("adding includes ...")
 
@@ -55,12 +57,16 @@ if (WIN32)
 	target_include_directories(GameReplayer PUBLIC "D:/MyCode/CppLibs/include")
 	target_include_directories(runTest PUBLIC "D:/MyCode/CppLibs/include")
 	target_include_directories(showLoss PUBLIC "D:/MyCode/CppLibs/include")
+	target_include_directories(runServer PUBLIC "D:/MyCode/CppLibs/include")
 
 	target_link_libraries (train "D:/MyCode/CppLibs/x64/sockpp-static_d.lib")
+	target_link_libraries (runServer "D:/MyCode/CppLibs/x64/sockpp-static_d.lib")
 endif (WIN32)
 if (UNIX)
 	target_include_directories(train PUBLIC "/spdlog/spdlog/include")
 	target_include_directories(train PUBLIC "/sockpp/include")
+	target_include_directories(runServer PUBLIC "/spdlog/spdlog/include")
+	target_include_directories(runServer PUBLIC "/sockpp/include")
 
 	target_include_directories(GameReplayer PUBLIC "/spdlog/spdlog/include")
 
@@ -69,10 +75,12 @@ if (UNIX)
 	find_library(sockpp_location sockpp)
 	message("sockpp is at: ${sockpp_location}")
 	target_link_libraries(train "${sockpp_location}")
+	target_link_libraries(runServer "${sockpp_location}")
 endif(UNIX)
 
 
 target_include_directories(train PUBLIC "${CMAKE_SOURCE_DIR}/include")
+target_include_directories(runServer PUBLIC "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(GameReplayer PUBLIC "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(runTest PUBLIC "${CMAKE_SOURCE_DIR}/include")
 

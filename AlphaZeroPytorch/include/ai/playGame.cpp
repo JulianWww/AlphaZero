@@ -23,10 +23,11 @@ void AlphaZero::test::playGame(std::shared_ptr<Game::Game> game, std::shared_ptr
 void AlphaZero::ai::train(int version)
 {
 	unsigned short iteration = 0;
+	std::vector<char*> devices = { DEVICES };
 	std::shared_ptr<Memory> memory = std::make_shared<Memory>();
 	std::shared_ptr<Game::Game> game = std::make_shared<Game::Game>();
-	std::shared_ptr<Agent> currentAgent = std::make_shared<Agent>();
-	std::shared_ptr<Agent> bestAgent = std::make_shared<Agent>();
+	std::shared_ptr<Agent> currentAgent = std::make_shared<Agent>(devices);
+	std::shared_ptr<Agent> bestAgent = std::make_shared<Agent>(devices);
 
 	memory->load();
 	char nameBuff[100];
@@ -37,7 +38,7 @@ void AlphaZero::ai::train(int version)
 	bestAgent->model->load(loadVersion);
 	currentAgent->model->load(loadVersion);
 #else
-	currentAgent->model->copyModel(bestAgent->model);
+	currentAgent->model->copyModel(bestAgent->model.get());
 #endif
 
 	// TODO bestAgent->model->save(0);
@@ -81,7 +82,7 @@ void AlphaZero::ai::train(int version)
 				version++;
 				//TODO copy model weightsk
 				currentAgent->model->save_as_current();
-				bestAgent->model->copyModel(currentAgent->model);
+				bestAgent->model->copyModel(currentAgent->model.get());
 				bestAgent->model->save_version(version);
 
 				memory->save();

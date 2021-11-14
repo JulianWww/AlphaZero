@@ -9,9 +9,8 @@ namespace AlphaZero {
 	namespace ai {
 		class Agent {
 		public: std::unordered_map<size_t, std::shared_ptr<MCTS>> tree;
-		public: std::shared_ptr<Model> model;
-		public: std::unique_ptr<AlphaZero::ai::ModelSynchronizer> synchronizer;
-		public: Agent();
+		public: std::unique_ptr<AlphaZero::ai::ModelSynchronizer> model;
+		public: Agent(std::vector<char*> devices);
 		public: int identity;
 		public: MCTS* getTree();
 		public: void reset();
@@ -106,6 +105,7 @@ inline void AlphaZero::ai::Agent::fit(std::shared_ptr<Memory> memory, unsigned s
 		debug::log::_lossLogger.newBatch();
 #endif
 	}
+	this->model->synchronizeModels();
 #if LossLogger
 	debug::log::_lossLogger.save("logs/games/loss.bin");
 #endif
@@ -143,7 +143,7 @@ inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::s
 
 inline void AlphaZero::ai::Agent::predict(ModelData* data)
 {
-	this->synchronizer->addData(data);
+	this->model->addData(data);
 }
 
 inline void AlphaZero::ai::Agent::predict(std::list<ModelData*> data)

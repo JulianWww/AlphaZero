@@ -14,6 +14,7 @@ namespace AlphaZero
 		void testModelData();
 		void testTraining();
 		void testModelSpeed();
+		void testModelSyncronization();
 
 		bool compareAgents(std::shared_ptr<ai::Agent> anget1, std::shared_ptr<ai::Agent> anget2);
 		void printSuccess(bool val);

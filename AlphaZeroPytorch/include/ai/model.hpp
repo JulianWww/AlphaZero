@@ -75,12 +75,12 @@ namespace AlphaZero {
 		private: Value_head value_head;
 		private: Policy_head policy_head;
 
-		private: bool CUDA;
+		private: c10::Device device;
 
 		private: Loss loss;
 		private: Optimizer optim;
 
-		public: Model();
+		public: Model(char* device);
 		public: std::pair<torch::Tensor, torch::Tensor> forward(torch::Tensor);
 		public: std::pair<float, float> train(const std::pair<torch::Tensor, torch::Tensor>& x, const std::pair<torch::Tensor, torch::Tensor>& y);
 
@@ -98,7 +98,7 @@ namespace AlphaZero {
 		public: void load_current();
 		public: void load_from_file(char* filename);
 
-		public: void copyModel(std::shared_ptr<Model>);
+		public: void copyModel(Model*);
 		public: void moveTo(c10::Device device);
 
 		private: TopLayer register_custom_module(TopLayer net);
@@ -111,8 +111,9 @@ namespace AlphaZero {
 }
 // customizable section
 #define modelTest false
+#define randomModel false
 
-inline AlphaZero::ai::Model::Model() :
+inline AlphaZero::ai::Model::Model(char* _device) :
 	top(this->register_custom_module(TopLayer(2, 75, 5))),
 	res1(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_1")),
 	res2(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_2")),
@@ -122,12 +123,17 @@ inline AlphaZero::ai::Model::Model() :
 	res6(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_6")),
 	value_head(this->register_custom_module(Value_head(75, 420, 210, 10))),
 	policy_head(this->register_custom_module(Policy_head(75, 84, 42))),
-	optim(Optimizer(this->parameters(), OptimizerOptions(0.001).momentum(Momentum)))
+	optim(Optimizer(this->parameters(), OptimizerOptions(0.001).momentum(Momentum))),
+	device(_device)
 {
+	this->moveTo(this->device);
 }
 
 inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(torch::Tensor x)
 {
+#if randomModel
+	return { torch::rand({x.size(0), 1}), torch::rand({x.size(0), action_count}) };
+#else
 	if (torch::cuda::cudnn_is_available() && ! x.is_cuda())
 	{
 		x = x.cuda();
@@ -145,6 +151,7 @@ inline std::pair<torch::Tensor, torch::Tensor> AlphaZero::ai::Model::forward(tor
 	torch::Tensor poly = this->policy_head.forward(x.clone());
 
 	return { value, poly };
+#endif
 };
 // end of cutimizable section
 
@@ -313,9 +320,7 @@ inline std::pair<float, float> AlphaZero::ai::Model::train(const std::pair<torch
 
 inline std::pair<float, torch::Tensor> AlphaZero::ai::Model::predict(std::shared_ptr<Game::GameState> state)
 {
-	torch::Tensor NNInput = state->toTensor();
-	if (torch::cuda::cudnn_is_available())
-		NNInput = NNInput.cuda();
+	torch::Tensor NNInput = state->toTensor().to(this->device);
 	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
 	float value = NNOut.first[0].item<float>();
 	return { value, NNOut.second };
@@ -323,9 +328,7 @@ inline std::pair<float, torch::Tensor> AlphaZero::ai::Model::predict(std::shared
 
 inline void AlphaZero::ai::Model::predict(ModelData* data)
 {
-	torch::Tensor NNInput = data->node->state->toTensor();
-	if (torch::cuda::cudnn_is_available())
-		NNInput = NNInput.cuda();
+	torch::Tensor NNInput = data->node->state->toTensor().to(this->device);
 	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
 
 	torch::Tensor mask = torch::ones(
@@ -360,13 +363,10 @@ inline void AlphaZero::ai::Model::predict(std::list<ModelData*> data)
 		iter++;
 	}
 
-	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
+	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput.to(this->device));
 
 	//std::cout << std::endl << NNOut.first << std::endl << NNOut.second << std::endl;
-	if (torch::cuda::cudnn_is_available())
-	{
-		mask = mask.cuda();
-	}
+	mask = mask.to(this->device);
 
 	auto soft = torch::softmax(torch::masked_fill(NNOut.second, mask, -1000.0f), 1).cpu();
 
@@ -398,13 +398,12 @@ inline std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> AlphaZero::ai::Mo
 
 inline void AlphaZero::ai::Model::fit(const std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>& batch, const unsigned short& run, const unsigned short& trainingLoop)
 {
-	c10::Device device("cpu");
-	if (torch::cuda::cudnn_is_available())
-	{
-		device = c10::Device("cuda:0");
-	}
-	std::pair<torch::Tensor, torch::Tensor> NNVals = this->forward(std::get<0>(batch).to(device));
-	std::pair<float, float> error = this->train(NNVals, { std::get<2>(batch).to(device), std::get<1>(batch).to(device) });
+	std::pair<torch::Tensor, torch::Tensor> NNVals = this->forward(std::get<0>(batch).to(this->device));
+	std::pair<float, float> error = this->train(NNVals, 
+		{ 
+		std::get<2>(batch).to(this->device), 
+		std::get<1>(batch).to(this->device) 
+		});
 #if ModelLogger
 	debug::log::modelLogger->info("model error in iteration {} on batch {} had valueError of {} and polyError of {}", run, trainingLoop, std::get<0>(error), std::get<1>(error));
 #endif
@@ -416,10 +415,7 @@ inline void AlphaZero::ai::Model::fit(const std::tuple<torch::Tensor, torch::Ten
 inline void AlphaZero::ai::Model::save_version(unsigned int version)
 {
 	char buffer[50];
-	if (this->CUDA)
-		std::sprintf(buffer, "models/run_%d/V_%d.torch", runVersion, version);
-	else
-		std::sprintf(buffer, "models/run_%d/CPU_%d.torch", runVersion, version);
+	std::sprintf(buffer, "models/run_%d/V_%d.torch", runVersion, version);
 	std::cout << buffer << std::endl;
 	this->save_to_file(buffer);
 }
@@ -427,10 +423,7 @@ inline void AlphaZero::ai::Model::save_version(unsigned int version)
 inline void AlphaZero::ai::Model::save_as_current()
 {
 	char buffer[50];
-	if (this->CUDA)
-		std::sprintf(buffer, "models/run_%d/currentModel.torch", runVersion);
-	else
-		std::sprintf(buffer, "models/run_%d/CPU_currentModel.torch", runVersion);
+	std::sprintf(buffer, "models/run_%d/currentModel.torch", runVersion);
 	this->save_to_file(buffer);
 }
 
@@ -447,10 +440,7 @@ inline void AlphaZero::ai::Model::load_version(unsigned int version)
 {
 	std::cout << "loading ...";
 	char buffer[50];
-	if (this->CUDA)
-		std::sprintf(buffer, "models/run_%d/V_%d.torch", runVersion, version);
-	else
-		std::sprintf(buffer, "models/run_%d/CPU_%d.torch", runVersion, version);
+	std::sprintf(buffer, "models/run_%d/V_%d.torch", runVersion, version);
 	this->load_from_file(buffer);
 	std::cout << " loaded Version " << version << std::endl;
 }
@@ -458,10 +448,7 @@ inline void AlphaZero::ai::Model::load_version(unsigned int version)
 inline void AlphaZero::ai::Model::load_current()
 {
 	char buffer[50];
-	if (this->CUDA)
-		std::sprintf(buffer, "models/run_%d/currentModel.torch", runVersion);
-	else
-		std::sprintf(buffer, "models/run_%d/CPU_currentModel.torch", runVersion);
+	std::sprintf(buffer, "models/run_%d/currentModel.torch", runVersion);
 	this->load_from_file(buffer);
 }
 
@@ -473,7 +460,7 @@ inline void AlphaZero::ai::Model::load_from_file(char* filename)
 	this->load(inp);
 }
 
-inline void AlphaZero::ai::Model::copyModel(std::shared_ptr<AlphaZero::ai::Model> model)
+inline void AlphaZero::ai::Model::copyModel(AlphaZero::ai::Model* model)
 {
 	torch::autograd::GradMode::set_enabled(false);
 	auto new_params = model->named_parameters(true);
