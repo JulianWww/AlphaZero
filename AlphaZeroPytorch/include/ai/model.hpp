@@ -484,6 +484,7 @@ inline void AlphaZero::ai::Model::copyModel(AlphaZero::ai::Model* model)
 
 inline void AlphaZero::ai::Model::moveTo(c10::Device device)
 {
+	std::cout << device << std::endl;
 	this->top.moveTo(device);
 
 	this->res1.moveTo(device);
