@@ -157,10 +157,6 @@ inline AlphaZero::ai::TopLayer::TopLayer(int inp, int out, int kernelsize1) :
 	relu(this->register_module("ReLU", torch::nn::LeakyReLU(torch::nn::LeakyReLU()))),
 	kernel1(kernelsize1 / 2)
 {
-	if (torch::cuda::cudnn_is_available())
-	{
-		this->moveTo(c10::Device("cuda:0"));
-	}
 }
 inline torch::Tensor AlphaZero::ai::TopLayer::forward(torch::Tensor x)
 {
@@ -480,7 +476,6 @@ inline void AlphaZero::ai::Model::copyModel(AlphaZero::ai::Model* model)
 
 inline void AlphaZero::ai::Model::moveTo(c10::Device device)
 {
-	std::cout << device << std::endl;
 	this->top.moveTo(device);
 
 	this->res1.moveTo(device);
