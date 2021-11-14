@@ -8,7 +8,7 @@
 #endif
 
 #ifdef UNIX
-#define DEVICES "CUDA:0"
+#define DEVICES "cuda:0"
 #endif
 #ifndef UNIX
 #define DEVICES "cpu"
