@@ -22,7 +22,7 @@ file(GLOB HEADER_Files
 	"include/game/*.hpp"
 )
 file(GLOB SERVER_Files
-	"include/Server*.cpp"
+	"include/Server/*.cpp"
 )
 
 file(GLOB TEST_SOURCE
