@@ -25,6 +25,10 @@ file(GLOB SERVER_Files
 	"include/Server/*.cpp"
 )
 
+file(GLOB OUTER_Files
+	"include/*.cpp"
+)
+
 file(GLOB TEST_SOURCE
 	"include/test/*.cpp"
 	"include/ai/*.cpp"
@@ -37,7 +41,7 @@ add_executable (train "AlphaZeroPytorch.cpp" "AlphaZeroPytorch.h" ${SOURCES_File
 add_executable (GameReplayer "Replay.cpp" "include/game/game.cpp" "include/config.cpp")
 add_executable (runTest "test.cpp" ${TEST_SOURCE} ${HEADER_Files})
 add_executable (runServer "runServer.cpp" ${SOURCES_Files} ${SERVER_Files})
-add_executable (convert "convertToJceFormat.cpp" "include/ai/modelWorker.cpp")
+add_executable (convert "convertToJceFormat.cpp" "include/ai/modelWorker.cpp" "${OUTER_Files}")
 
 message("linking libs ...")
 target_link_libraries(train "${TORCH_LIBRARIES}")
