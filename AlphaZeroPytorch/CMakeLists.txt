@@ -73,7 +73,7 @@ if (UNIX)
 	target_include_directories(train PUBLIC "/spdlog/spdlog/include")
 	target_include_directories(runServer PUBLIC "/spdlog/spdlog/include")
 	target_include_directories(runServer PUBLIC "/sockpp/include")
-	target_include_directories(convert PUBLIC "spdlog/spdlog/include")
+	target_include_directories(convert PUBLIC "/spdlog/spdlog/include")
 
 
 	target_include_directories(GameReplayer PUBLIC "/spdlog/spdlog/include")
