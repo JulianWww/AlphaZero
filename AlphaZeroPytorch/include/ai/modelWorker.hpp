@@ -24,3 +24,5 @@ inline AlphaZero::ai::ModelData::ModelData(Node* _node)
 {
 	this->node = _node;
 }
+
+inline void print(){}

@@ -11,9 +11,6 @@
 #ifndef UNIX
 #include <filesystem>
 #endif
-#if OPSMode == 1 || OPSMode == 2
-#include <Server/server.hpp>
-#endif
 
 
 inline void wait(int time)

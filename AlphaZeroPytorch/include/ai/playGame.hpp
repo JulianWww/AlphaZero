@@ -31,7 +31,8 @@ inline std::unordered_map<AlphaZero::ai::Agent*, int> AlphaZero::ai::playGames_i
 	std::vector<std::thread> workers;
 	for (size_t idx = 0; idx < Threads; idx++)
 	{
-		workers.push_back(std::thread(playGames, &output, agent1, agent2, memory, probMoves, Epochs, RunId, goesFirst, log));
+		bool doLog = (log && (idx == 0));
+		workers.push_back(std::thread(playGames, &output, agent1, agent2, memory, probMoves, Epochs, RunId, goesFirst, doLog));
 	}
 
 	for (auto& worker : workers)

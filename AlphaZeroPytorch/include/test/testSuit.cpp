@@ -13,10 +13,11 @@ void AlphaZero::test::runTests()
 	testModelData();
 	testCoppying();
 	testSave();
+	testJCESave();
 	testLossLog();
 	testModelSyncronization();
-	//if (torch::cuda::cudnn_is_available())
-	testModelSpeed();
+	if (torch::cuda::cudnn_is_available())
+		testModelSpeed();
 }
 
 
@@ -26,6 +27,8 @@ void AlphaZero::test::testCoppying()
 
 	auto modelA = std::make_shared<ai::Agent>(devices);
 	auto modelB = std::make_shared<ai::Agent>(devices);
+
+	modelA->model->save_as_current();
 
 	modelB->model->copyModel(modelA->model.get());
 	printSuccess(compareAgents(modelA, modelB));
@@ -41,6 +44,22 @@ void AlphaZero::test::testSave()
 	char folder[] = "temp.torch";
 	modelA->model->save_to_file(folder);
 	modelB->model->load_from_file(folder);
+
+	remove("temp.torch");
+
+	printSuccess(compareAgents(modelA, modelB));
+}
+
+void AlphaZero::test::testJCESave()
+{
+	std::cout << "Testing Model jce save ...\t\t";
+
+	auto modelA = std::make_shared<ai::Agent>(devices);
+	auto modelB = std::make_shared<ai::Agent>(devices);
+
+	char folder[] = "temp.torch";
+	modelA->model->jce_save_current(folder);
+	modelB->model->jce_load_from_file(folder);
 
 	remove("temp.torch");
 

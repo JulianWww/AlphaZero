@@ -4,7 +4,9 @@
 #include <list>
 #include <vector>
 #include <bitset>
+#include <string>
 #include <ai/memory.hpp>
+#include <torch/torch.h>
 
 #define BasicLoad(in, out) (in.read((char*)&data, sizeof(data)))
 
@@ -18,7 +20,17 @@ namespace jce
 	// load Memory Element from file
 	void load(std::ifstream& in, std::shared_ptr<AlphaZero::ai::MemoryElement>& element);
 
+	template<typename key, typename T>
+	void load(std::ifstream& in, torch::OrderedDict<key, T>& map);
+
+	// load Tensor from file
+	template<typename T=float>
+	void load(std::ifstream& in, torch::Tensor& tensor);
+
 	// end custom part
+
+	template<typename key, typename T>
+	void load(std::ifstream& in, std::unordered_map<key, T>& map);
 
 	// load pair from file
 	template<typename T, typename T2>
@@ -50,6 +62,12 @@ namespace jce
 	void load(std::ifstream& in, float& data);
 	// load double from file
 	void load(std::ifstream& in, double& data);
+	// load char from file
+	void load(std::ifstream& in, char*& data);
+	// load int64_t from file
+	void load(std::ifstream& in, int64_t& data);
+	// load string from file
+	void load(std::ifstream& in, std::string& data);
 }
 
 inline void jce::load(std::ifstream& in, std::shared_ptr<AlphaZero::Game::GameState>& state)
@@ -69,27 +87,75 @@ inline void jce::load(std::ifstream& in, std::shared_ptr<AlphaZero::ai::MemoryEl
 	jce::load(in, element->av);
 }
 
+template<typename key, typename T>
+inline void jce::load(std::ifstream& in, torch::OrderedDict<key, T>& map)
+{
+	size_t size;
+	jce::load(in, size);
+	for (size_t idx = 0; idx < size; idx++)
+	{
+		key _key;
+		T _item;
+		jce::load(in, _key);
+		jce::load(in, _item);
+		map.insert(_key, _item);
+	}
+}
+
+template<typename T>
+inline void jce::load(std::ifstream& in, torch::Tensor& tensor)
+{
+	std::vector<int64_t> vec;
+	int64_t fullSize = 1;
+	jce::load(in, vec);
+	for (size_t value : vec) { fullSize *= value; }
+	tensor = torch::zeros({ fullSize });
+	T val, last;
+	for (size_t idx = 0; idx < fullSize; idx++)
+	{
+		jce::load(in, val);
+		tensor[idx] = val;
+		last = val;
+	}
+	tensor = torch::reshape(tensor, vec);
+}
+
+template<typename key, typename T>
+inline void jce::load(std::ifstream& in, std::unordered_map<key, T>& map)
+{
+	size_t size;
+	jce::load(in, size);
+	for (size_t idx = 0; idx < size; idx++)
+	{
+		key _key;
+		T _item;
+		jce::load(in, _key);
+		jce::load(in, _item);
+		map.insert({ _key, _item });
+	}
+}
+
 template<typename T, typename T2>
-void jce::load(std::ifstream& in, std::pair<T, T2>& data)
+inline void jce::load(std::ifstream& in, std::pair<T, T2>& data)
 {
 	jce::load(in, data.first);
 	jce::load(in, data.second);
 }
 
 template<typename T>
-void jce::load(std::ifstream& in, std::list<T>& data)
+inline void jce::load(std::ifstream& in, std::list<T>& data)
 {
 	load_listVec(in, data);
 }
 
 template<typename T>
-void jce::load(std::ifstream& in, std::vector<T>& data)
+inline void jce::load(std::ifstream& in, std::vector<T>& data)
 {
 	load_listVec(in, data);
 }
 
 template<size_t size>
-void jce::load(std::ifstream& in, std::bitset<size>& data)
+inline void jce::load(std::ifstream& in, std::bitset<size>& data)
 {
 	char byte;
 	for (size_t idx = 0; idx < size; idx = idx + 8)
@@ -120,3 +186,33 @@ inline void jce::load(std::ifstream& in, unsigned int& data) { BasicLoad(in, dat
 inline void jce::load(std::ifstream& in, size_t& data) { BasicLoad(in, data); }
 inline void jce::load(std::ifstream& in, float& data) { BasicLoad(in, data); }
 inline void jce::load(std::ifstream& in, double& data) { BasicLoad(in, data); }
+inline void jce::load(std::ifstream& in, int64_t& data) { BasicLoad(in, data); }
+
+inline void jce::load(std::ifstream& in, std::string& data)
+{
+	char* c_arr;
+	jce::load(in, c_arr);
+	data = std::string(c_arr);
+}
+
+inline void jce::load(std::ifstream& in, char*& data)
+{
+	std::vector<char> data_vec;
+	while (true)
+	{
+		char next;
+		in.read(&next, 1);
+		data_vec.push_back(next);
+		if (next == NULL)
+		{
+			break;
+		}
+	}
+	data = new char[data_vec.size()];
+	auto pos = data;
+	for (auto const& value : data_vec)
+	{
+		(*pos) = value;
+		pos++;
+	}
+}

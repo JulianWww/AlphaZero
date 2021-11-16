@@ -1,8 +1,6 @@
 ﻿// TorchTestCMake.h : Include file for standard system include files,
 // or project specific include files.
 
-// TODO READ Alpha Go Zero paper
-
 #pragma once
 
 #include <iostream>
@@ -14,6 +12,8 @@
 #include <string>
 #include <cmath>
 #include "modelWorker.hpp"
+#include <jce/save.hpp>
+#include <jce/load.hpp>
 
 
 namespace AlphaZero {
@@ -93,12 +93,15 @@ namespace AlphaZero {
 		public: void save_version(unsigned int version);
 		public: void save_as_current();
 		public: void save_to_file(char* filename);
+		public: void jce_save_current(char* filename);
 
 		public: void load_version(unsigned int version);
 		public: void load_current();
 		public: void load_from_file(char* filename);
+		public: void jce_load_from_file(char* filename);
 
 		public: void copyModel(Model*);
+		private: void copyParameters(torch::OrderedDict<std::string, torch::Tensor> prams);
 		public: void moveTo(c10::Device device);
 
 		private: TopLayer register_custom_module(TopLayer net);
@@ -427,6 +430,13 @@ inline void AlphaZero::ai::Model::save_to_file(char* filename)
 	out.save_to(model_path);
 }
 
+inline void AlphaZero::ai::Model::jce_save_current(char* filename)
+{
+	std::ofstream out(filename, std::ios::binary);
+	jce::save(out, this->named_parameters(true));
+	out.close();
+}
+
 
 inline void AlphaZero::ai::Model::load_version(unsigned int version)
 {
@@ -452,12 +462,29 @@ inline void AlphaZero::ai::Model::load_from_file(char* filename)
 	this->load(inp);
 }
 
+inline void AlphaZero::ai::Model::jce_load_from_file(char* filename)
+{
+	torch::autograd::GradMode::set_enabled(false);
+	torch::OrderedDict<std::string, torch::Tensor> map;
+	std::ifstream in(filename, std::ios::binary);
+	jce::load(in, map);
+	in.close();
+	this->copyParameters(map);
+	torch::autograd::GradMode::set_enabled(true);
+}
+
 inline void AlphaZero::ai::Model::copyModel(AlphaZero::ai::Model* model)
 {
 	torch::autograd::GradMode::set_enabled(false);
 	auto new_params = model->named_parameters(true);
-	auto params = this->named_parameters(true /*recurse*/);
-	auto buffers = this->named_buffers(true /*recurse*/);
+	this->copyParameters(new_params);
+	torch::autograd::GradMode::set_enabled(true);
+}
+
+inline void AlphaZero::ai::Model::copyParameters(torch::OrderedDict<std::string, torch::Tensor> new_params)
+{
+	auto params = this->named_parameters(true);
+	auto buffers = this->named_buffers(true);
 	for (auto& val : new_params) {
 		auto name = val.key();
 		auto* t = params.find(name);
@@ -471,7 +498,6 @@ inline void AlphaZero::ai::Model::copyModel(AlphaZero::ai::Model* model)
 			}
 		}
 	}
-	torch::autograd::GradMode::set_enabled(true);
 }
 
 inline void AlphaZero::ai::Model::moveTo(c10::Device device)

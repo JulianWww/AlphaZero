@@ -10,6 +10,7 @@ namespace AlphaZero
 
 		void testCoppying();
 		void testSave();
+		void testJCESave();
 		void testLossLog();
 		void testModelData();
 		void testTraining();

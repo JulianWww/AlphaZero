@@ -33,9 +33,11 @@ namespace AlphaZero
 		public: void save_as_current();
 		public: void save_version(unsigned int version);
 		public: void save_to_file(char* filename);
+		public: void jce_save_current(char* filename);
 		public: void load_current();
 		public: void load_version(unsigned int version);
 		public: void load_from_file(char* filename);
+		public: void jce_load_from_file(char* filename);
 		public: void synchronizeModels();
 
 		public: std::pair<float, torch::Tensor>predict(std::shared_ptr<Game::GameState> state, size_t idx=0);
@@ -99,6 +101,10 @@ inline void AlphaZero::ai::ModelSynchronizer::save_to_file(char* filename)
 {
 	this->models[0]->save_to_file(filename);
 }
+inline void AlphaZero::ai::ModelSynchronizer::jce_save_current(char* filename)
+{
+	this->models[0]->jce_save_current(filename);
+}
 inline void AlphaZero::ai::ModelSynchronizer::save_version(unsigned int version)
 {
 	this->models[0]->save_version(version);
@@ -112,6 +118,10 @@ inline void AlphaZero::ai::ModelSynchronizer::load_from_file(char* filename)
 {
 	this->models[0]->load_from_file(filename);
 	this->synchronizeModels();
+}
+inline void AlphaZero::ai::ModelSynchronizer::jce_load_from_file(char* filename)
+{
+	this->models[0]->jce_load_from_file(filename);
 }
 inline void AlphaZero::ai::ModelSynchronizer::load_version(unsigned int version)
 {
