@@ -16,7 +16,7 @@ void AlphaZero::test::runTests()
 	testJCESave();
 	testLossLog();
 	testModelSyncronization();
-	if (torch::cuda::cudnn_is_available())
+	if (torch::cuda::cudnn_is_available() || randomModel)
 		testModelSpeed();
 }
 

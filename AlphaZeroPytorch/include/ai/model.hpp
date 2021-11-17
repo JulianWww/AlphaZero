@@ -114,7 +114,7 @@ namespace AlphaZero {
 }
 // customizable section
 #define modelTest false
-#define randomModel false
+#define randomModel true
 
 inline AlphaZero::ai::Model::Model(char* _device) :
 	top(this->register_custom_module(TopLayer(2, 75, 5))),

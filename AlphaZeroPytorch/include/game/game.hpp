@@ -1,6 +1,6 @@
 #pragma once
 /*
-this is the alpha Zero game for tick tack toe
+this is the alpha Zero game for connect4
 */
 
 #include <iostream>

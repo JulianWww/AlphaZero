@@ -7,6 +7,7 @@
 #include <string>
 #include <ai/memory.hpp>
 #include <torch/torch.h>
+#include <game/game.hpp>
 
 #define BasicLoad(in, out) (in.read((char*)&data, sizeof(data)))
 
