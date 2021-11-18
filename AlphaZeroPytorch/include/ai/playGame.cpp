@@ -37,6 +37,7 @@ void AlphaZero::ai::train(int version)
 #if loadVersion >= 0
 	bestAgent->model->load_version(loadVersion);
 	currentAgent->model->load_version(loadVersion);
+	version = loadVersion + 1;
 #else
 	currentAgent->model->copyModel(bestAgent->model.get());
 #endif
