@@ -39,7 +39,7 @@ extern std::mutex rand_mutex;
 
 // runn setting
 #define runVersion 1
-#define loadVersion 42
+#define loadVersion 57
 
 // Net settings
 #define MaxQuDefault -99999
