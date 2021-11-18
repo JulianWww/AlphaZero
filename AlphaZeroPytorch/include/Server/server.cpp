@@ -6,6 +6,7 @@
 #include "server.hpp"
 #include <game/game.hpp>
 #include <iostream>
+#include <log.hpp>
 
 
 void AlphaZero::Server::TCPServer::accept()
@@ -23,7 +24,18 @@ void AlphaZero::Server::TCPServer::accept()
 	std::shared_ptr<Game::GameState> state = std::make_shared<Game::GameState>(toBoard(buf), buf[stateSize]);
 	state->render();
 
-	out[0] = this->agent->getAction(state, false).first;
+	auto actionData = this->agent->getAction(state, false);
+	out[0] = actionData.first;
+
+#if MainLogger
+	state->render(debug::log::mainLogger);
+	debug::log::mainLogger->info("MSCT vals: {:1.5f}", actionData.second.second);
+	debug::log::logVector(debug::log::mainLogger, actionData.second.first);
+	debug::log::mainLogger->info("NN vals: {:1.5f}", this->agent->predict(state).first);
+	debug::log::logVector(debug::log::mainLogger, this->agent->predict(state).second);
+
+	debug::log::mainLogger->info("selected action is: {}", actionData.first);
+#endif
 
 	sock.write_n(out, sizeof(int));
 

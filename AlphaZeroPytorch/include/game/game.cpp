@@ -215,14 +215,14 @@ void AlphaZero::Game::GameState::render()
 void AlphaZero::Game::GameState::render(std::shared_ptr<spdlog::logger> logger)
 {
 	for (int idx = 0; idx < 6; idx++) {
-		char line1[13] = {
+		char line1[] = {
 			this->getPiece(0 + columOfset * idx), ' ',
 			this->getPiece(1 + columOfset * idx), ' ',
 			this->getPiece(2 + columOfset * idx), ' ',
 			this->getPiece(3 + columOfset * idx), ' ',
 			this->getPiece(4 + columOfset * idx), ' ',
 			this->getPiece(5 + columOfset * idx), ' ',
-			this->getPiece(6 + columOfset * idx)
+			this->getPiece(6 + columOfset * idx), NULL
 		};
 		logger->info(line1);
 	}

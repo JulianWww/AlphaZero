@@ -14,6 +14,7 @@
 #include "modelWorker.hpp"
 #include <jce/save.hpp>
 #include <jce/load.hpp>
+#include <test/testUtils.hpp>
 
 
 namespace AlphaZero {
@@ -464,12 +465,17 @@ inline void AlphaZero::ai::Model::load_from_file(char* filename)
 
 inline void AlphaZero::ai::Model::jce_load_from_file(char* filename)
 {
+	std::cout << "loading ...\t";
 	torch::autograd::GradMode::set_enabled(false);
 	torch::OrderedDict<std::string, torch::Tensor> map;
 	std::ifstream in(filename, std::ios::binary);
-	jce::load(in, map);
+	if (in.is_open())
+	{
+		jce::load(in, map);
+		this->copyParameters(map);
+	}
+	test::printSuccess(in.is_open());
 	in.close();
-	this->copyParameters(map);
 	torch::autograd::GradMode::set_enabled(true);
 }
 
