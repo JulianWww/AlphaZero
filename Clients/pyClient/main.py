@@ -2,7 +2,9 @@ from game import Game
 from Client import RemoteClient
 from GUI import GUI, ConsoleAgent
 from threading import Thread
-from random import getrandbits
+from random import getrandbits, seed
+from time import time
+
 
 def render(agents, game):
     "render the state for all agents"
@@ -12,7 +14,7 @@ def render(agents, game):
 def endScreens(agents, game):
     "render end screen for all agents"
     for player, agent in agents.items():
-            agent.winScreen(game, player*game.player*game.isDone)
+            agent.winScreen(game, -player*game.player*game.isDone)
 
 def run(agents, gui):
     "call the agents, render and get action to play a game"
@@ -32,16 +34,18 @@ def getAgents(agent1, agent2):
     """get dict mapping player actions id's to agents"""
     val = getrandbits(1)*2-1
     out = {
-        +val: agent1,
-        -val: agent2
+        -val: agent1,
+        +val: agent2
     }
     return out
 
 if __name__ == "__main__":
-    client = RemoteClient("localhost", Game.port)
-    game = Game()
-    gui = GUI()
-    agents = getAgents(gui, client)
-    runner = Thread(target=run, args=(agents, gui))
-    runner.start()
-    gui.mainloop()
+    seed(time())
+    while True:
+        client = RemoteClient("localhost", Game.port)
+        game = Game()
+        gui = GUI()
+        agents = getAgents(gui, client)
+        runner = Thread(target=run, args=(agents, gui))
+        runner.start()
+        gui.mainloop()

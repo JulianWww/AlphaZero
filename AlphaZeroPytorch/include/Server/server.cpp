@@ -8,12 +8,14 @@
 #include <iostream>
 #include <log.hpp>
 
+std::shared_ptr<spdlog::logger> logger = debug::log::createLogger("ServerLogger", "logs/c++/Server.log");
+
 
 void AlphaZero::Server::TCPServer::accept()
 {
 	sockpp::tcp_socket sock = this->acc.accept();
 
-	std::cout << "Connection acceptd from " << sock.peer_address() << std::endl;
+	logger->info("Connection acceptd from ", sock.peer_address().to_string());
 
 	ssize_t n;
 	int buf[stateSize + 1];
@@ -22,24 +24,23 @@ void AlphaZero::Server::TCPServer::accept()
 	n = sock.read(buf, sizeof(buf));
 
 	std::shared_ptr<Game::GameState> state = std::make_shared<Game::GameState>(toBoard(buf), buf[stateSize]);
-	state->render();
 
 	auto actionData = this->agent->getAction(state, false);
 	out[0] = actionData.first;
 
 #if MainLogger
-	state->render(debug::log::mainLogger);
-	debug::log::mainLogger->info("MSCT vals: {:1.5f}", actionData.second.second);
-	debug::log::logVector(debug::log::mainLogger, actionData.second.first);
-	debug::log::mainLogger->info("NN vals: {:1.5f}", this->agent->predict(state).first);
-	debug::log::logVector(debug::log::mainLogger, this->agent->predict(state).second);
+	state->render(logger);
+	logger->info("MSCT vals: {:1.5f}", actionData.second.second);
+	debug::log::logVector(logger, actionData.second.first);
+	logger->info("NN vals: {:1.5f}", this->agent->predict(state).first);
+	debug::log::logVector(logger, this->agent->predict(state).second);
 
-	debug::log::mainLogger->info("selected action is: {}", actionData.first);
+	logger->info("selected action is: {}", actionData.first);
 #endif
 
 	sock.write_n(out, sizeof(int));
 
-	std::cout << "Connection closed from " << sock.peer_address() << std::endl;
+	logger->info("Connection closed");
 }
 
 AlphaZero::Server::TCPServer::TCPServer(std::shared_ptr<ai::Agent> _agent, int _port): agent(_agent)
@@ -50,8 +51,12 @@ AlphaZero::Server::TCPServer::TCPServer(std::shared_ptr<ai::Agent> _agent, int _
 	if (!acc) {
 		std::cerr << "Error creating the acceptor: " << acc.last_error_str() << std::endl;
 	}
-	std::cout << "Acceptor bound to address: " << acc.address() << std::endl;
+
+	std::cout << "Acceptor bound to address: " << this->acc.address() << std::endl;
 	std::cout << "Awaiting connections on port " << port << "..." << std::endl;
+
+	logger->info("Acceptor bound to address: ", this->acc.address().to_string());
+	logger->info("Awaiting connections on port: {}", port);
 }
 
 void AlphaZero::Server::TCPServer::mainLoop()
