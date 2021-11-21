@@ -75,15 +75,15 @@ if (WIN32)
 	target_link_libraries (runServer "D:/MyCode/CppLibs/x64/sockpp-static_d.lib")
 endif (WIN32)
 if (UNIX)
-	target_include_directories(train PUBLIC "/spdlog/spdlog/include")
-	target_include_directories(runServer PUBLIC "/spdlog/spdlog/include")
-	target_include_directories(runServer PUBLIC "/sockpp/include")
-	target_include_directories(convert PUBLIC "/spdlog/spdlog/include")
+	target_include_directories(train PUBLIC "/cpp/spdlog/include")
+	target_include_directories(runServer PUBLIC "/cpp/spdlog/include")
+	target_include_directories(runServer PUBLIC "/cpp/sockpp/include")
+	target_include_directories(convert PUBLIC "/cpp/spdlog/include")
 
 
-	target_include_directories(GameReplayer PUBLIC "/spdlog/spdlog/include")
+	target_include_directories(GameReplayer PUBLIC "/cpp/spdlog/include")
 
-	target_include_directories(runTest PUBLIC "/spdlog/spdlog/include")
+	target_include_directories(runTest PUBLIC "/cpp/spdlog/include")
 
 	find_library(sockpp_location sockpp)
 	message("sockpp is at: ${sockpp_location}")
