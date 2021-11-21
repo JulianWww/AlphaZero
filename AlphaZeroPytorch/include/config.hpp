@@ -8,7 +8,7 @@
 #endif
 
 #ifdef UNIX
-#define DEVICES "cpu"
+#define DEVICES "xla:1"
 #endif
 #ifndef UNIX
 #define DEVICES "cpu"
