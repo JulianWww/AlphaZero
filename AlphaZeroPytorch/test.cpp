@@ -1,13 +1,10 @@
 #include <test/testSuit.hpp>
-
+#include "makeFiles.hpp"
 
 
 int main(int argc, char** argv)
 {
+	createFolders();
 	AlphaZero::test::runTests();
-	//AlphaZero::Game::test();
-
-	std::cout << torch::hasXLA();
-	
 	return 1;
 }

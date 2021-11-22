@@ -8,7 +8,7 @@
 #endif
 
 #ifdef UNIX
-#define DEVICES "xla:1"
+#define DEVICES "cuda:1"
 #endif
 #ifndef UNIX
 #define DEVICES "cpu"
@@ -39,7 +39,7 @@ extern std::mutex rand_mutex;
 
 // runn setting
 #define runVersion 2
-#define loadVersion 127
+#define loadVersion 0
 
 // Net settings
 #define MaxQuDefault -99999
@@ -48,7 +48,7 @@ extern std::mutex rand_mutex;
 #define Momentum 0.9
 
 // simulation setting
-#define MCTSSimulations 50
+#define MCTSSimulations 200
 #define cpuct_ 2.0f
 #define ProbabiliticMoves 10
 #define Alpha 0.9
@@ -76,7 +76,6 @@ extern std::mutex rand_mutex;
 // console
 #define RenderTrainingProgress false
 #define RenderGenAndTurneyProgress false
-//#define RenderGameProgress true;
 
 // Saving
 #define SaverType 0

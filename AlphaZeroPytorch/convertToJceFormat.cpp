@@ -1,10 +1,12 @@
 #include <iostream>
 #include <ai/model.hpp>
+#include "makeFiles.hpp"
 
 #define FILENAME "model.jce.bin"
 
 int main(int argc, char** argv)
 {
+	createFolders();
 	int version=-2;
 	std::cout << "What version do you want to convert -1 for current, -2 for inverse conversion: ";
 	std::cin >> version;
