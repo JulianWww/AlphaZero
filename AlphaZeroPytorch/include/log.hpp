@@ -138,7 +138,7 @@ inline void debug::log::logVector(std::shared_ptr<spdlog::logger> logger, std::v
 
 inline void debug::log::logVector(std::shared_ptr<spdlog::logger> logger, std::vector<int> vec)
 {
-	char out[] = "Action vals are: {:2d}, {:2d}, {:2d}, {:2d}, {:2d}, {:2d}, {:2d}";
+	char out[] = "Action vals are: {:3d}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}";
 	logVector(logger, vec, out);
 }
 

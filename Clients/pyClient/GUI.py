@@ -135,15 +135,14 @@ class GUI(tk.Tk):
             "anchor": "c",
         }
         if self._win == 1:
-            self.canvas.create_text(*args, **kwargs, fill="green",
-                                    text="You Win")
+            txt = self.canvas.create_text(*args, **kwargs, fill="green",
+                                          text="You Win")
         elif self._win == -1:
-            self.canvas.create_text(*args, **kwargs, fill="red", text="You Loose")
+            txt = self.canvas.create_text(*args, **kwargs, fill="black", text="You Loose")
 
         elif self._win == 0:
-            self.canvas.create_text(*args, **kwargs, fill="black", text="Tie")
+            txt = self.canvas.create_text(*args, **kwargs, fill="black", text="Tie")
         
-            
 
     def _writeAction(self, event):
         """

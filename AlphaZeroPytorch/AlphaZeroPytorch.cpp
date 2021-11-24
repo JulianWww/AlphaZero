@@ -32,7 +32,8 @@ int main(int argc, char ** argv)
 	{
 		std::cout << device << ", ";
 	}
-	std::cout << std::endl;
+
+	std::cout << std::endl << "started training" << std::endl;
 	createFolders();
 	AlphaZero::ai::train(-1);
 #if ProfileLogger

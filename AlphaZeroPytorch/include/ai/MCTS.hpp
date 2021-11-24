@@ -1,6 +1,7 @@
 #pragma once
 #include <mutex>
 #include <game/game.hpp>
+#include <jce/vector.hpp>
 
 // remove one mutex - the Node mutex
 
@@ -40,6 +41,8 @@ namespace AlphaZero {
 		public: void addEdge(int id, Edge& edge);
 		};
 
+		std::vector<float> getQ(Node*);
+
 		class MCTS {
 			// mutex keeping corrupion within the Tree from occuring when new nodes are added
 		// public: std::mutex NodeInsersionMutex;
@@ -52,13 +55,23 @@ namespace AlphaZero {
 		public: void addMCTSIter();
 		public: MCTS();
 		public: float cpuct = cpuct_;
-		public: std::pair <Node*, std::list<Edge*>> moveToLeaf(Node*, int);
+		public: std::pair <Node*, std::list<Edge*>> moveToLeaf(Node*);
 		public: void backFill(std::list<Edge*>&, Node* leaf, float val);
 		public: Node* getNode(IDType);
 		public: Node* addNode(std::shared_ptr<Game::GameState> state);
 		public: void reset();
 		};
 	}
+}
+
+inline std::vector<float> AlphaZero::ai::getQ(Node* node)
+{
+	std::vector<float> data = jce::vector::gen(42, 0.0f);
+	for (auto const& pos : node->edges)
+	{
+		data[pos.first] = pos.second.Q;
+	}
+	return data;
 }
 
 inline void AlphaZero::ai::MCTS::addMCTSIter()

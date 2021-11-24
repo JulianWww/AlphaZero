@@ -116,18 +116,19 @@ namespace AlphaZero {
 // customizable section
 #define modelTest false
 #define randomModel false
+#define convSize 5
 
 inline AlphaZero::ai::Model::Model(char* _device) :
-	top(this->register_custom_module(TopLayer(2, 75, 5))),
-	res1(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_1")),
-	res2(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_2")),
-	res3(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_3")),
-	res4(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_4")),
-	res5(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_5")),
-	res6(this->register_custom_module(ResNet(75, 75, 5, 5), "Residual_6")),
+	top(this->register_custom_module(TopLayer(2, 75, convSize))),
+	res1(this->register_custom_module(ResNet(75, 75, convSize, convSize), "Residual_1")),
+	res2(this->register_custom_module(ResNet(75, 75, convSize, convSize), "Residual_2")),
+	res3(this->register_custom_module(ResNet(75, 75, convSize, convSize), "Residual_3")),
+	res4(this->register_custom_module(ResNet(75, 75, convSize, convSize), "Residual_4")),
+	res5(this->register_custom_module(ResNet(75, 75, convSize, convSize), "Residual_5")),
+	res6(this->register_custom_module(ResNet(75, 75, convSize, convSize), "Residual_6")),
 	value_head(this->register_custom_module(Value_head(75, 420, 210, 10))),
 	policy_head(this->register_custom_module(Policy_head(75, 84, 42))),
-	optim(Optimizer(this->parameters(), OptimizerOptions(0.001).momentum(Momentum))),
+	optim(Optimizer(this->parameters(), OptimizerOptions(learningRage).momentum(Momentum))),
 	device(_device)
 {
 	this->moveTo(c10::Device(_device));
@@ -294,7 +295,7 @@ inline std::pair<float, float> AlphaZero::ai::Model::train(const std::pair<torch
 {
 	//std::cout << x.first << std::endl << y.first << std::endl;
 
-	auto valLoss = torch::mse_loss(x.first, y.first);
+	auto valLoss = 0.5f * torch::mse_loss(x.first, y.first);
 	auto plyLoss = 0.5f * polyLoss(x.second, y.second);
 	auto loss = (valLoss + plyLoss);
 

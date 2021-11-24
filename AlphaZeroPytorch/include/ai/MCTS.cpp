@@ -28,7 +28,7 @@ AlphaZero::ai::Edge::Edge()
 	return;
 }
 
-std::pair<AlphaZero::ai::Node*, std::list<AlphaZero::ai::Edge*>> AlphaZero::ai::MCTS::moveToLeaf(Node* node, int randomMovesRemaining)
+std::pair<AlphaZero::ai::Node*, std::list<AlphaZero::ai::Edge*>> AlphaZero::ai::MCTS::moveToLeaf(Node* node)
 {
 	std::list<Edge*> backTrackList;
 	while (true) {
@@ -36,19 +36,7 @@ std::pair<AlphaZero::ai::Node*, std::list<AlphaZero::ai::Edge*>> AlphaZero::ai::
 			return { node, backTrackList };
 		}
 		else {
-			int doRand = 0;
-			std::vector<double> nu;
-			if (randomMovesRemaining > 0) {
-				doRand = 1;
-				randomMovesRemaining = randomMovesRemaining - 1;
-				dirichlet_distribution<std::mt19937> d(jce::vector::gen<double>(node->edges.size(), Alpha));
-				nu = d(gen);
-			}
-			else {
-				nu = jce::vector::gen<double>(node->edges.size(), 0);
-			}
 			float U;
-			int idx = 0;
 			int Nb = 0;
 			for (auto const& iter : node->edges) 
 			{

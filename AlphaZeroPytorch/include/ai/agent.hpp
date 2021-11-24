@@ -59,7 +59,7 @@ inline void AlphaZero::ai::Agent::reset()
 
 inline void AlphaZero::ai::Agent::runSimulations(Node* node, MCTS* tree)
 {
-	std::pair<Node*, std::list<Edge*>> serchResults = tree->moveToLeaf(node, ProbabiliticMoves);
+	std::pair<Node*, std::list<Edge*>> serchResults = tree->moveToLeaf(node);
 	float val = this->evaluateLeaf(serchResults.first, tree);
 	tree->backFill(serchResults.second, serchResults.first, val);
 	tree->addMCTSIter();

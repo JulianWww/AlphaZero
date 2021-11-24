@@ -29,13 +29,18 @@ void AlphaZero::Server::TCPServer::accept()
 	out[0] = actionData.first;
 
 #if MainLogger
+	state->render();
 	state->render(logger);
 	logger->info("MSCT vals: {:1.5f}", actionData.second.second);
 	debug::log::logVector(logger, actionData.second.first);
 	logger->info("NN vals: {:1.5f}", this->agent->predict(state).first);
 	debug::log::logVector(logger, this->agent->predict(state).second);
+	logger->info("NN Q:");
+	debug::log::logVector(logger, AlphaZero::ai::getQ(this->agent->getTree()->getNode(state->id())));
 
 	logger->info("selected action is: {}", actionData.first);
+
+	logger->flush();
 #endif
 
 	sock.write_n(out, sizeof(int));

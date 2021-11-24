@@ -38,7 +38,7 @@ extern std::mutex rand_mutex;
 
 
 // runn setting
-#define runVersion 2
+#define runVersion 1
 #define loadVersion -1
 
 // Net settings
@@ -48,7 +48,7 @@ extern std::mutex rand_mutex;
 #define Momentum 0.9
 
 // simulation setting
-#define MCTSSimulations 200
+#define MCTSSimulations 50
 #define cpuct_ 2.0f
 #define ProbabiliticMoves 10
 #define Alpha 0.9

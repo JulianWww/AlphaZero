@@ -1,8 +1,17 @@
-import json
+import json, pickle
+from random import getrandbits
 
 #get all win postions
 with open("winStates.json", "r") as file:
     winStates = json.load(file)
+
+def getLoad():
+    inp = input("there is a game available, do you want to load it? [y/n]: ")
+    if inp == "y":
+        return True
+    elif inp == "n":
+        return False
+    return getLoad()
 
 class Game:
     "Class containing game rules"
@@ -20,11 +29,26 @@ class Game:
 
     def reset(self):
         "reset game to default"
-        self.board = [0 for i in range(42)]
+        load = True
+        try:
+            with open("game_state.p", "rb") as file:
+                self.board, player, self.starter = pickle.load(file)
+            self.player = player
+            if self.getIsDone():
+                load = False
+            self.player = -self.player
+        except:
+            load = False
+                
+        if not load:
+            self.board = [0 for i in range(42)]
+            self.player = 1
+            self.starter = getrandbits(1)
+
+        self.isDone = self.getIsDone()
+            
         self.ends = []
-        self.player = 1
         self.getAllowedActions()
-        self.isDone = False
 
     def actionModifier(self, action):
         "for console client convert the inputed action to the internal game action"
@@ -63,6 +87,8 @@ class Game:
             self.isDone = self.getIsDone()
             self.player = -self.player
             self.getAllowedActions()
+            with open("game_state.p", "wb") as file:
+                pickle.dump((self.board, -self.player, self.starter), file)
                     
         
     def consoleRender(self):

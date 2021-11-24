@@ -39,6 +39,4 @@ void inline createFolders()
 
 	sprintf(folder, "logs/games");
 	createFolder(folder);
-
-	std::cout << "started training" << std::endl;
 }
