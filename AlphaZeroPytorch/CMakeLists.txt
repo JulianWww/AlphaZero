@@ -47,6 +47,7 @@ add_executable (GameReplayer "Replay.cpp" "include/game/game.cpp" "include/confi
 add_executable (runTest "test.cpp" ${TEST_SOURCE} ${SOURCES_Files})
 add_executable (runServer "runServer.cpp" ${SOURCES_Files} ${SERVER_Files})
 add_executable (convert "convertToJceFormat.cpp" "include/ai/modelWorker.cpp" "${OUTER_Files}")
+add_executable (eloRaiting "doEloRaiting.cpp" ${SOURCES_Files} ${SERVER_Files})
 
 message("linking libs ...")
 target_link_libraries(train "${TORCH_LIBRARIES}")
@@ -54,6 +55,7 @@ target_link_libraries(GameReplayer "${TORCH_LIBRARIES}")
 target_link_libraries(runTest "${TORCH_LIBRARIES}")
 target_link_libraries(runServer "${TORCH_LIBRARIES}")
 target_link_libraries(convert "${TORCH_LIBRARIES}")
+target_link_libraries(eloRaiting "${TORCH_LIBRARIES}")
 
 message("adding includes ...")
 
@@ -71,8 +73,10 @@ if (WIN32)
 	target_include_directories(runTest PUBLIC "D:/MyCode/CppLibs/include")
 	target_include_directories(showLoss PUBLIC "D:/MyCode/CppLibs/include")
 	target_include_directories(runServer PUBLIC "D:/MyCode/CppLibs/include")
+	target_include_directories(eloRaiting PUBLIC "D:/MyCode/CppLibs/include")
 
 	target_link_libraries (runServer "lib/sockpp-static_d")
+	target_link_libraries (eloRaiting "lib/sockpp-static_d")
 endif (WIN32)
 if (UNIX)
 	target_include_directories(train PUBLIC "/cpp/spdlog/include")
@@ -97,6 +101,7 @@ target_include_directories(runServer PUBLIC "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(GameReplayer PUBLIC "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(runTest PUBLIC "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(convert PUBLIC "${CMAKE_SOURCE_DIR}/include")
+target_include_directories(eloRaiting PUBLIC "${CMAKE_SOURCE_DIR}/include")
 
 
 message("done")

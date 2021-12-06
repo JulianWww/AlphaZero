@@ -5,7 +5,7 @@
 #include <ai/agent.hpp>
 
 
-#define PORT 12345
+#define PORT 25500
 
 namespace AlphaZero 
 {
