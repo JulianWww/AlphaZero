@@ -46,7 +46,7 @@ namespace AlphaZero {
 
 		public: torch::nn::Conv2d conv;
 		public: torch::nn::Linear lin1, lin2;
-		public: torch::nn::ReLU relu;
+		public: torch::nn::LeakyReLU relu;
 		public: torch::nn::Tanh tanh;
 		private: int size;
 
@@ -58,6 +58,7 @@ namespace AlphaZero {
 		class Policy_head : torch::nn::Module {
 		public: torch::nn::Conv2d conv;
 		public: torch::nn::Linear lin1;
+		public: torch::nn::LeakyReLU relu;
 		private: int size;
 
 		public: Policy_head(int inp, int hidden, int out);
@@ -197,13 +198,15 @@ inline torch::Tensor AlphaZero::ai::ResNet::forward(torch::Tensor x)
 #if modelTest
 	std::cout << x.sizes() << std::endl;
 #endif 
+	auto y = x.clone();
 	x = torch::nn::functional::pad(x, torch::nn::functional::PadFuncOptions({ kernel1 / 2, kernel1 / 2, kernel1 / 2, kernel1 / 2 }));
 	x = this->conv1(x);
 	x = this->batch(x);
-	torch::Tensor y = torch::nn::functional::pad(x, torch::nn::functional::PadFuncOptions({ kernel2 / 2, kernel2 / 2, kernel2 / 2, kernel2 / 2 }));
-	y = this->conv2(y);
-	y = this->batch2(y);
-	return x + y;
+	x = this->activ(x);
+	x = torch::nn::functional::pad(x, torch::nn::functional::PadFuncOptions({ kernel2 / 2, kernel2 / 2, kernel2 / 2, kernel2 / 2 }));
+	x = this->conv2(x);
+	x = this->batch2(x);
+	return this->activ(x + y);
 }
 
 inline void AlphaZero::ai::ResNet::moveTo(c10::Device device)
@@ -219,7 +222,7 @@ inline AlphaZero::ai::Value_head::Value_head(int inp, int hidden_size, int out, 
 	conv(this->register_module("conv", torch::nn::Conv2d(torch::nn::Conv2dOptions(inp, convOut, 1)))),
 	lin1(this->register_module("lin1", torch::nn::Linear(torch::nn::LinearOptions(hidden_size, out)))),
 	lin2(this->register_module("lin2", torch::nn::Linear(torch::nn::LinearOptions(out, 1)))),
-	relu(this->register_module("relu", torch::nn::ReLU())), 
+	relu(this->register_module("relu", torch::nn::LeakyReLU())), 
 	tanh(this->register_module("tanh", torch::nn::Tanh()))
 {
 	this->size = hidden_size;
@@ -255,7 +258,8 @@ inline void AlphaZero::ai::Value_head::moveTo(c10::Device device)
 
 inline AlphaZero::ai::Policy_head::Policy_head(int inp, int hidden, int out) :
 	conv(this->register_module("conv", torch::nn::Conv2d(torch::nn::Conv2dOptions(inp, 2, 1)))),
-	lin1(this->register_module("lin1", torch::nn::Linear(hidden, out)))
+	lin1(this->register_module("lin1", torch::nn::Linear(hidden, out))),
+	relu(this->register_module("relu", torch::nn::LeakyReLU()))
 {
 	this->size = hidden;
 
@@ -271,6 +275,7 @@ inline torch::Tensor AlphaZero::ai::Policy_head::forward(torch::Tensor x)
 	std::cout << x.sizes() << std::endl;
 #endif 
 	x = this->conv(x);
+	x = this->relu(x);
 	x = this->lin1(x.reshape({ x.size(0), this->size }));
 	return x;
 }

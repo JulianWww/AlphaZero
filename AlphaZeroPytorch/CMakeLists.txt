@@ -72,7 +72,7 @@ if (WIN32)
 	target_include_directories(showLoss PUBLIC "D:/MyCode/CppLibs/include")
 	target_include_directories(runServer PUBLIC "D:/MyCode/CppLibs/include")
 
-	target_link_libraries (runServer "D:/MyCode/CppLibs/x64/sockpp-static_d.lib")
+	target_link_libraries (runServer "lib/sockpp-static_d")
 endif (WIN32)
 if (UNIX)
 	target_include_directories(train PUBLIC "/cpp/spdlog/include")

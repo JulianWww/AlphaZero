@@ -1,5 +1,6 @@
 import json, pickle
 from random import getrandbits
+from tkinter import simpledialog
 
 #get all win postions
 with open("winStates.json", "r") as file:
@@ -29,21 +30,10 @@ class Game:
 
     def reset(self):
         "reset game to default"
-        load = True
-        try:
-            with open("game_state.p", "rb") as file:
-                self.board, player, self.starter = pickle.load(file)
-            self.player = player
-            if self.getIsDone():
-                load = False
-            self.player = -self.player
-        except:
-            load = False
-                
-        if not load:
-            self.board = [0 for i in range(42)]
-            self.player = 1
-            self.starter = getrandbits(1)
+        self.tie = False
+
+        self.board = [0 for i in range(42)]
+        self.player = 1
 
         self.isDone = self.getIsDone()
             
@@ -87,8 +77,6 @@ class Game:
             self.isDone = self.getIsDone()
             self.player = -self.player
             self.getAllowedActions()
-            with open("game_state.p", "wb") as file:
-                pickle.dump((self.board, -self.player, self.starter), file)
                     
         
     def consoleRender(self):
@@ -118,6 +106,10 @@ class Game:
 
     def getIsDone(self):
         "check if game is done"
+        if self.board.count(0) == 0:
+            self.tie = True
+            return True
+        
         done = False
         for option in winStates:
             val = 0

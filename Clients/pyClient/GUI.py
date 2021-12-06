@@ -39,7 +39,7 @@ class GUI(tk.Tk):
         "fill": "#00FF00",
         "width": 10
     }
-    def __init__(self):
+    def __init__(self, state):
         super(GUI, self).__init__()
         self.title("Connect4 AlphaZero Client")
         self.geometry("500x500")
@@ -56,6 +56,7 @@ class GUI(tk.Tk):
         self.playerLabel.place(x=0, y=0)
                                  
         self._drawBoard()
+        self._drawStones(state)
 
     def _resize(self, event):
         """callback for resizing of the window"""
@@ -209,6 +210,8 @@ class GUI(tk.Tk):
             del threads
 
         self._win = _win
+        if game.tie:
+            self._win = 0
         self._winLinesRendered = True
 
     def renderWinLines(self, game):

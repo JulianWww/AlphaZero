@@ -1,12 +1,12 @@
-import random
-import math
+import tkinter as tk
+from tkinter import simpledialog
 
-def fun():
-    return 2
+ROOT = tk.Tk()
 
-def _eval(x):
-    print(x)
-    print(type(x))
+ROOT.withdraw()
+# the input dialog
+USER_INP = simpledialog.askstring(title="Test",
+                                  prompt="What's your Name?:")
 
-for x in range(13):
-   print(_eval([fun() for x in range(8)]))
+# check it out
+print("Hello", USER_INP)
