@@ -203,6 +203,7 @@ inline torch::Tensor AlphaZero::ai::ResNet::forward(torch::Tensor x)
 	x = this->conv1(x);
 	x = this->batch(x);
 	x = this->activ(x);
+
 	x = torch::nn::functional::pad(x, torch::nn::functional::PadFuncOptions({ kernel2 / 2, kernel2 / 2, kernel2 / 2, kernel2 / 2 }));
 	x = this->conv2(x);
 	x = this->batch2(x);
@@ -240,6 +241,7 @@ inline torch::Tensor AlphaZero::ai::Value_head::forward(torch::Tensor x)
 	std::cout << x.sizes() << std::endl;
 #endif 
 	x = this->conv(x);
+	x = this->relu(x);
 	x = this->lin1(x.reshape({ x.size(0), this->size }));
 	x = this->relu(x);
 	x = this->lin2(x);
