@@ -14,14 +14,14 @@ namespace AlphaZero
 	{
 		class eloClient
 		{
-		public: int send(int agent1, int agent2, int win);
-		public: int setElo(int agent1, int eloRating);
-		public: int getElo(int agent1);
+		public: int send(int agent1, int agent2, int win) const;
+		public: int setElo(int agent1, int eloRating) const;
+		public: int getElo(int agent1) const;
 		};
 	}
 }
 
-inline int AlphaZero::elo::eloClient::send(int agent1, int agent2, int win)
+inline int AlphaZero::elo::eloClient::send(int agent1, int agent2, int win) const
 {
 	sockpp::socket_initializer sockInit;
 	in_port_t port = ELO_PORT;
@@ -41,7 +41,7 @@ inline int AlphaZero::elo::eloClient::send(int agent1, int agent2, int win)
 	return elo[0];
 }
 
-inline int AlphaZero::elo::eloClient::setElo(int agent1, int elo)
+inline int AlphaZero::elo::eloClient::setElo(int agent1, int elo) const
 {
 	sockpp::socket_initializer sockInit;
 	in_port_t port = ELO_PORT;
@@ -61,7 +61,7 @@ inline int AlphaZero::elo::eloClient::setElo(int agent1, int elo)
 	return delo[0];
 }
 
-inline int AlphaZero::elo::eloClient::getElo(int agent1)
+inline int AlphaZero::elo::eloClient::getElo(int agent1) const
 {
 	sockpp::socket_initializer sockInit;
 	in_port_t port = ELO_PORT;

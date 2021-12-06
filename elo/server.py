@@ -20,7 +20,7 @@ class Server:
             return agent.Agent(100)
         
         if not key in self.agents:
-            self.agents[key] = agent.Agent(1500)
+            self.agents[key] = agent.Agent(100)
 
         return self.agents[key]        
 
