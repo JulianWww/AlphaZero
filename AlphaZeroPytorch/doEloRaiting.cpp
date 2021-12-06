@@ -26,12 +26,11 @@ void evaluateAgent(int agent, int games, AlphaZero::elo::eloClient const& elo)
 	int losses = data[lastAgent.get()];
 	int ties = games - wins - losses;
 
-	float score = (float)wins + 0.5 * ties/((float)games);
+	float score = ((float)wins + 0.5 * ties)/((float)games);
 	float Relo = (float)othersElo - log10((1 - score) / score) * 400;
 	elo.setElo(agent, (int)Relo);
 	std::cout << Relo << std::endl;
 	
-
 	delete game;
 	delete memory;
 }
