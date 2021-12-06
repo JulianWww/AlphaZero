@@ -38,17 +38,24 @@ class Server:
 
         agent1 = self.getAgent(data[0]) 
         currentElo = agent1.elo
+        deltaElo = 0
 
         if len(data) == 3:
             agent2 = self.getAgent(data[1])
             agent1.addGamePrediction(agent2)
             agent.addGame(agent1, agent2, data[2])
             agent1.update(32)
+
+            deltaElo = abs(agent1.elo - currentElo)
             
         elif len(data) == 2:
             agent1.elo = data[1]
+            deltaElo = abs(agent1.elo - currentElo)
 
-        sock.send(int(abs(agent1.elo - currentElo)).to_bytes(4, "little", signed=True))
+        elif len(data) == 1:
+            deltaElo = agent1.elo
+
+        sock.send(int(deltaElo).to_bytes(4, "little", signed=True))
         sock.close()
         self.save()
     

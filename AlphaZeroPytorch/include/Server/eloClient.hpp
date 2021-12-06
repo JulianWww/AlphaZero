@@ -6,6 +6,7 @@
 
 
 #define ELO_PORT 2551
+#define ELO_IP "wandhoven.ddns.net"
 
 namespace AlphaZero
 {
@@ -14,7 +15,8 @@ namespace AlphaZero
 		class eloClient
 		{
 		public: int send(int agent1, int agent2, int win);
-		public: int send(int agent1, int eloRating);
+		public: int setElo(int agent1, int eloRating);
+		public: int getElo(int agent1);
 		};
 	}
 }
@@ -23,7 +25,7 @@ inline int AlphaZero::elo::eloClient::send(int agent1, int agent2, int win)
 {
 	sockpp::socket_initializer sockInit;
 	in_port_t port = ELO_PORT;
-	std::string host = "127.0.0.1";
+	std::string host = ELO_IP;
 	sockpp::tcp_connector conn({ host, port });
 	if (!conn)
 	{
@@ -39,11 +41,11 @@ inline int AlphaZero::elo::eloClient::send(int agent1, int agent2, int win)
 	return elo[0];
 }
 
-inline int AlphaZero::elo::eloClient::send(int agent1, int elo)
+inline int AlphaZero::elo::eloClient::setElo(int agent1, int elo)
 {
 	sockpp::socket_initializer sockInit;
 	in_port_t port = ELO_PORT;
-	std::string host = "127.0.0.1";
+	std::string host = ELO_IP;
 	sockpp::tcp_connector conn({ host, port });
 	if (!conn)
 	{
@@ -57,4 +59,24 @@ inline int AlphaZero::elo::eloClient::send(int agent1, int elo)
 	int delo[1];
 	conn.read(delo, sizeof(delo));
 	return delo[0];
+}
+
+inline int AlphaZero::elo::eloClient::getElo(int agent1)
+{
+	sockpp::socket_initializer sockInit;
+	in_port_t port = ELO_PORT;
+	std::string host = ELO_IP;
+	sockpp::tcp_connector conn({ host, port });
+	if (!conn)
+	{
+		std::cout << (conn.last_error_str()) << std::endl;
+		return -1;
+	}
+
+	int data[2] = { 1, agent1 };
+	conn.write(data, sizeof(data));
+
+	int elo[1];
+	conn.read(elo, sizeof(elo));
+	return elo[0];
 }
