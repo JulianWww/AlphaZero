@@ -350,7 +350,6 @@ MigrationBackup/
 .ionide/
 AlphaZeroPytorch/CMakeLists.txt
 AlphaZeroPytorch/CMakeSettings.json
-*.json
 AlphaZeroPytorch/out/build/x64-Debug/.ninja_deps
 AlphaZeroPytorch/out/*
 *.exe
