@@ -80,8 +80,13 @@ if (WIN32)
 endif (WIN32)
 if (UNIX)
 	target_include_directories(train PUBLIC "/cpp/spdlog/include")
+
 	target_include_directories(runServer PUBLIC "/cpp/spdlog/include")
 	target_include_directories(runServer PUBLIC "/cpp/sockpp/include")
+
+	target_include_directories(eloRaiting PUBLIC "/cpp/spdlog/include")
+	target_include_directories(eloRaiting PUBLIC "/cpp/sockpp/include")
+
 	target_include_directories(convert PUBLIC "/cpp/spdlog/include")
 
 
@@ -93,6 +98,7 @@ if (UNIX)
 	message("sockpp is at: ${sockpp_location}")
 	target_link_libraries(train "${sockpp_location}")
 	target_link_libraries(runServer "${sockpp_location}")
+	target_link_libraries(eloRaiting "${sockpp_location}")
 endif(UNIX)
 
 
