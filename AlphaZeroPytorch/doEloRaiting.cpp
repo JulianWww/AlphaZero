@@ -38,11 +38,12 @@ void evaluateAgent(int agent, int games, AlphaZero::elo::eloClient const& elo)
 int main()
 {
 	AlphaZero::elo::eloClient elo;
-	int agent = 1;
+	std::cout << elo.setElo(-5, 101) << std::endl;
+	/*int agent = 1;
 	while (true)
 	{
 		evaluateAgent(agent, 40, elo);
 		agent++;
-	}
+	}*/
 	return 1;
 }
