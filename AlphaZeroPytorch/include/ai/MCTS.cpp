@@ -1,10 +1,6 @@
 #include "MCTS.hpp"
 #include <limits>
-#include <random/dirichlet.hpp>
 #include <jce/vector.hpp>
-
-std::random_device rd;
-std::mt19937 gen(rd());
 
 AlphaZero::ai::Node::Node(std::shared_ptr<Game::GameState> state)
 {
