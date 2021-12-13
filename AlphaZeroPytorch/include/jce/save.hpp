@@ -10,6 +10,7 @@
 #include <torch/torch.h>
 
 #define BasicSave(data, out) (out.write((char*)&data, sizeof(data)))
+#define BasicSave_cp(data, out) (out.write((char*)data, sizeof(data)))
 
 namespace jce
 {
@@ -44,6 +45,8 @@ namespace jce
 	template<typename T>
 	//save vector to file
 	void save(std::ofstream& out, std::vector<T> const& data);
+	template<typename T>
+	void quick_save(std::ofstream& out, std::vector<T> const& data);
 
 	//save bitset to file
 	template <size_t T>
@@ -129,6 +132,13 @@ template<typename T>
 inline void jce::save(std::ofstream& out, std::list<T> const& data)
 {
 	save_listVec(out, data);
+}
+
+template <typename T>
+inline void jce::quick_save(std::ofstream& out, std::vector<T> const& data)
+{
+	jce::save(out, data.size());
+	BasicSave_cp(data.data(), out);
 }
 
 template <typename T>

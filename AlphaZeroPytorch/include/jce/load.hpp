@@ -9,7 +9,7 @@
 #include <torch/torch.h>
 #include <game/game.hpp>
 
-#define BasicLoad(in, out) (in.read((char*)&data, sizeof(data)))
+#define BasicLoad(in, data) (in.read((char*)&data, sizeof(data)))
 
 namespace jce
 {

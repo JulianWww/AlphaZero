@@ -1,4 +1,6 @@
 #include "playGame.hpp"
+#include <jce/load.hpp>
+#include <jce/save.hpp>
 #include <io.hpp>
 
 
@@ -29,21 +31,44 @@ void AlphaZero::ai::train(int version)
 	std::shared_ptr<Agent> currentAgent = std::make_shared<Agent>(devices);
 	std::shared_ptr<Agent> bestAgent = std::make_shared<Agent>(devices);
 
+	std::vector<int> requiredIterations;
+
 	memory->load();
 	char nameBuff[100];
 
 	currentAgent->identity = 0;
 	bestAgent->identity = 1;
-#if loadVersion >= 0
-	bestAgent->model->load_version(loadVersion);
-	currentAgent->model->load_version(loadVersion);
-	version = loadVersion + 1;
-#else
+
+	std::sprintf(nameBuff, "models/run_%d/versionCount.jce", runVersion);
+	std::ifstream fin(nameBuff, std::ios::binary);
+	if (fin.is_open())
+	{
+		jce::load(fin, version);
+		std::cout << "found model version: " << version << std::endl;
+		bestAgent->model->load_version(version);
+		currentAgent->model->load_version(version);
+		version = version;
+
+		fin.close();
+
+		std::sprintf(nameBuff, "models/run_%d/iterationCounter.jce", runVersion);
+		fin.open(nameBuff, std::ios::binary);
+		if (fin.is_open())
+		{
+			jce::load(fin, requiredIterations);
+		}
+		fin.close();
+	}
+	else
+	{
+		std::cout << "model version config not found. Defaulting to 0" << std::endl;
+		version = 0;
+	}
 	currentAgent->model->copyModel(bestAgent->model.get());
-#endif
 
 	// TODO bestAgent->model->save(0);
 	while (true) { // TODO revert to while !!!
+		iteration++;
 		memory->active = true;
 #if MainLogger
 		debug::log::mainLogger->info("playing version: {}", version);
@@ -86,10 +111,22 @@ void AlphaZero::ai::train(int version)
 				bestAgent->model->copyModel(currentAgent->model.get());
 				bestAgent->model->save_version(version);
 
+				std::sprintf(nameBuff, "models/run_%d/versionCount.jce", runVersion);
+				std::ofstream fout(nameBuff, std::ios::binary);
+				jce::save(fout, version);
+				fout.close();
+
 				memory->save();
+
+				requiredIterations.push_back(iteration);
+				std::sprintf(nameBuff, "models/run_%d/iterationCounter.jce", runVersion);
+				fout.open(nameBuff, std::ios::binary);
+				jce::quick_save(fout, requiredIterations);
+				fout.close();
+
+				iteration = 0;
 			}
 		}
-		iteration++;
 	}
 }
 

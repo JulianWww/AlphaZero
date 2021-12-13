@@ -17,7 +17,7 @@ def getLoad():
 class Game:
     "Class containing game rules"
     name = "connect4"
-    port = 12345
+    port = 25500
 
     pieces = {
         1:  "X",
