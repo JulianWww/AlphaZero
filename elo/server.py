@@ -33,16 +33,15 @@ class Server:
 
         sub = info
         for key in data[1][:-1]:
-            print(key)
             try:
                 sub = sub[key]
             except KeyError:
-                print("key")
-                sub[key] = {}
+                sub[key] = {}    
                 sub = sub[key]
 
         if len(data) == 3:
             sub[data[1][-1]] = data[2]
+            
             with open(f"data/{data[0]}.json", "w") as file:
                 print(info)
                 json.dump(info, file, sort_keys=True, indent=2)
