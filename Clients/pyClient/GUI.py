@@ -3,6 +3,7 @@ from PIL import Image, ImageTk
 from game import Game
 from threading import Thread
 import time
+from gameSaver import sendFull
 
 class ConsoleAgent:
     """Agent running in the console for testing only"""
@@ -39,7 +40,7 @@ class GUI(tk.Tk):
         "fill": "#00FF00",
         "width": 10
     }
-    def __init__(self, state):
+    def __init__(self, state, game):
         super(GUI, self).__init__()
         self.title("Connect4 AlphaZero Client")
         self.geometry("500x500")
@@ -57,6 +58,8 @@ class GUI(tk.Tk):
                                  
         self._drawBoard()
         self._drawStones(state)
+
+        self.game = game
 
     def _resize(self, event):
         """callback for resizing of the window"""
@@ -138,11 +141,15 @@ class GUI(tk.Tk):
         if self._win == 1:
             txt = self.canvas.create_text(*args, **kwargs, fill="green",
                                           text="You Win")
+            sendFull(self.game.actions, -1)
+            
         elif self._win == -1:
             txt = self.canvas.create_text(*args, **kwargs, fill="black", text="You Loose")
+            sendFull(self.game.actions, 1)
 
         elif self._win == 0:
             txt = self.canvas.create_text(*args, **kwargs, fill="black", text="Tie")
+            sendFull(self.game.actions, 0)
         
 
     def _writeAction(self, event):

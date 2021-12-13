@@ -43,7 +43,6 @@ class Server:
             sub[data[1][-1]] = data[2]
             
             with open(f"data/{data[0]}.json", "w") as file:
-                print(info)
                 json.dump(info, file, sort_keys=True, indent=2)
             return True
         else:

@@ -51,7 +51,7 @@ if __name__ == "__main__":
         print(ip)
         client = RemoteClient(ip, Game.port)
         game = Game()
-        gui = GUI(game.board)
+        gui = GUI(game.board, game)
         runner = Thread(target=run, args=(game, client, gui, gui))
         runner.start()
         gui.mainloop()

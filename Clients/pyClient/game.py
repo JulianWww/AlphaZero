@@ -30,6 +30,7 @@ class Game:
 
     def reset(self):
         "reset game to default"
+        self.actions = []
         self.tie = False
 
         self.board = [0 for i in range(42)]
@@ -73,6 +74,7 @@ class Game:
     def takeAction(self, action):
         "if action is valid (in allowedActions) modify game to perform move"
         if action in self.allowedActions:
+            self.actions.append(action)
             self.board[action] = self.player
             self.isDone = self.getIsDone()
             self.player = -self.player
