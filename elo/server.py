@@ -1,6 +1,7 @@
 import socket
 import agent
 import json
+import pickle
 
 class Server:
     def __init__(self):
@@ -13,7 +14,44 @@ class Server:
     def main(self):
         while True:
             print("waiting for connection")
-            self.update()
+            sock = self.serverSock.accept()[0]
+            data = Server.getData(sock)
+            if (data[0] == 1):
+                self.update_elo(data[1])
+            elif (data[0] == 2):
+                out = pickle.dumps(self.update_data(data[1]))
+
+                sock.send(len(out).to_bytes(4, "little", signed=True))
+                sock.send(out)
+
+    def update_data(self, data):
+        try:
+            with open(f"data/{data[0]}.json", "r") as file:
+                info = json.load(file)
+        except:
+            info = {}
+
+        sub = info
+        for key in data[1][:-1]:
+            print(key)
+            try:
+                sub = sub[key]
+            except KeyError:
+                print("key")
+                sub[key] = {}
+                sub = sub[key]
+
+        if len(data) == 3:
+            sub[data[1][-1]] = data[2]
+            with open(f"data/{data[0]}.json", "w") as file:
+                print(info)
+                json.dump(info, file, sort_keys=True, indent=2)
+            return True
+        else:
+            try:
+                return sub[data[1][-1]]
+            except KeyError:
+                return None
 
     def getAgent(self, key):
         if key == -1:
@@ -31,15 +69,18 @@ class Server:
         if size == -1:
             data.append(-1)
             data.append(int.from_bytes(sock.recv(4), "little", signed=True))
-            return data
+            return (1, data)
+
+        if size == -2:
+            size = int.from_bytes(sock.recv(4), "little", signed=True)
+            data = pickle.loads(sock.recv(size))
+            return (2, data)
             
         for i in range(size):
             data.append(int.from_bytes(sock.recv(4), "little", signed=True))
-        return data
+        return (1, data)
 
-    def update(self):
-        sock = self.serverSock.accept()[0]
-        data = Server.getData(sock)
+    def update_elo(self, data):
         deltaElo = 0
 
         if data[0] == -1:
