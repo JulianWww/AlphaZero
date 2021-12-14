@@ -56,6 +56,7 @@ void AlphaZero::ai::train(int version)
 		if (fin.is_open())
 		{
 			jce::load(fin, requiredIterations);
+			std::cout << "loaded required Iterations: it hs size: " << requiredIterations.size() << std::endl;
 		}
 		else
 		{
