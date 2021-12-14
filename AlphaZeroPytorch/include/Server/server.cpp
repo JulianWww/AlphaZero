@@ -14,7 +14,6 @@ std::shared_ptr<spdlog::logger> logger = debug::log::createLogger("ServerLogger"
 void AlphaZero::Server::TCPServer::accept()
 {
 	sockpp::tcp_socket sock = this->acc.accept();
-	std::cout << "gotState" << std::endl;
 	logger->info("Connection acceptd from ", sock.peer_address().to_string());
 
 	ssize_t n;
@@ -29,7 +28,6 @@ void AlphaZero::Server::TCPServer::accept()
 	out[0] = actionData.first;
 
 #if MainLogger
-	state->render();
 	state->render(logger);
 	logger->info("MSCT vals: {:1.5f}", actionData.second.second);
 	debug::log::logVector(logger, actionData.second.first);
