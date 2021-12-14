@@ -57,11 +57,6 @@ void AlphaZero::ai::train(int version)
 		{
 			jce::load(fin, requiredIterations);
 			std::cout << "loaded required Iterations: it hs size: " << requiredIterations.size() << std::endl;
-			
-			for (auto val : requiredIterations)
-			{
-				std::cout << val << " " << std::endl;
-			}
 		}
 		else
 		{
@@ -131,7 +126,7 @@ void AlphaZero::ai::train(int version)
 				requiredIterations.push_back(iteration);
 				std::sprintf(nameBuff, "models/run_%d/iterationCounter.jce", runVersion);
 				fout.open(nameBuff, std::ios::binary);
-				jce::quick_save(fout, requiredIterations);
+				jce::save(fout, requiredIterations);
 				fout.close();
 
 				iteration = 0;
