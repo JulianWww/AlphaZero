@@ -57,6 +57,10 @@ void AlphaZero::ai::train(int version)
 		{
 			jce::load(fin, requiredIterations);
 		}
+		else
+		{
+			std::cout << "could not find sutalbe iterationCounter";
+		}
 		fin.close();
 	}
 	else
