@@ -1,7 +1,16 @@
 import socket
+import gameSaver
 
+class DummyAgent():
+    def render(*args):
+        "dummy function to avoid some logic in the caller"
+        pass
 
-class RemoteClient:
+    def winScreen(*args):
+        "see render"
+        pass
+
+class RemoteClient(DummyAgent):
     """
     Remo Client connect to server sends state and receves recomended action
     """
@@ -49,10 +58,14 @@ class RemoteClient:
             out += RemoteClient.intToBinArr(val)
         return out
 
-    def render(*args):
-        "dummy function to avoid some logic in the caller"
-        pass
+class GameReplayAgent(DummyAgent):
+    def __init__(self, end, key):
+        self.actions = gameSaver.send(
+            ("connect4", ["games", end, str(hex(key))])
+        )
+        self.iterator = 0
 
-    def winScreen(*args):
-        "see render"
-        pass
+    def getAction(self, state):
+        action = self.actions[self.iterator]
+        self.iterator += 1
+        return action

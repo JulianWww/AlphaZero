@@ -1,5 +1,5 @@
 from game import Game
-from Client import RemoteClient
+from Client import RemoteClient, GameReplayAgent
 from GUI import GUI, ConsoleAgent
 from threading import Thread
 from random import seed, getrandbits
@@ -43,15 +43,18 @@ def getAgents(agent1, agent2, game):
         -val: agent2
     }
     return out
-
+5
 if __name__ == "__main__":
     seed(time())
+    doReplay = False
+    replayer = GameReplayAgent("win", 0)
     while True:
         ip = wget("http://wandhoven.ddns.net/code/AlphaZero/connect4ServerIP.txt").content
         print(ip)
-        client = RemoteClient(ip, Game.port)
         game = Game()
-        gui = GUI(game.board, game)
+        gui = GUI(game.board, game, replayer if doReplay else None)
+        client =  gui if doReplay else RemoteClient(ip, Game.port)
+        
         runner = Thread(target=run, args=(game, client, gui, gui))
         runner.start()
         gui.mainloop()

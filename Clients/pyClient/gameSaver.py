@@ -14,8 +14,10 @@ def send(data):
     data = pickle.loads(sock.recv(size))
     return data
 
-#send(("connect4", ["game_counter", "tie"], 0))
-#send(("connect4", ["game_counter", "lose"],0))
+def reset():
+    send(("connect4", ["game_counter", "tie"], 0))
+    send(("connect4", ["game_counter", "lose"],0))
+    send(("connect4", ["game_counter", "win"], 0))
 
 def sendFull(data, win):
     if win == 1:
@@ -29,6 +31,7 @@ def sendFull(data, win):
         
     identity = send(("connect4", ["game_counter", typ]))
     send(("connect4", ["games", typ, str(hex(identity))], data))
+    print("id: ", (typ, identity))
     send(("connect4", ["game_counter", typ], identity+1))
 
-    print(identity)
+reset()

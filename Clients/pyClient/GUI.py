@@ -40,8 +40,9 @@ class GUI(tk.Tk):
         "fill": "#00FF00",
         "width": 10
     }
-    def __init__(self, state, game):
+    def __init__(self, state, game, replayer):
         super(GUI, self).__init__()
+        self.replayer = replayer
         self.title("Connect4 AlphaZero Client")
         self.geometry("500x500")
         self.bind("<Configure> ", self._resize)
@@ -138,18 +139,19 @@ class GUI(tk.Tk):
             "font": f"Times {fontSize} bold",
             "anchor": "c",
         }
-        if self._win == 1:
-            txt = self.canvas.create_text(*args, **kwargs, fill="green",
-                                          text="You Win")
-            sendFull(self.game.actions, -1)
-            
-        elif self._win == -1:
-            txt = self.canvas.create_text(*args, **kwargs, fill="black", text="You Loose")
-            sendFull(self.game.actions, 1)
+        if self.replayer is None:
+            if self._win == 1:
+                txt = self.canvas.create_text(*args, **kwargs, fill="green",
+                                              text="You Win")
+                sendFull(self.game.actions, -1)
+                
+            elif self._win == -1:
+                txt = self.canvas.create_text(*args, **kwargs, fill="black", text="You Loose")
+                sendFull(self.game.actions, 1)
 
-        elif self._win == 0:
-            txt = self.canvas.create_text(*args, **kwargs, fill="black", text="Tie")
-            sendFull(self.game.actions, 0)
+            elif self._win == 0:
+                txt = self.canvas.create_text(*args, **kwargs, fill="black", text="Tie")
+                sendFull(self.game.actions, 0)
         
 
     def _writeAction(self, event):
@@ -170,7 +172,11 @@ class GUI(tk.Tk):
         self.action = -1
         while self.action == -1:
             time.sleep(0.1)
-        return self.action
+    
+        if self.replayer is None:
+            return self.action
+        else:
+            return self.replayer.getAction(state)
 
     def drawLineOverTime(self, x1, y1, x2, y2, steps, dt, args=(), **kwargs):
         "draw a line from (x1, y1) to (x2, y2) over time"
