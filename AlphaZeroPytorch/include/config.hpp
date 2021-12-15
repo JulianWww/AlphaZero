@@ -49,7 +49,7 @@ extern std::mutex rand_mutex;
 
 // simulation setting
 #define MCTSSimulations 50
-#define cpuct_ 2.0f
+//#define cpuct_ 2.0f
 #define ProbabiliticMoves 10
 #define Alpha 0.9
 #define EPSILON 0.2f

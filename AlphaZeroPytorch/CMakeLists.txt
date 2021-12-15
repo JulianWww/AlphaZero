@@ -49,6 +49,14 @@ add_executable (runServer "runServer.cpp" ${SOURCES_Files} ${SERVER_Files})
 add_executable (convert "convertToJceFormat.cpp" "include/ai/modelWorker.cpp" "${OUTER_Files}")
 add_executable (eloRaiting "doEloRaiting.cpp" ${SOURCES_Files} ${SERVER_Files})
 
+target_compile_definitions(train PRIVATE cpuct_=2.0f)
+target_compile_definitions(GameReplayer PRIVATE cpuct_=2.0f)
+target_compile_definitions(runTest PRIVATE cpuct_=2.0f)
+target_compile_definitions(runServer PRIVATE cpuct_=1.0f)
+target_compile_definitions(convert PRIVATE cpuct_=2.0f)
+target_compile_definitions(eloRaiting PRIVATE cpuct_=2.0f)
+
+
 message("linking libs ...")
 target_link_libraries(train "${TORCH_LIBRARIES}")
 target_link_libraries(GameReplayer "${TORCH_LIBRARIES}")
