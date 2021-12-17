@@ -59,9 +59,9 @@ class RemoteClient(DummyAgent):
         return out
 
 class GameReplayAgent(DummyAgent):
-    def __init__(self, end, key):
+    def __init__(self, end, key, file):
         self.actions = gameSaver.send(
-            ("connect4", ["games", end, str(hex(key))])
+            (file, ["games", end, str(hex(key))])
         )
         self.iterator = 0
 
