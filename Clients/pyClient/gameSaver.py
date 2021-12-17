@@ -33,5 +33,3 @@ def sendFull(data, win):
     send(("connect4", ["games", typ, str(hex(identity))], data))
     print("id: ", (typ, identity))
     send(("connect4", ["game_counter", typ], identity+1))
-
-reset()
