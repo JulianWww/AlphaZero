@@ -4,8 +4,8 @@
 
 void evaluateAgent(int agent, int games, AlphaZero::elo::eloClient const& elo)
 {
-	std::cout << "evaluating elo for: " << agent;
-	std::vector<char*> devices = { DEVICES };
+	std::cout << "evaluating elo for: " << agent << "which is: ";
+	std::vector<char*> devices = {DEVICES};
 	std::shared_ptr<AlphaZero::ai::Agent> lastAgent = std::make_shared<AlphaZero::ai::Agent>(devices);
 	std::shared_ptr<AlphaZero::ai::Agent> currentAgent = std::make_shared<AlphaZero::ai::Agent>(devices);
 	AlphaZero::Game::Game* game = new AlphaZero::Game::Game();
@@ -20,11 +20,12 @@ void evaluateAgent(int agent, int games, AlphaZero::elo::eloClient const& elo)
 		currentAgent->model->load_version(agent);
 	}
 	auto data = AlphaZero::ai::playGames_inThreads(game, lastAgent.get(), currentAgent.get(), memory, 2, 1, games, "eloEvaluation");
-	int othersElo = elo.getElo(agent - 1);
 
 	int wins = data[currentAgent.get()];
 	int losses = data[lastAgent.get()];
 	int ties = games - wins - losses;
+
+	int othersElo = elo.getElo(agent - 1);
 
 	float score = ((float)wins + 0.5 * ties)/((float)games);
 	float Relo = (float)othersElo - log10((1 - score) / score) * 400;
@@ -38,12 +39,13 @@ void evaluateAgent(int agent, int games, AlphaZero::elo::eloClient const& elo)
 int main()
 {
 	AlphaZero::elo::eloClient elo;
-	std::cout << elo.setElo(-5, 101) << std::endl;
-	/*int agent = 1;
+	std::cout << elo.setElo(0, 100) << std::endl;
+
+	int agent = 1;
 	while (true)
 	{
 		evaluateAgent(agent, 40, elo);
 		agent++;
-	}*/
+	}
 	return 1;
 }
