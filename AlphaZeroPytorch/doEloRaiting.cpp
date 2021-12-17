@@ -4,7 +4,7 @@
 
 void evaluateAgent(int agent, int games, AlphaZero::elo::eloClient const& elo)
 {
-	std::cout << "evaluating elo for: " << agent << "which is: ";
+	std::cout << "evaluating elo for: " << agent << std::endl;
 	std::vector<char*> devices = {DEVICES};
 	std::shared_ptr<AlphaZero::ai::Agent> lastAgent = std::make_shared<AlphaZero::ai::Agent>(devices);
 	std::shared_ptr<AlphaZero::ai::Agent> currentAgent = std::make_shared<AlphaZero::ai::Agent>(devices);
@@ -27,10 +27,13 @@ void evaluateAgent(int agent, int games, AlphaZero::elo::eloClient const& elo)
 
 	int othersElo = elo.getElo(agent - 1);
 
-	float score = ((float)wins + 0.5 * ties)/((float)games);
+	float score = ((float)wins + 0.5f * (float)ties)/((float)games);
 	float Relo = (float)othersElo - log10((1 - score) / score) * 400;
 	elo.setElo(agent, (int)Relo);
-	std::cout << Relo << std::endl;
+
+	std::cout << wins << " wins, " << ties << " ties and " << losses << "losses" << std::endl;
+	std::cout << "win Ratio is : " << score << std::endl;
+	std::cout << "new rating is: " << Relo << std::endl << std::endl;
 	
 	delete game;
 	delete memory;
