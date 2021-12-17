@@ -31,7 +31,7 @@ void evaluateAgent(int agent, int games, AlphaZero::elo::eloClient const& elo)
 	float Relo = (float)othersElo - log10((1 - score) / score) * 400;
 	elo.setElo(agent, (int)Relo);
 
-	std::cout << wins << " wins, " << ties << " ties and " << losses << "losses" << std::endl;
+	std::cout << wins << " wins, " << ties << " ties and " << losses << " losses" << std::endl;
 	std::cout << "win Ratio is : " << score << std::endl;
 	std::cout << "new rating is: " << Relo << std::endl << std::endl;
 	
