@@ -44,7 +44,7 @@ int main()
 
 	AlphaZero::elo::eloClient elo;
 	std::cout << elo.setElo(0, 100) << std::endl;
-
+	return 1;
 	int agent = 1;
 	while (true)
 	{

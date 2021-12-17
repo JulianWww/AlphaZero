@@ -134,7 +134,7 @@ class Server:
             d[key] = agent.elo
             
         with open(joinPath(PATH, "elos.json"), "w") as file:
-            json.dump(d, file)
+            json.dump(d, file, sort_keys=True, indent=2)
         
 if __name__ == "__main__":
     server = Server()
