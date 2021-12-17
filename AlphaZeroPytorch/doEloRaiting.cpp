@@ -19,7 +19,7 @@ void evaluateAgent(int agent, int games, AlphaZero::elo::eloClient const& elo)
 	{
 		currentAgent->model->load_version(agent);
 	}
-	auto data = AlphaZero::ai::playGames_inThreads(game, lastAgent.get(), currentAgent.get(), memory, 2, games, 1, "eloEvaluation");
+	auto data = AlphaZero::ai::playGames_inThreads(game, lastAgent.get(), currentAgent.get(), memory, 2, 1, games, "eloEvaluation");
 
 	int wins = data[currentAgent.get()];
 	int losses = data[lastAgent.get()];
@@ -31,7 +31,7 @@ void evaluateAgent(int agent, int games, AlphaZero::elo::eloClient const& elo)
 	float Relo = (float)othersElo - log10((1 - score) / score) * 400;
 	elo.setElo(agent, (int)Relo);
 
-	std::cout << wins << " wins, " << ties << " ties and " << losses << " losses" << std::endl;
+	std::cout << wins << " wins, " << ties << " ties and " << losses << "losses" << std::endl;
 	std::cout << "win Ratio is : " << score << std::endl;
 	std::cout << "new rating is: " << Relo << std::endl << std::endl;
 	
