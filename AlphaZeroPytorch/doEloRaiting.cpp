@@ -19,7 +19,7 @@ void evaluateAgent(int agent, int games, AlphaZero::elo::eloClient const& elo)
 	{
 		currentAgent->model->load_version(agent);
 	}
-	auto data = AlphaZero::ai::playGames_inThreads(game, lastAgent.get(), currentAgent.get(), memory, 2, 1, games, "eloEvaluation");
+	auto data = AlphaZero::ai::playGames_inThreads(game, lastAgent.get(), currentAgent.get(), memory, 2, games, 1, "eloEvaluation");
 
 	int wins = data[currentAgent.get()];
 	int losses = data[lastAgent.get()];
