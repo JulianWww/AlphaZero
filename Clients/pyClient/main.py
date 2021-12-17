@@ -46,8 +46,8 @@ def getAgents(agent1, agent2, game):
 5
 if __name__ == "__main__":
     seed(time())
-    doReplay = False
-    replayer = GameReplayAgent("win", 0)
+    doReplay = True
+    replayer = GameReplayAgent("win", 3, "connect4")
     while True:
         ip = wget("http://wandhoven.ddns.net/code/AlphaZero/connect4ServerIP.txt").content
         print(ip)
