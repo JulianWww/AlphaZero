@@ -2,6 +2,9 @@ import socket
 import agent
 import json
 import pickle
+from os.path import join as joinPath
+
+PATH = ""
 
 class Server:
     def __init__(self):
@@ -17,7 +20,7 @@ class Server:
             sock = self.serverSock.accept()[0]
             data = Server.getData(sock)
             if (data[0] == 1):
-                self.update_elo(data[1])
+                self.update_elo(data[1], sock)
             elif (data[0] == 2):
                 out = pickle.dumps(self.update_data(data[1]))
 
@@ -26,7 +29,7 @@ class Server:
 
     def update_data(self, data):
         try:
-            with open(f"data/{data[0]}.json", "r") as file:
+            with open(joinPath(PATH, "data", f"{data[0]}.json"), "r") as file:
                 info = json.load(file)
         except:
             info = {}
@@ -42,7 +45,7 @@ class Server:
         if len(data) == 3:
             sub[data[1][-1]] = data[2]
             
-            with open(f"data/{data[0]}.json", "w") as file:
+            with open(joinPath(PATH, "data", f"{data[0]}.json"), "w") as file:
                 json.dump(info, file, sort_keys=True, indent=2)
             return True
         else:
@@ -78,7 +81,7 @@ class Server:
             data.append(int.from_bytes(sock.recv(4), "little", signed=True))
         return (1, data)
 
-    def update_elo(self, data):
+    def update_elo(self, data, sock):
         deltaElo = 0
 
         if data[0] == -1:
@@ -116,7 +119,7 @@ class Server:
     def load(self):
         self.agents = {}
         try:
-            with open("elos.json", "r") as file:
+            with open(joinPath(PATH, "elos.json"), "r") as file:
                 tmp = json.load(file)
             print(tmp)
 
@@ -130,7 +133,7 @@ class Server:
         for key, agent in self.agents.items():
             d[key] = agent.elo
             
-        with open("elos.json", "w") as file:
+        with open(joinPath(PATH, "elos.json"), "w") as file:
             json.dump(d, file)
         
 if __name__ == "__main__":
