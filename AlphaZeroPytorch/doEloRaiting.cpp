@@ -2,12 +2,9 @@
 #include <ai/playGame.hpp>
 #include <math.h> 
 
-void evaluateAgent(int agent, int games, AlphaZero::elo::eloClient const& elo)
+void evaluateAgent(int agent, int games, AlphaZero::elo::eloClient const& elo, std::shared_ptr<AlphaZero::ai::Agent> lastAgent, std::shared_ptr<AlphaZero::ai::Agent> currentAgent)
 {
 	std::cout << "evaluating elo for: " << agent << std::endl;
-	std::vector<char*> devices = {DEVICES};
-	std::shared_ptr<AlphaZero::ai::Agent> lastAgent = std::make_shared<AlphaZero::ai::Agent>(devices);
-	std::shared_ptr<AlphaZero::ai::Agent> currentAgent = std::make_shared<AlphaZero::ai::Agent>(devices);
 	AlphaZero::Game::Game* game = new AlphaZero::Game::Game();
 	AlphaZero::ai::Memory* memory = new AlphaZero::ai::Memory();
 
@@ -31,7 +28,7 @@ void evaluateAgent(int agent, int games, AlphaZero::elo::eloClient const& elo)
 	float Relo = (float)othersElo - log10((1 - score) / score) * 400;
 	elo.setElo(agent, (int)Relo);
 
-	std::cout << wins << " wins, " << ties << " ties and " << losses << "losses" << std::endl;
+	std::cout << wins << " wins, " << ties << " ties and " << losses << " losses" << std::endl;
 	std::cout << "win Ratio is : " << score << std::endl;
 	std::cout << "new rating is: " << Relo << std::endl << std::endl;
 	
@@ -41,13 +38,17 @@ void evaluateAgent(int agent, int games, AlphaZero::elo::eloClient const& elo)
 
 int main()
 {
+	std::vector<char*> devices = { DEVICES };
+	std::shared_ptr<AlphaZero::ai::Agent> lastAgent = std::make_shared<AlphaZero::ai::Agent>(devices);
+	std::shared_ptr<AlphaZero::ai::Agent> currentAgent = std::make_shared<AlphaZero::ai::Agent>(devices);
+
 	AlphaZero::elo::eloClient elo;
 	std::cout << elo.setElo(0, 100) << std::endl;
 
 	int agent = 1;
 	while (true)
 	{
-		evaluateAgent(agent, 40, elo);
+		evaluateAgent(agent, 40, elo, lastAgent, currentAgent);
 		agent++;
 	}
 	return 1;
