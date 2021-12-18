@@ -48,7 +48,7 @@ int main()
 	std::shared_ptr<AlphaZero::ai::Agent> currentAgent = std::make_shared<AlphaZero::ai::Agent>(devices);
 
 	AlphaZero::elo::eloClient elo;
-	std::cout << elo.setElo(-1, 100) << std::endl;
+	std::cout << elo.setElo(0, 100) << std::endl;
 
 	int agent = 0;
 	while (true)
