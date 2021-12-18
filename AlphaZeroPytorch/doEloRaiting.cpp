@@ -7,7 +7,7 @@ void evaluateAgent(int agent, int games, AlphaZero::elo::eloClient const& elo, s
 	std::cout << "evaluating elo for: " << agent << std::endl;
 
 	int othersElo = elo.getElo(agent - 1);
-	std::cout << "others elo is: " << othersElo << std:endl;
+	std::cout << "others elo is: " << othersElo << std::endl;
 	AlphaZero::Game::Game* game = new AlphaZero::Game::Game();
 	AlphaZero::ai::Memory* memory = new AlphaZero::ai::Memory();
 
