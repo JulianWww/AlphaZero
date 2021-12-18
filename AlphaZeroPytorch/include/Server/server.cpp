@@ -11,18 +11,28 @@
 
 std::shared_ptr<spdlog::logger> logger = debug::log::createLogger("ServerLogger", "logs/c++/Server.log");
 
+std::vector<char*> devices = { DEVICES };
+std::shared_ptr<AlphaZero::ai::Agent> agent = std::make_shared<AlphaZero::ai::Agent>(devices);
+
 inline void AlphaZero::Server::TCPServer::evaluate(sockpp::tcp_socket& sock) {
 	ssize_t n;
-	int buf[stateSize + 1];
+	int buf[stateSize + 2];
 	int out[1];
 
 	n = sock.read(buf, sizeof(buf));
 
 	std::shared_ptr<AlphaZero::Game::GameState> state = std::make_shared<AlphaZero::Game::GameState>(AlphaZero::Server::toBoard(buf), buf[stateSize]);
 
-	std::vector<char*> devices = { DEVICES };
-	std::shared_ptr<AlphaZero::ai::Agent> agent = std::make_shared<AlphaZero::ai::Agent>(devices);
-	agent->model->load_current();
+	agent->reset();
+	try
+	{
+		std::cout << "model version is: " << buf[stateSize + 1] << std::endl;
+		agent->model->load_version(buf[stateSize + 1]);
+	}
+	catch (...)
+	{
+		agent->model->load_current();
+	}
 
 	auto actionData = agent->getAction(state, false);
 	out[0] = actionData.first;

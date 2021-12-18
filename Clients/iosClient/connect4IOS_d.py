@@ -176,6 +176,7 @@ class Client:
 		for val  in state:
 			out += Client.intToBinArr(val)
 		out += Client.intToBinArr(-1)
+		print(out)
 		return out
 ai = Client(ip, port)
 
