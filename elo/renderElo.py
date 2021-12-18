@@ -18,19 +18,15 @@ step = [12, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 step = np.array(step)+1
 
 with open("elos.json", "r") as file:
-    data = json.load(file)
-
-vals = list(data.values())
-print(vals[83])
+    vals = json.load(file)
 
 elos = []
 for idx, val in enumerate(step):
-    elo1 = vals[idx]
-    elo2 = vals[idx + 1]
+    elo1 = vals[str(idx)]
+    elo2 = vals[str(idx + 1)]
     deltaElo = (elo2 - elo1)/val
     for i in range(val):
         elos.append(elo1 + deltaElo * i)
-
 
 plt.plot(elos)
 #plt.plot(vals)
