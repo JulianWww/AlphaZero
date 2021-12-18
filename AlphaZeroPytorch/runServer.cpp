@@ -6,12 +6,8 @@
 
 int main()
 {
-	std::vector<char*> devices = { DEVICES };
 #if OPSMode == 1
-	std::shared_ptr<AlphaZero::ai::Agent> agent = std::make_shared<AlphaZero::ai::Agent>(devices);
-	agent->model->load_current();
-
-	AlphaZero::Server::TCPServer server(agent);
+	AlphaZero::Server::TCPServer server;
 	server.mainLoop();
 
 #elif OPSMode == 2

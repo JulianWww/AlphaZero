@@ -15,12 +15,12 @@ namespace AlphaZero
 
 		class TCPServer
 		{
+		private: void evaluate(sockpp::tcp_socket& sock);
 		private: sockpp::socket_initializer sockInit;
 		private: sockpp::tcp_acceptor acc;
-		private: std::shared_ptr<ai::Agent> agent;
 		private: void accept();
 
-		public: TCPServer(std::shared_ptr<ai::Agent> agent, int port=PORT);
+		public: TCPServer(int port=PORT);
 		public: void mainLoop();
 		};
 
