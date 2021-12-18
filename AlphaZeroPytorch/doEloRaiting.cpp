@@ -25,6 +25,10 @@ void evaluateAgent(int agent, int games, AlphaZero::elo::eloClient const& elo, s
 	int othersElo = elo.getElo(agent - 1);
 
 	float score = ((float)wins + 0.5f * (float)ties)/((float)games);
+	if (score > 0.9)
+	{
+		score = 0.9f;
+	}
 	float Relo = (float)othersElo - log10((1 - score) / score) * 400;
 	elo.setElo(agent, (int)Relo);
 
