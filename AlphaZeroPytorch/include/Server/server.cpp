@@ -112,7 +112,7 @@ void AlphaZero::Server::TestServer::accept()
 
 	std::shared_ptr<Game::GameState> state = std::make_shared<Game::GameState>(toBoard(buf), buf[stateSize]);
 	state->render();
-	
+
 	std::cout << "Server Action for testing: ";
 	std::cin >> out[0];
 	std::cout << std::endl;

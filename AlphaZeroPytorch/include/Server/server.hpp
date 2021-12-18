@@ -7,7 +7,7 @@
 
 #define PORT 25500
 
-namespace AlphaZero 
+namespace AlphaZero
 {
 	namespace Server
 	{
@@ -20,7 +20,7 @@ namespace AlphaZero
 		private: sockpp::tcp_acceptor acc;
 		private: void accept();
 
-		public: TCPServer(int port=PORT);
+		public: TCPServer(int port = PORT);
 		public: void mainLoop();
 		};
 
@@ -29,7 +29,7 @@ namespace AlphaZero
 		private: sockpp::socket_initializer sockInit;
 		private: sockpp::tcp_acceptor acc;
 		private: void accept();
-			   
+
 		public: TestServer(int port = PORT);
 		public: void mainLoop();
 		};
