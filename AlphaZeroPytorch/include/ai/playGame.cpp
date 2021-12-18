@@ -45,9 +45,6 @@ void AlphaZero::ai::train(int version)
 	{
 		jce::load(fin, version);
 		std::cout << "found model version: " << version << std::endl;
-		bestAgent->model->load_version(version);
-		currentAgent->model->load_version(version);
-		version = version;
 
 		fin.close();
 
@@ -63,6 +60,9 @@ void AlphaZero::ai::train(int version)
 			std::cout << "could not find sutalbe iterationCounter";
 		}
 		fin.close();
+
+		bestAgent->model->load_version(version);
+		currentAgent->model->load_version(version);
 	}
 	else
 	{

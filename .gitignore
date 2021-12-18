@@ -375,3 +375,5 @@ Clients/ConsoleClient/out/*
 AlphaZeroPytorch/enc_temp_folder/f8108be5203dc8f8b0301f5c9e7e152d/model.hpp
 *.p
 *.jce
+elo/elos.json
+elo/elos.json
