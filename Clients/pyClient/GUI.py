@@ -4,6 +4,7 @@ from game import Game
 from threading import Thread
 import time
 from gameSaver import sendFull
+from Client import DummyAgent
 
 class ConsoleAgent:
     """Agent running in the console for testing only"""
@@ -20,7 +21,7 @@ class ConsoleAgent:
         pass
 
 
-class GUI(tk.Tk):
+class GUI(tk.Tk, DummyAgent):
     """
     render game to GUI using Tkinter and canvas
     """
@@ -225,6 +226,7 @@ class GUI(tk.Tk):
         self._win = _win
         if game.tie:
             self._win = 0
+
         self._winLinesRendered = True
 
     def renderWinLines(self, game):
