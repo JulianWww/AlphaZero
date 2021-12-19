@@ -4,7 +4,8 @@ import json
 import pickle
 from os.path import join as joinPath
 
-PATH = ""
+PATH = "/media/A/MyCode/AlphaZero/elo"
+print(PATH)
 
 class Server:
     def __init__(self):
@@ -19,6 +20,7 @@ class Server:
             print("waiting for connection")
             sock = self.serverSock.accept()[0]
             data = Server.getData(sock)
+            print(data)
             if (data[0] == 1):
                 self.update_elo(data[1], sock)
             elif (data[0] == 2):
@@ -85,12 +87,20 @@ class Server:
         deltaElo = 0
 
         if data[0] == -1:
-            closest = list(self.agents.values())[0]
+            closest = None
             idx = list(self.agents.keys())[0]
             for _idx, agent in self.agents.items():
-                if (abs(data[1] - closest.elo) > abs(data[1] - agent.elo) and data[1] > agent.elo):
-                    idx = _idx
-                    closest = agent
+                if (_idx > 0):
+                    if closest is None:
+                        if data[1] < agent.elo:
+                            print(agent.elo)
+                            idx = _idx
+                            closest = agent
+                        
+                    elif (abs(data[1] - closest.elo) > abs(data[1] - agent.elo) and data[1] < agent.elo):
+                        print(agent.elo)
+                        idx = _idx
+                        closest = agent
             deltaElo = idx
             
         else:
