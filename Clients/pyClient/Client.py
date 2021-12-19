@@ -1,13 +1,18 @@
 import socket
 import gameSaver
+import math
 
-class DummyAgent():
+class DummyAgent(gameSaver.DummyClient):
     def render(*args):
         "dummy function to avoid some logic in the caller"
         pass
 
     def winScreen(*args):
         "see render"
+        pass
+
+    def updateElo(*args):
+        "dummy function"
         pass
 
 class RemoteClient(DummyAgent):
@@ -17,6 +22,12 @@ class RemoteClient(DummyAgent):
     def __init__(self, ip, port):
         self.ip = ip
         self.port = port
+        self.setVersion()
+
+    def setVersion(self):
+        account = gameSaver.getAccount()
+        self.version = gameSaver.getClientWithClosestElo(account)
+        print("you are playing aginst version:", self.version)
            
     def connect(self):
         """Astablisch connection to the Server"""
@@ -30,33 +41,34 @@ class RemoteClient(DummyAgent):
         data = sock.recv(8*4)
         return int.from_bytes(data, "little", signed=True)
 
-    @staticmethod
-    def sendState(sock, state):
+    def sendState(self, sock, state):
         "send the satate to the server"
-        binaryState = RemoteClient.stateToBinary(state)
+        binaryState = self.stateToBinary(state)
         sock.send(binaryState)
 
     def getAction(self, state):
         "get action from server"
         sock = self.connect()
-        RemoteClient.sendState(sock, state.toServerProtocol())
+        self.sendState(sock, state.toServerProtocol())
         return RemoteClient.getData(sock)
 
-    @staticmethod
-    def intToBinArr(my_int):
-        "converts a number to 4 byte binary to send to server"
-        out = bytearray()
-        for e in [my_int >> i & 0xff for i in (0,8,16,24)]:
-            out.append(e)
-        return out
-
-    @staticmethod
-    def stateToBinary(state):
+    def stateToBinary(self, state):
         "convert state to binary array to be sent to server"
         out = bytearray()
         for val in state:
             out += RemoteClient.intToBinArr(val)
+        out += RemoteClient.intToBinArr(self.version)
         return out
+
+    def updateElo(self, win):
+        otherElo = gameSaver.getElo(self.version)
+        myElo = gameSaver.getMyElo()
+        expected = 1/(1+math.e**(otherElo - myElo))
+
+        newElo = myElo + 64 * (win - expected)
+        gameSaver.setMyElo(newElo)
+        self.setVersion()
+        print("your new elo is: ", newElo)
 
 class GameReplayAgent(DummyAgent):
     def __init__(self, end, key, file):
