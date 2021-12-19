@@ -7,6 +7,7 @@ from time import time, sleep
 import pickle
 from tkinter import simpledialog
 from requests import get as wget
+import gameSaver
 
 
 def render(agents, game):
@@ -23,7 +24,7 @@ def run(game, agent1, agent2, gui):
     "call the agents, render and get action to play a game"
     sleep(0.5)
     while True:
-        agents = getAgents(gui, agent1, agent2)
+        agents, winOfsetter = getAgents(gui, agent1, agent2)
         game.reset()
         while not game.isDone:
             render(agents, game)
@@ -32,9 +33,17 @@ def run(game, agent1, agent2, gui):
 
         endScreens(agents, game)
         render(agents, game)
+
+        if game.tie:
+            eloWin = 0.5
+        else:
+            eloWin = game.player * winOfsetter
+            
+        agent1.updateElo(-eloWin)
+        agent2.updateElo( eloWin)
+        
         sleep(5)
 
-    
 def getAgents(agent1, agent2, game):
     """get dict mapping player actions id's to agents"""
     val = getrandbits(1)*2-1
@@ -42,15 +51,14 @@ def getAgents(agent1, agent2, game):
         +val: agent1,
         -val: agent2
     }
-    return out
-5
-if __name__ == "__main__":
+    return out, val
+
+if __name__ == "__main__":  
     seed(time())
-    doReplay = True
+    doReplay = False
     replayer = GameReplayAgent("win", 3, "connect4")
     while True:
         ip = wget("http://wandhoven.ddns.net/code/AlphaZero/connect4ServerIP.txt").content
-        print(ip)
         game = Game()
         gui = GUI(game.board, game, replayer if doReplay else None)
         client =  gui if doReplay else RemoteClient(ip, Game.port)
