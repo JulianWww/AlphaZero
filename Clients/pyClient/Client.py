@@ -63,9 +63,10 @@ class RemoteClient(DummyAgent):
     def updateElo(self, win):
         otherElo = gameSaver.getElo(self.version)
         myElo = gameSaver.getMyElo()
-        expected = 1/(1+math.e**(otherElo - myElo))
+        print(myElo, otherElo)
+        expected = 1/(1+math.e**((otherElo - myElo)/400))
 
-        newElo = myElo + 64 * (win - expected)
+        newElo = myElo + 256 * (win - expected)
         gameSaver.setMyElo(newElo)
         self.setVersion()
         print("your new elo is: ", newElo)
