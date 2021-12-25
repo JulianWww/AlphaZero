@@ -41,11 +41,15 @@ def getClientWithClosestElo(account):
 def getMyElo():
     account = getAccount()
     myElo = send(("accounts", ["elos", str(account)]))
+    if myElo < 100:
+        myElo = 100
     return myElo
 
 def setMyElo(elo):
     account = getAccount()
     myElo = send(("accounts", ["elos", str(account)], elo))
+    if myElo < 100:
+        myElo = 100
     return myElo
 
 def getElo(account):
