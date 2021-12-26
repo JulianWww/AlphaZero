@@ -20,7 +20,6 @@ class Server:
             print("waiting for connection")
             sock = self.serverSock.accept()[0]
             data = Server.getData(sock)
-            print(data)
             if (data[0] == 1):
                 self.update_elo(data[1], sock)
             elif (data[0] == 2):
@@ -98,7 +97,6 @@ class Server:
                             closest = agent
                         
                     elif (abs(data[1] - closest.elo) > abs(data[1] - agent.elo) and data[1] < agent.elo):
-                        print(agent.elo)
                         idx = _idx
                         closest = agent
             deltaElo = idx
@@ -131,7 +129,6 @@ class Server:
         try:
             with open(joinPath(PATH, "elos.json"), "r") as file:
                 tmp = json.load(file)
-            print(tmp)
 
             for key, elo in tmp.items():
                 self.agents[int(key)] = agent.Agent(elo)
@@ -147,4 +144,7 @@ class Server:
             json.dump(d, file, sort_keys=True, indent=2)
         
 if __name__ == "__main__":
-    server = Server()
+    while True:
+        try:
+            server = Server()
+        except: pass
