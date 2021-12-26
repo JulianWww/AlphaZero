@@ -50,7 +50,7 @@ int main()
 	AlphaZero::elo::eloClient elo;
 	std::cout << elo.setElo(0, 100) << std::endl;
 
-	int agent = 1;
+	int agent = 409;
 	while (true)
 	{
 		evaluateAgent(agent, 40, elo, lastAgent, currentAgent);
