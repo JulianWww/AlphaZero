@@ -1,5 +1,6 @@
 import socket
 import pickle
+from requests import get as wget
 
 class DummyClient():
     @staticmethod
@@ -12,7 +13,7 @@ class DummyClient():
 
 def connect():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(("wandhoven.ddns.net", 2551))
+    sock.connect((ip = wget("http://wandhoven.ddns.net/code/AlphaZero/dataIP.txt").content, 2551))
     return sock
 
 def send(data):
