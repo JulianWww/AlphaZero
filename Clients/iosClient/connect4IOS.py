@@ -10,12 +10,13 @@ winStates = [
 
 responce = requests.get("http://wandhoven.ddns.net/code/AlphaZero/connect4ServerIP.txt")
 ip = responce.content
+dataIp = requests.get("http://wandhoven.ddns.net/code/AlphaZero/dataIP.txt").content
 port = 25500
 
 
 def send(data):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(("wandhoven.ddns.net", 2551))
+    sock.connect((dataIp, 2551))
     sock.send((-2).to_bytes(4, "little", signed=True))
 
     b = pickle.dumps(data)
