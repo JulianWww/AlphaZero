@@ -7,10 +7,7 @@ set (CMAKE_CXX_STANDARD 17)
 cmake_minimum_required (VERSION 3.8)
 set(CMAKE_BUILD_TYPE Debug)
 
-message("searching for Pytorch ...")
-find_package(Torch REQUIRED)
-
-message("adding source files ...")
+message(STATUS "adding source files ...")
 file(GLOB SOURCES_Files 
 	"include/*.cpp" 
 	"include/ai/*.cpp"
@@ -40,6 +37,9 @@ file(GLOB TEST_SOURCE
 	"include/*.cpp"
 )
 
+find_library(spdlog_location spdlog "/" REQUIRED)
+find_library(sockpp_location sockpp "/" REQUIRED)
+
 
 # Add source to this project's executable.
 add_executable (train "AlphaZeroPytorch.cpp" "AlphaZeroPytorch.h" ${SOURCES_Files} ${HEADER_Files})
@@ -57,66 +57,95 @@ target_compile_definitions(convert PRIVATE cpuct_=2.0f)
 target_compile_definitions(eloRaiting PRIVATE cpuct_=2.0f)
 
 
-message("linking libs ...")
-target_link_libraries(train "${TORCH_LIBRARIES}")
-target_link_libraries(GameReplayer "${TORCH_LIBRARIES}")
-target_link_libraries(runTest "${TORCH_LIBRARIES}")
-target_link_libraries(runServer "${TORCH_LIBRARIES}")
-target_link_libraries(convert "${TORCH_LIBRARIES}")
-target_link_libraries(eloRaiting "${TORCH_LIBRARIES}")
-
-message("adding includes ...")
-
-if (WIN32)
-	add_executable(showLoss "showLoss.cpp" "include/log.cpp")
-	target_include_directories(showLoss PUBLIC "${CMAKE_SOURCE_DIR}/include")
-	target_include_directories(showLoss PUBLIC "C:/Users/Julia/AppData/Local/Programs/Python/Python39/include")
-	target_link_libraries(showLoss "C:/Users/Julia/AppData/Local/Programs/Python/Python39/libs/python39_d.lib")
-	target_link_libraries(showLoss "${TORCH_LIBRARIES}")
+# Settting model device macro
+find_package(CUDA 11.3)
+message(STATUS "Using cuda: " ${CUDA_VERSION_STRING})
 
 
-	target_include_directories(train PUBLIC "D:/MyCode/CppLibs/include")
-	target_include_directories(convert PUBLIC "D:/MyCode/CppLibs/include")
-	target_include_directories(GameReplayer PUBLIC "D:/MyCode/CppLibs/include")
-	target_include_directories(runTest PUBLIC "D:/MyCode/CppLibs/include")
-	target_include_directories(showLoss PUBLIC "D:/MyCode/CppLibs/include")
-	target_include_directories(runServer PUBLIC "D:/MyCode/CppLibs/include")
-	target_include_directories(eloRaiting PUBLIC "D:/MyCode/CppLibs/include")
+if (CUDA_VERSION_STRING EQUAL "")
+  target_compile_definitions(train PUBLIC DEVICES="cpu")
+  target_compile_definitions(GameReplayer PUBLIC DEVICES="cpu")
+  target_compile_definitions(runTest PUBLIC DEVICES="cpu")
+  target_compile_definitions(runServer PUBLIC DEVICES="cpu")
+  target_compile_definitions(convert PUBLIC DEVICES="cpu")
+  target_compile_definitions(eloRaiting PUBLIC DEVICES="cpu")
+else()
+  target_compile_definitions(train PUBLIC DEVICES="cuda:0")
+  target_compile_definitions(GameReplayer PUBLIC DEVICES="cuda:0")
+  target_compile_definitions(runTest PUBLIC DEVICES="cuda:0")
+  target_compile_definitions(runServer PUBLIC DEVICES="cuda:0")
+  target_compile_definitions(convert PUBLIC DEVICES="cuda:0")
+  target_compile_definitions(eloRaiting PUBLIC DEVICES="cuda:0")
+endif()
 
-	target_link_libraries (runServer "lib/sockpp-static_d")
-	target_link_libraries (eloRaiting "lib/sockpp-static_d")
-endif (WIN32)
-if (UNIX)
-	target_include_directories(train PUBLIC "/cpp/spdlog/include")
+# Download libtorch from offical website
+if (EXISTS "${PROJECT_SOURCE_DIR}/dependencies/libtorch.zip" OR EXISTS "${PROJECT_SOURCE_DIR}/dependencies/libtorch")
+  message(STATUS "libtorch already downloaded")
+else ()
+  if (CUDA_VERSION_STRING EQUAL "")
+	  message(STATUS "did not find cuda11.3 +")
+    message(STATUS "downloading libtorch cpu (this may take a while, go have a coffe)")
+    file(
+      DOWNLOAD
+      "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.11.0%2Bcpu.zip"
+      "${PROJECT_SOURCE_DIR}/dependencies/libtorch.zip"
+    )
+    set(libtorch_hash "5b5ea3067f878dea051f6fcd8fb00338f55517cb6baecdc810983a814e030845")
+  else ()
+    message(STATUS "found cuda version " ${CUDA_VERSION_STRING})
+    message(STATUS "downloading libtorch cuda " ${CUDA_VERSION_STRING} "  (this may take a while, go have a coffe)")
+    file(
+      DOWNLOAD
+      "https://download.pytorch.org/libtorch/cu113/libtorch-cxx11-abi-shared-with-deps-1.11.0%2Bcu113.zip"
+      "${PROJECT_SOURCE_DIR}/dependencies/libtorch.zip"
+    )
+    set(libtorch_hash "8d9e829ce9478db4f35bdb7943308cf02e8a2f58cf9bb10f742462c1d57bf287")
+  endif()
+  file(SHA256 "${PROJECT_SOURCE_DIR}/dependencies/libtorch.zip" libtorch_checksum)
+  message(STATUS "check sum" ${libtorch_checksum})
+  if (libtorch_checksum MATCHES "${libtorch_hash}")
+    message(STATUS "libtorch checksum is valid")
+  else()
+    message(FATAL_ERROR "libtorch checksum is not valid")
+  endif()
+endif()
 
-	target_include_directories(runServer PUBLIC "/cpp/spdlog/include")
-	target_include_directories(runServer PUBLIC "/cpp/sockpp/include")
-
-	target_include_directories(eloRaiting PUBLIC "/cpp/spdlog/include")
-	target_include_directories(eloRaiting PUBLIC "/cpp/sockpp/include")
-
-	target_include_directories(convert PUBLIC "/cpp/spdlog/include")
-
-
-	target_include_directories(GameReplayer PUBLIC "/cpp/spdlog/include")
-
-	target_include_directories(runTest PUBLIC "/cpp/spdlog/include")
-
-	find_library(sockpp_location sockpp)
-	message("sockpp is at: ${sockpp_location}")
-	target_link_libraries(train "${sockpp_location}")
-	target_link_libraries(runServer "${sockpp_location}")
-	target_link_libraries(eloRaiting "${sockpp_location}")
-endif(UNIX)
+ #unzip libtorch
+if (EXISTS "${PROJECT_SOURCE_DIR}/dependencies/libtorch")
+  message(STATUS "libtorch already installed")
+else()
+  message(STATUS "installing libtorch")
+  file(ARCHIVE_EXTRACT INPUT "${PROJECT_SOURCE_DIR}/dependencies/libtorch.zip" DESTINATION "${PROJECT_SOURCE_DIR}/dependencies")
+  file(REMOVE "${PROJECT_SOURCE_DIR}/dependencies/libtorch.zip")
+  message(STATUS "libtorch installed")
+endif()
+message(STATUS "libtorch Path:\t" "${PROJECT_SOURCE_DIR}/dependencies/libtorch")
+set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/dependencies/libtorch/")
 
 
-target_include_directories(train PUBLIC "${CMAKE_SOURCE_DIR}/include")
-target_include_directories(runServer PUBLIC "${CMAKE_SOURCE_DIR}/include")
-target_include_directories(GameReplayer PUBLIC "${CMAKE_SOURCE_DIR}/include")
-target_include_directories(runTest PUBLIC "${CMAKE_SOURCE_DIR}/include")
-target_include_directories(convert PUBLIC "${CMAKE_SOURCE_DIR}/include")
-target_include_directories(eloRaiting PUBLIC "${CMAKE_SOURCE_DIR}/include")
+message(STATUS "searching for Pytorch ...")
+find_package(Torch REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
 
-message("done")
+message(STATUS "linking libs")
+
+message(STATUS "sockpp is at: ${sockpp_location} ${spdlog_location}")
+target_link_libraries(train        PRIVATE "${TORCH_LIBRARIES}" ${spdlog_location})
+target_link_libraries(runServer    PRIVATE "${TORCH_LIBRARIES}" ${spdlog_location} ${sockpp_location})
+target_link_libraries(eloRaiting   PRIVATE "${TORCH_LIBRARIES}" ${spdlog_location} ${sockpp_location})
+target_link_libraries(GameReplayer PRIVATE "${TORCH_LIBRARIES}" ${spdlog_location})
+target_link_libraries(convert      PRIVATE "${TORCH_LIBRARIES}" ${spdlog_location})
+target_link_libraries(runTest	   PRIVATE "${TORCH_LIBRARIES}" ${spdlog_location})
+
+
+target_include_directories(train PUBLIC "include/")
+target_include_directories(runServer PUBLIC "include/")
+target_include_directories(GameReplayer PUBLIC "include/")
+target_include_directories(runTest PUBLIC "include/")
+target_include_directories(convert PUBLIC "include/")
+target_include_directories(eloRaiting PUBLIC "include/")
+
+
+message(STATUS "done")
 

@@ -7,12 +7,7 @@
 #define UNIX
 #endif
 
-#ifdef UNIX
-#define DEVICES "cuda:0"
-#endif
-#ifndef UNIX
-#define DEVICES "cpu"
-#endif
+//#define DEVICES "cuda:0"
 
 #define OPSMode 1
 
