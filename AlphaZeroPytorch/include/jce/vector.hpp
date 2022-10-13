@@ -3,6 +3,7 @@
 
 namespace jce {
 	namespace vector {
+    // generate a vector of ceratin size filled with a certain value
 		template <typename T> 
 		std::vector<T> gen(size_t size, T val);
 	}

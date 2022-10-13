@@ -11,19 +11,25 @@ namespace AlphaZero
 {
 	namespace Server
 	{
+      // convert int array to binary board array
 		IDType toBoard(int arr[]);
-
+      // tcp game server
 		class TCPServer
 		{
+      // read data from sock, pass to Agent and send back recomendation
 		private: void evaluate(sockpp::tcp_socket& sock);
 		private: sockpp::socket_initializer sockInit;
+      // server sock
 		private: sockpp::tcp_acceptor acc;
+      // accept connection from remote
 		private: void accept();
 
+      // create TCP sever on port
 		public: TCPServer(int port = PORT);
+      // run accept, evalute loop
 		public: void mainLoop();
 		};
-
+      // Identical to the main server but prints out request and uses this console input as return, use for debug
 		class TestServer
 		{
 		private: sockpp::socket_initializer sockInit;

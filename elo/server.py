@@ -3,9 +3,8 @@ import agent
 import json
 import pickle
 from os.path import join as joinPath
-
-PATH = "/media/A/MyCode/AlphaZero/elo"
-print(PATH)
+from config import PATH
+from setup import setup
 
 class Server:
     def __init__(self):
@@ -16,6 +15,7 @@ class Server:
         self.main()
 
     def main(self):
+        """main loop"""
         while True:
             print("waiting for connection")
             sock = self.serverSock.accept()[0]
@@ -29,6 +29,7 @@ class Server:
                 sock.send(out)
 
     def update_data(self, data):
+        """update elo rating using data"""
         try:
             with open(joinPath(PATH, "data", f"{data[0]}.json"), "r") as file:
                 info = json.load(file)
@@ -56,6 +57,7 @@ class Server:
                 return None
 
     def getAgent(self, key):
+        """get agent by key"""
         if key == -1:
             return agent.Agent(100)
         
@@ -66,6 +68,7 @@ class Server:
 
     @staticmethod
     def getData(sock):
+        """decode get data protocol and perform actions"""
         size = int.from_bytes(sock.recv(4), "little", signed=True)
         data = []
         if size == -1:
@@ -83,6 +86,7 @@ class Server:
         return (1, data)
 
     def update_elo(self, data, sock):
+        """update elo ratings"""
         deltaElo = 0
 
         if data[0] == -1:
@@ -125,6 +129,7 @@ class Server:
         self.save()
     
     def load(self):
+        """load elo data"""
         self.agents = {}
         try:
             with open(joinPath(PATH, "elos.json"), "r") as file:
@@ -136,6 +141,7 @@ class Server:
             print(e)
 
     def save(self):
+        """save elo data"""
         d = {}
         for key, agent in self.agents.items():
             d[key] = agent.elo
@@ -144,6 +150,7 @@ class Server:
             json.dump(d, file, sort_keys=True, indent=2)
         
 if __name__ == "__main__":
+    setup()
     while True:
         try:
             server = Server()

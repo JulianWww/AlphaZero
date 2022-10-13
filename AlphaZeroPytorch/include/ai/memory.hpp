@@ -11,36 +11,72 @@
 
 namespace AlphaZero {
 	namespace ai {
+      // One Element of memory
 		class MemoryElement {
+
+      // MCTS calculated reward r
 		public: int value;
+
+      // the state the element is affiliated with
 		public: std::shared_ptr<Game::GameState>state;
+
+      // the action values or policy computed by the MCTS using N
 		public: std::vector<float> av;
 		public: MemoryElement(std::shared_ptr<Game::GameState>, std::vector<int>);
 		public: MemoryElement();
 		};
+
+    // Memory from a single game simulation waiting to be incorporated into the main memory buffer
 		class TemporaryMemory
 		{
+      
+      // weather or not to ignore all calls
 		public: bool active;
 		public: TemporaryMemory(bool);
+
+      // list of memory elements consisting of everything traversed during one game simulation
 		public: std::vector<std::shared_ptr<MemoryElement>> tempMemory;
 		public: void commit(std::shared_ptr<Game::GameState>, std::vector<int>&);
 		};
+
+     // Global state memory used to pull states for training
 		class Memory {
-			//keep memory from doing annything
+			//mutex used to ensure the mulitrheaded simulations integrate memory elements without causing memory corruption
 		private: std::mutex mu;
+
+      // weather or not to ignore all calls to the Momory
 		public: bool active = true;
+
+      // get TemporaryMemory with same active value
 		public: TemporaryMemory getTempMemory();
+
+      // list of all game states in the Memory
 		public: std::vector<std::shared_ptr<MemoryElement>> memory;
 		public: Memory();
+
+      // update temporary memory with rewards and incorporated it into the main memory buffer
 		public: void updateMemory(int player, int value, TemporaryMemory* memory);
+
+      // pop a random state from the memory buffer
 		public: std::shared_ptr<MemoryElement> getState();
+
+      // save memory by version key
 		public: void save(int version);
+      // save the newest version
 		public: void save();
+      // save to specific file
 		public: void save(char filename[]);
+      // load memory by version key
 		public: void load(int version);
+      // load the newest version
 		public: void load();
+      // load from specific file
 		public: void load(char filename[]);
+
+      // prints out the entire memory buffer (not a lot of funn);
 		public: void render();
+
+      // subfunction used by update Memory
 		private: void updateMemory(int val, TemporaryMemory* memory);
 		};
 	}

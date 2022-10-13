@@ -2,6 +2,8 @@
 #include <io.hpp>
 #include <config.hpp>
 
+// sriet replay to console from file (not realy used)
+
 int main(int argc, char ** argv)
 {
 #if SaverType == 2

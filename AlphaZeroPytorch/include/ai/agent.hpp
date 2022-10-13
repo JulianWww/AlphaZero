@@ -1,31 +1,54 @@
 #pragma once
-#include <ai/modelSynchronizer.hpp>
+#include <ai/model.hpp>
 #include <ai/memory.hpp>
 #include <jce/vector.hpp>
 #include "utils.hpp"
 #include <thread>
+#include "MCTS.hpp"
 
 namespace AlphaZero {
 	namespace ai {
 		class Agent {
+      // hashmap of thread ids to MCTS trees
+
 		public: std::unordered_map<size_t, std::shared_ptr<MCTS>> tree;
-		public: std::unique_ptr<AlphaZero::ai::ModelSynchronizer> model;
-		public: Agent(std::vector<char*> devices);
+
+      // Neural network pointer
+		public: std::unique_ptr<AlphaZero::ai::Model> model;
+		public: Agent(const char* device);
+
+      // uuid of the agent for hashing purposes
 		public: int identity;
+
+      // get the MCTS tree for a certain thread
 		public: MCTS* getTree();
+
+      // clear MCTS tree chach
 		public: void reset();
+
+      // get the action, the agent selected
 #if Training
 		public: std::pair<int, std::pair<std::vector<int>, float>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
 #else
 		public: virtual std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::GameState> state, bool proabilistic);
 #endif
+
+      // run MCTS simulations
 		public: void runSimulations(Node*, MCTS* tree);
+
+      // evaluate a leaf inside the MCTS
 		private: float evaluateLeaf(Node*, MCTS* tree);
+
+      // fit the neural network to data provided by the memory
 		public: void fit(std::shared_ptr<Memory> memory, unsigned short iteration);
+
+      // predict value and policy for a certain game state using the NN
 		public: std::pair<float, std::vector<float>> predict(std::shared_ptr<Game::GameState> state);
-		public: void predict(ModelData* data);
-		public: void predict(std::list<ModelData*> data);
+
+      // select an action deteministicly
 		private: std::pair<int, std::pair<std::vector<int>, float>> derministicAction(Node* node);
+
+      // select an action proabilisticly
 		private: std::pair<int, std::pair<std::vector<int>, float>> prabilisticAction(Node* node);
 		};
 #if not Training
@@ -33,6 +56,8 @@ namespace AlphaZero {
 		public: virtual std::pair<int, std::vector<float>> getAction(std::shared_ptr<Game::Game> game, bool proabilistic);
 		};
 #endif
+
+      // run simluations bc threading stuff
 		void runSimulationsCaller(AlphaZero::ai::Agent* agent, Node* node, MCTS* tree);
 	}
 }
@@ -77,15 +102,14 @@ inline float AlphaZero::ai::Agent::evaluateLeaf(Node* node, MCTS* tree)
 	if (!node->state->done){
 		std::shared_ptr<Game::GameState> nextState;
 		Node* nextNode;
-		auto data = ModelData(node);
-		this->predict(&data);
+		auto data = this->predict(node->state);
 		for (auto& action : node->state->allowedActions) {
 			nextState = node->state->takeAction(action);
 			nextNode = tree->addNode(nextState);
-			Edge newEdge = Edge(nextNode, node, action, data.polys[action].item<float>()); //the last is the prob
+			Edge newEdge = Edge(nextNode, node, action, data.second[action]); //the last is the prob
 			node->addEdge( action, newEdge);
 		}
-		return data.value;
+		return data.first;
 	}
 	return (float)std::get<0>(node->state->val);
 }
@@ -105,7 +129,6 @@ inline void AlphaZero::ai::Agent::fit(std::shared_ptr<Memory> memory, unsigned s
 		debug::log::_lossLogger.newBatch();
 #endif
 	}
-	this->model->synchronizeModels();
 #if LossLogger
 	debug::log::_lossLogger.save("logs/games/loss.bin");
 #endif
@@ -139,16 +162,6 @@ inline std::pair<float, std::vector<float>> AlphaZero::ai::Agent::predict(std::s
 	}
 
 	return { val, polys };
-}
-
-inline void AlphaZero::ai::Agent::predict(ModelData* data)
-{
-	this->model->addData(data);
-}
-
-inline void AlphaZero::ai::Agent::predict(std::list<ModelData*> data)
-{
-	this->model->predict(data);
 }
 
 inline std::pair<int, std::pair<std::vector<int>, float>> AlphaZero::ai::Agent::derministicAction(Node* node)

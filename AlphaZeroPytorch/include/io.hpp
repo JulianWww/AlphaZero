@@ -3,6 +3,10 @@
 #include <jce/save.hpp>
 #include "config.hpp"
 
+/*
+* Classes used to log games for replay
+* FullState saves full game states, while ActionsOnly saves action sequences
+*/
 
 namespace AlphaZero
 {

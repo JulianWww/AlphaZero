@@ -8,10 +8,11 @@ namespace AlphaZero {
 		// Softams function inp is an iteratable of numbers
 		template<typename T>
 		void softmax(T& inp);
-
+    // x / sum(x), where inp is an iterable of numbers
 		template<typename T>
 		void linmax(T& inp);
-
+    
+    // take the sum of all elements of a vector
 		template<typename T>
 		T getSumm(std::vector<T>& val);
 	}

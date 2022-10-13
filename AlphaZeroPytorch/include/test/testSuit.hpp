@@ -6,17 +6,23 @@ namespace AlphaZero
 {
 	namespace test
 	{
+    // run all tests
 		void runTests();
 
+      // test agent copying
 		void testCoppying();
+      // test agent saving
 		void testSave();
+      // test alternate jce saving (depricated)
 		void testJCESave();
+      // test loss logger opperation
 		void testLossLog();
-		void testModelData();
+      // test model training
 		void testTraining();
+      // test model evaluation speed
 		void testModelSpeed();
-		void testModelSyncronization();
 
+      // compare two agents by running a bunch of inputs thought them
 		bool compareAgents(std::shared_ptr<ai::Agent> anget1, std::shared_ptr<ai::Agent> anget2);
 		std::shared_ptr<Game::GameState> getRandomState();
 	}

@@ -5,6 +5,7 @@ namespace AlphaZero
 {
 	namespace test
 	{
+      // print collored success messages
 		void printSuccess(bool val);
 	}
 }

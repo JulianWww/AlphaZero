@@ -25,11 +25,10 @@ void AlphaZero::test::playGame(std::shared_ptr<Game::Game> game, std::shared_ptr
 void AlphaZero::ai::train(int version)
 {
 	unsigned short iteration = 0;
-	std::vector<char*> devices = { DEVICES };
 	std::shared_ptr<Memory> memory = std::make_shared<Memory>();
 	std::shared_ptr<Game::Game> game = std::make_shared<Game::Game>();
-	std::shared_ptr<Agent> currentAgent = std::make_shared<Agent>(devices);
-	std::shared_ptr<Agent> bestAgent = std::make_shared<Agent>(devices);
+	std::shared_ptr<Agent> currentAgent = std::make_shared<Agent>(DEVICE);
+	std::shared_ptr<Agent> bestAgent = std::make_shared<Agent>(DEVICE);
 
 	std::vector<int> requiredIterations;
 

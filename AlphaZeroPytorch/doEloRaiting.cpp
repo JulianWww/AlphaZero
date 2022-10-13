@@ -2,6 +2,8 @@
 #include <ai/playGame.hpp>
 #include <math.h> 
 
+
+// calculate the elo rating of a an agent
 void evaluateAgent(int agent, int games, AlphaZero::elo::eloClient const& elo, std::shared_ptr<AlphaZero::ai::Agent> lastAgent, std::shared_ptr<AlphaZero::ai::Agent> currentAgent)
 {
 	std::cout << "evaluating elo for: " << agent << std::endl;
@@ -41,16 +43,17 @@ void evaluateAgent(int agent, int games, AlphaZero::elo::eloClient const& elo, s
 	delete memory;
 }
 
+
+// evaluate all agents
 int main()
 {
-	std::vector<char*> devices = { DEVICES };
-	std::shared_ptr<AlphaZero::ai::Agent> lastAgent = std::make_shared<AlphaZero::ai::Agent>(devices);
-	std::shared_ptr<AlphaZero::ai::Agent> currentAgent = std::make_shared<AlphaZero::ai::Agent>(devices);
+	std::shared_ptr<AlphaZero::ai::Agent> lastAgent = std::make_shared<AlphaZero::ai::Agent>(DEVICE);
+	std::shared_ptr<AlphaZero::ai::Agent> currentAgent = std::make_shared<AlphaZero::ai::Agent>(DEVICE);
 
 	AlphaZero::elo::eloClient elo;
 	std::cout << elo.setElo(0, 100) << std::endl;
 
-	int agent = 409;
+	int agent = 0;
 	while (true)
 	{
 		evaluateAgent(agent, 40, elo, lastAgent, currentAgent);

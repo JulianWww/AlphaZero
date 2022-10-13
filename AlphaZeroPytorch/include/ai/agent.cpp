@@ -15,10 +15,10 @@ std::pair<int, std::vector<float>> AlphaZero::ai::User::getAction(std::shared_pt
 }
 #endif
 
-AlphaZero::ai::Agent::Agent(std::vector<char*> devices)
+AlphaZero::ai::Agent::Agent(const char* device)
 {
 	this->tree = {};
-	this->model = std::make_unique<ModelSynchronizer>(devices);
+	this->model = std::make_unique<Model>(device);
 }
 
 std::pair<int, std::pair<std::vector<int>, float>> AlphaZero::ai::Agent::getAction(std::shared_ptr<Game::GameState> state, bool proabilistic)

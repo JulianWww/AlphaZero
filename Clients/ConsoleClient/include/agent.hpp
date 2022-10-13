@@ -8,16 +8,20 @@
 
 namespace Agents
 {
+    // agent superclass usded to defualt the getAction function
 	class Agent
 	{
 	public: virtual int getAction(std::shared_ptr<AlphaZero::Game::Game> game) = 0;
 	};
+
+    // local user usting cin to get actions
 	class User : public Agent
 	{
 	public: virtual int getAction(std::shared_ptr<AlphaZero::Game::Game> game);
 	private: int subGetAction(std::shared_ptr<AlphaZero::Game::Game> game);
 	};
 
+    // remote Ai communicates with the AI server
 	class RemoteAgent : public Agent
 	{
 	private: sockpp::socket_initializer sockInit;

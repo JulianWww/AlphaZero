@@ -27,31 +27,52 @@ this is the alpha Zero game for connect4
 
 namespace AlphaZero {
 	namespace Game {
+
+    // A Game state as deistcibed in the paper
 		class GameState {
+
+      // the player currently at turn
 		public: int player;
+      // true if the game is done (end game state), false otherwise
 		public: bool done;
+      // reward for this player, points for this player, points for other player
 		public: std::tuple<int, int, int> val;
+      // binary representation of the game board as flattend binary image stacks
 		public: IDType gameBoard;
+      // list of allowed actions
 		public: std::vector<int> allowedActions;
 
 		public: GameState(IDType board, int _player);
 		public: GameState();
+      // initialize gameBoard, player and done
 		private: void initialize(IDType board, int _player);
+      // take an action at a game state and in doing so move to the next one
 		public: std::shared_ptr<GameState> takeAction(int action);
+      // check if the game is done
 		public: void gameIsDone();
+      // calculate allowed actions
 		protected: void getAllowedActions();
+      // convert position within image stack to position within bit array
 		public: int IdIndex(int id);
+      // convert state to Id
 		public: IDType id();
+      // print game state to console or logger
 		public: void render();
 #if (MainLogger || MCTSLogger || MemoryLogger || ProfileLogger || ModelLogger)
 		public: void render(std::shared_ptr<spdlog::logger> logger);
 #endif
+      // set a certain bit to represent placing a stone and auto handle offsets if necesary
 		public: void static IdIndex(int id, int val, IDType& b);
+      // convert board to float tensor
 		public: torch::Tensor toTensor();
 		public: void toTensor(torch::Tensor& tensor, unsigned short idx=0);
+      // convert bit array piece representation to character for printout
 		private: char getPiece(int val);
-		private: std::pair<int, bool> getAllowedColumHeight(int);
+      // calculate the heicht of any colum withing the connect4 game board
+		private: std::pair<int, bool> getAllowedColumHeight(int columIndx);
 		};
+
+    // Custom hashing operation for GameStates
 		struct StateHash
 		{
 			std::size_t operator()(std::pair<std::shared_ptr<GameState>, std::vector<int>> const& s) const noexcept;
@@ -59,18 +80,26 @@ namespace AlphaZero {
 		// optimization function its not a problem if not all are found
 		std::vector<std::pair<std::shared_ptr<AlphaZero::Game::GameState>, std::vector<int>>> identities(std::shared_ptr<GameState> state, std::vector<int>& actionProbs);
 
+      // Game class, for game simulation, uses cycling Game states
 		class Game {
-		public: std::tuple<int, int> BoardShape = { 3,3 };
-		public: std::tuple<int, int, int> inputShape = { 2,3,3 };
-		public: std::shared_ptr<GameState> state;
+
+		//public: std::tuple<int, int> BoardShape = { 3,3 };
+		//public: std::tuple<int, int, int> inputShape = { 2,3,3 };
+		// the current game state
+    public: std::shared_ptr<GameState> state;
 
 		public: Game();
+      // reset to default state
 		public: void reset();
+      // move to next state (position the stone should be placed at)
 		public: void takeAction(int action);
+      // convert human action format to internal and than take actions (human is |a|<7, where a is the action)
 		public: bool takeHumanAction(int action);
+      // render to console for debuging
 		public: void render();
 		};
-
+    
+      // play testing game in console
 		inline void test() {
 			AlphaZero::Game::Game* game = new AlphaZero::Game::Game();
 

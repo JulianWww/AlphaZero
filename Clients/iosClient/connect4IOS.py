@@ -15,6 +15,8 @@ port = 25500
 
 
 def send(data):
+    """connect and communicate with the data server, that is part of the elo server"""
+
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((dataIp, 2551))
     sock.send((-2).to_bytes(4, "little", signed=True))
@@ -27,12 +29,9 @@ def send(data):
     data = pickle.loads(sock.recv(size))
     return data
 
-def reset():
-    send(("connect4", ["game_counter", "tie"], 0))
-    send(("connect4", ["game_counter", "lose"],0))
-    send(("connect4", ["game_counter", "win"], 0))
-
 def sendFull(data, win):
+    """send game log to data server and update counter"""
+
     if win == 1:
         typ = "win"
         
@@ -44,28 +43,32 @@ def sendFull(data, win):
         
     identity = send(("connect4", ["game_counter", typ]))
     send(("connect4", ["games", typ, str(hex(identity))], data))
-    print("id: ", (typ, identity))
     send(("connect4", ["game_counter", typ], identity+1))
 
 class gameLog:
+        """a game logger, logging actions during the game"""
+
         def __init__(self):
                 self.actions = []
 
         def send(self, win):
+                """send the game log to the ai server"""
                 if len(self.actions):
-                        print(win, self.actions)
                         sendFull(self.actions, win)
 
 class game:
+	"""Game class"""
 	def __init__(self):
 		self._reset()
 		self.log = gameLog()
 
 	def reset(self):
+		"""Reset the game to the initial state"""
 		self.log.send(self.win)
 		self._reset()
 				
 	def _reset(self):
+		"""utility function used by reset()"""
 		self.board = [0 for i in range(42)]
 		self.player = 1
 		self.allowedActions = self.getAllowedActions()
@@ -76,13 +79,16 @@ class game:
 				
 	@staticmethod
 	def encodeAction(x, y):
+		"""convert action x,y position to single int action"""
 		return x + 7*y
 			
 	@staticmethod
 	def decodeAction(action):
+		"""encodeAction**(-1)"""
 		return action%7, action//7
 			
 	def getAllowedActions(self):
+		"""get the list of allowed actions"""
 		allowed = []
 		for x in range(7):
 			if (self.board[game.encodeAction(x, 0)] == 0):
@@ -97,6 +103,7 @@ class game:
 		return allowed
 		
 	def takeAction(self, action):
+		"""Try taking an action at a certain state"""
 		if (action in self.allowedActions):
 			self.board[action] = self.player
 			self.isDone = self.getIsDone()
@@ -105,6 +112,7 @@ class game:
 			self.log.actions.append(action)
 		
 	def toServerProtocol(self):
+		"""convert state to server protocol to send it to the server"""
 		out = [0]*85
 		out[-1] = self.player
 		for idx, val in enumerate(self.board):
@@ -115,6 +123,7 @@ class game:
 		return out
 		
 	def getIsDone(self):
+		"""check if the game is done"""
 		if (self.board.count(0) == 0):
 			self.tie = True
 			return True
@@ -129,6 +138,7 @@ class game:
 		return done
 								
 	def render(self):
+		"""render the game state to console"""
 		for idx, val in enumerate(self.board):
 			if val == 0:
 				print("-", end=" ")
@@ -140,32 +150,38 @@ class game:
 				print("")
 
 class Client:
+	"""AI server client"""
 	def __init__(self, ip, port):
 		self.ip = ip
 		self.port = port
 			
 	def connect(self):
+		"""Connect to the AI server"""
 		client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		client_sock.connect((self.ip, self.port))
 		return client_sock
 		
 	@staticmethod
 	def getData(sock, gui):
+		"""get the AI servers action sugestion"""
 		data = sock.recv(8*4)
 		return int.from_bytes(data, "little", signed=True)
 		
 	@staticmethod
 	def sendState(sock, state):
+		"""send the state to the server"""
 		binaryState = Client.stateToBinary(state)
 		sock.send(binaryState)
 		
 	def getAction(self, state, gui):
+		"""run the compleat AI server loop"""
 		sock = self.connect()
 		self.sendState(sock, state.toServerProtocol())
 		return self.getData(sock, gui)
 				
 	@staticmethod
 	def intToBinArr(my_int):
+		"""convert an int array to binary"""
 		out = bytearray()
 		for e in [my_int >> i & 255 for i in (0,8,16,24)]:
 			out.append(e)
@@ -173,6 +189,7 @@ class Client:
 		
 	@staticmethod
 	def stateToBinary(state):
+		"""convert the game state to binary"""
 		out = bytearray()
 		for val  in state:
 			out += Client.intToBinArr(val)
@@ -181,7 +198,9 @@ class Client:
 ai = Client(ip, port)
 
 class Connect4GUI(scene.Scene):
+	"""Connect 4 gui"""
 	def setup(self):
+		"""Run the GUI setup"""
 		self.board = []
 		self.sprites = []
 		self.label = None
@@ -196,6 +215,7 @@ class Connect4GUI(scene.Scene):
 		self.aiThread.start()
 		
 	def reset(self):
+		"""reset after game is compleat"""
 		self.GUIPlayer = getrandbits(1)*2-1
 		self.game.reset()
 		self.lastState = copy(self.game.board)
@@ -208,6 +228,7 @@ class Connect4GUI(scene.Scene):
 				
 		
 	def serverUpdate(self):
+		"""send action to server and update the game and gui"""
 		while True:
 			if (self.GUIPlayer != self.game.player and not self.game.isDone):
 				action = ai.getAction(self.game, self)
@@ -215,6 +236,7 @@ class Connect4GUI(scene.Scene):
 				self.custom_update()
 			
 	def custom_update(self):
+		"""update the gui to match the current state"""
 		if (self.GUIPlayer == self.game.player):
 			self.background_color = "green"
 		else:
@@ -232,6 +254,7 @@ class Connect4GUI(scene.Scene):
 			self.add_child(self.label)
 						
 	def _getPos(self):
+		"""get the maximal x, y size"""
 		size = self.getSize()
 		return size, size
 				
@@ -241,9 +264,10 @@ class Connect4GUI(scene.Scene):
 		return int((x - xSize * 0.5) // xSize), int(5-(y - ySize * 0.5) // ySize)
 				
 	def touch_ended(self, touch):
+		"""get the location of a touch end event"""
 		if (self.game.isDone):
 			self.reset()
-			return;
+			return
 						
 		elif (self.GUIPlayer == self.game.player):
 			x, y = self.touchToPos(touch)
@@ -252,16 +276,19 @@ class Connect4GUI(scene.Scene):
 			self.custom_update()
 				
 	def getPiecePos(self, x, y):
+		"""corralate game postitions to screen position"""
 		xPos = (x+1) * self._getPos()[0]
 		yPos = (6-y) * self._getPos()[1]
 		return xPos, yPos
 			
 	def getSize(self):
+		"""get max size of the display area within the screen"""
 		height = self.size[0]/8
 		weight = self.size[1]/8
 		return min(height, weight)
 		
 	def renderBoard(self):
+		"""render the board to screen"""
 		for y in range(6):
 			for x in range(7):
 				xPos, yPos = self.getPiecePos(x, y)
@@ -274,6 +301,7 @@ class Connect4GUI(scene.Scene):
 				self.board.append(sprite)
 		
 	def renderAllowedActions(self, allowedActions):
+		"""put a spirit on every allowed action"""
 		return
 		size = self.getSize()
 		for idx, sprite in enumerate(self.board):
@@ -284,6 +312,7 @@ class Connect4GUI(scene.Scene):
 			sprite.size = (size, size)
 		
 	def renderPieces(self, state):
+		"""render the pieces on the board to screen"""
 		for x in range(7):
 			for y in range(6):
 				if (state[game.encodeAction(x,y)] != self.lastState[game.encodeAction(x,y)]):

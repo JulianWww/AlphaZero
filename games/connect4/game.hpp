@@ -1,6 +1,6 @@
 #pragma once
 /*
-this is the alpha Zero game for connect4
+see the game file in AlphaZeroPytorch/include/game
 */
 
 #include <iostream>

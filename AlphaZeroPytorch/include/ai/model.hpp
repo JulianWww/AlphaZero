@@ -11,7 +11,6 @@
 #include <jce/string.hpp>
 #include <string>
 #include <cmath>
-#include "modelWorker.hpp"
 #include <jce/save.hpp>
 #include <jce/load.hpp>
 #include <test/testUtils.hpp>
@@ -19,6 +18,7 @@
 
 namespace AlphaZero {
 	namespace ai {
+    // top of the neural networks model stack consisting of a Conv2d, batchNorm and relu layer
 		class TopLayer : public torch::nn::Module {
 		public: torch::nn::Conv2d conv1;
 		public: torch::nn::LayerNorm batch;
@@ -26,9 +26,13 @@ namespace AlphaZero {
 		private: int kernel1;
 
 		public: TopLayer(int inp, int out, int kernelsize1);
+      // evaluate layer
 		public: torch::Tensor forward(torch::Tensor);
+      // move to specific device
 		public: void moveTo(c10::Device device);
 		};
+
+    // residual block as consisting of 2 conv2d, 2 batchnorms, and leaky relu
 		class ResNet : public torch::nn::Module {
 		public: torch::nn::Conv2d conv1, conv2;
 		public: torch::nn::LayerNorm batch, batch2;
@@ -36,10 +40,13 @@ namespace AlphaZero {
 		private: int kernel1, kernel2;
 
 		public: ResNet(int inp, int out, int kernelsize1, int kernelsize2);
+      // evaluate layer
 		public: torch::Tensor forward(torch::Tensor);
+      // move to specific device
 		public: void moveTo(c10::Device device);
 		};
 
+    // value head see paper for details
 		class Value_head : torch::nn::Module {
 		private: bool isSecondRun = false;
 		private: torch::Tensor tmpX;
@@ -55,6 +62,7 @@ namespace AlphaZero {
 		public: void moveTo(c10::Device device);
 		};
 
+    // policy head, see paper for details
 		class Policy_head : torch::nn::Module {
 		public: torch::nn::Conv2d conv;
 		public: torch::nn::Linear lin1;
@@ -70,42 +78,49 @@ namespace AlphaZero {
 		typedef torch::optim::SGD Optimizer;
 		typedef torch::optim::SGDOptions OptimizerOptions;
 
+    // fully assembled model and some utils functions see paper for nn structure
 		class Model : public torch::nn::Module {
-			//private: torch::nn::Conv2d headLayer;
 		private: TopLayer top;
 		private: ResNet res1, res2, res3, res4, res5, res6;
 		private: Value_head value_head;
 		private: Policy_head policy_head;
 
-		private: char* device;
+		private: const char* device;
 
 		private: Loss loss;
 		private: Optimizer optim;
 
-		public: Model(char* device);
+		public: Model(const char* device);
 		public: std::pair<torch::Tensor, torch::Tensor> forward(torch::Tensor);
+
+      // perform one training step
 		public: std::pair<float, float> train(const std::pair<torch::Tensor, torch::Tensor>& x, const std::pair<torch::Tensor, torch::Tensor>& y);
 
+      // predict model state for MCTS
 		public: std::pair<float, torch::Tensor>predict(std::shared_ptr<Game::GameState> state);
+      // get batch from model
 		public: static std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> getBatch(std::shared_ptr<Memory> memory, unsigned int batchSize);
-		public: void predict(ModelData* data);
-		public: void predict(std::list<ModelData*> data);
-		public: void fit(const std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>& batch, const unsigned short& run, const unsigned short& trainingLoop);
+      // fit batch with training loops and epochs
+    public: void fit(const std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>& batch, const unsigned short& run, const unsigned short& trainingLoop);
 
+      // functions to save the model
 		public: void save_version(unsigned int version);
 		public: void save_as_current();
 		public: void save_to_file(char* filename);
 		public: void jce_save_current(char* filename);
 
+      // functions to load the model
 		public: void load_version(unsigned int version);
 		public: void load_current();
 		public: void load_from_file(char* filename);
 		public: void jce_load_from_file(char* filename);
 
+      // functions to copy the model and to move to other device
 		public: void copyModel(Model*);
 		private: void copyParameters(torch::OrderedDict<std::string, torch::Tensor> prams);
 		public: void moveTo(c10::Device device);
 
+      // custom layer resigtering methods.
 		private: TopLayer register_custom_module(TopLayer net);
 		private: ResNet register_custom_module(ResNet net, std::string layer);
 		private: Value_head register_custom_module(Value_head net);
@@ -119,7 +134,7 @@ namespace AlphaZero {
 #define randomModel false
 #define convSize 5
 
-inline AlphaZero::ai::Model::Model(char* _device) :
+inline AlphaZero::ai::Model::Model(const char* _device) :
 	top(this->register_custom_module(TopLayer(2, 75, convSize))),
 	res1(this->register_custom_module(ResNet(75, 75, convSize, convSize), "Residual_1")),
 	res2(this->register_custom_module(ResNet(75, 75, convSize, convSize), "Residual_2")),
@@ -328,59 +343,6 @@ inline std::pair<float, torch::Tensor> AlphaZero::ai::Model::predict(std::shared
 	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
 	float value = NNOut.first[0].item<float>();
 	return { value, NNOut.second };
-}
-
-inline void AlphaZero::ai::Model::predict(ModelData* data)
-{
-	torch::Tensor NNInput = data->node->state->toTensor().to(c10::Device(this->device));
-	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput);
-
-	torch::Tensor mask = torch::ones(
-		{ 1, action_count },
-		c10::TensorOptions().device(c10::Device("cpu")).dtype(at::kBool)
-	);
-
-	for (auto idx : data->node->state->allowedActions)
-	{
-		mask[0][idx] = false;
-	}
-	//std::cout << std::endl << NNOut.first << std::endl << NNOut.second << std::endl;
-	data->value = NNOut.first[0].item<float>();
-	data->polys = torch::softmax(torch::masked_fill(NNOut.second.cpu(), mask, -1000.0f), 1)[0];
-}
-
-inline void AlphaZero::ai::Model::predict(std::list<ModelData*> data)
-{
-	torch::Tensor NNInput = torch::zeros({ (int)data.size(), input_snape_z, input_shape_y, input_shape_x });
-	torch::Tensor mask = torch::ones(
-		{ (int)data.size(), action_count },
-		c10::TensorOptions().device(c10::Device("cpu")).dtype(at::kBool)
-	);
-	auto iter = data.begin();
-	for (unsigned short idx = 0; idx < data.size(); idx++)
-	{
-		NNInput[idx] = (*iter)->node->state->toTensor()[0];
-		for (auto action : (*iter)->node->state->allowedActions)
-		{
-			mask[idx][action] = false;
-		}
-		iter++;
-	}
-
-	std::pair<torch::Tensor, torch::Tensor> NNOut = this->forward(NNInput.to(c10::Device(this->device)));
-
-	//std::cout << std::endl << NNOut.first << std::endl << NNOut.second << std::endl;
-	mask = mask.to(c10::Device(this->device));
-
-	auto soft = torch::softmax(torch::masked_fill(NNOut.second, mask, -1000.0f), 1).cpu();
-
-	iter = data.begin();
-	for (unsigned int idx = 0; idx < data.size(); idx++)
-	{
-		(*iter)->value = NNOut.first[idx].item<float>();
-		(*iter)->polys = soft[idx];
-		iter++;
-	}
 }
 
 inline std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> AlphaZero::ai::Model::getBatch(std::shared_ptr<Memory> memory, unsigned int batchSize)

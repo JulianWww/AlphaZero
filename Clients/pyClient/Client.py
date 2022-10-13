@@ -61,6 +61,7 @@ class RemoteClient(DummyAgent):
         return out
 
     def updateElo(self, win):
+        """update the elo rating of the humand on the elo server"""
         otherElo = gameSaver.getElo(self.version)
         myElo = gameSaver.getMyElo()
         print(myElo, otherElo)
@@ -72,6 +73,7 @@ class RemoteClient(DummyAgent):
         print("your new elo is: ", newElo)
 
 class GameReplayAgent(DummyAgent):
+    """agent used to show game replays"""
     def __init__(self, end, key, file):
         self.actions = gameSaver.send(
             (file, ["games", end, str(hex(key))])
@@ -79,6 +81,7 @@ class GameReplayAgent(DummyAgent):
         self.iterator = 0
 
     def getAction(self, state):
+        """get action from replayer"""
         action = self.actions[self.iterator]
         self.iterator += 1
         return action

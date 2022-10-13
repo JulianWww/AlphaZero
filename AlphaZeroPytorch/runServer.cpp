@@ -3,7 +3,7 @@
 #include <game/game.hpp>
 
 
-
+// start and run the Test Or AI server
 int main()
 {
 #if OPSMode == 1

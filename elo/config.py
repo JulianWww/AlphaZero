@@ -1,0 +1,2 @@
+PATH = ""
+GAMES = ["connect4"]

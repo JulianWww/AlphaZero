@@ -1,6 +1,7 @@
 import socket
 import pickle
 from requests import get as wget
+from json import loads as json_loads
 
 class DummyClient():
     @staticmethod
@@ -11,12 +12,26 @@ class DummyClient():
             out.append(e)
         return out
 
+def getIPData():
+  return json_loads(wget("https://wandhoven.ddns.net/code/AlphaZero").content)
+
+def getDataIp():
+  """get Ip of the data server"""
+  return getIPData()["DataServer"]
+
+def getAiIp():
+  """get ip of the ai server"""
+  return getIPData()["AiServer"]
+
 def connect():
+    """connect to the data server"""
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((wget("http://wandhoven.ddns.net/code/AlphaZero/dataIP.txt").content, 2551))
+    print(getDataIp())
+    sock.connect((getDataIp(), 2551))
     return sock
 
 def send(data):
+    """send dat to the data server"""
     sock = connect()
     
     sock.send((-2).to_bytes(4, "little", signed=True))
@@ -30,6 +45,7 @@ def send(data):
     return data
 
 def getClientWithClosestElo(account):
+    """get the client with the closest elo to self"""
     myElo = send(("accounts", ["elos", str(account)]))
     sock = connect()
 
@@ -40,6 +56,7 @@ def getClientWithClosestElo(account):
     return other
 
 def getMyElo():
+    """get the elo of the human"""
     account = getAccount()
     myElo = send(("accounts", ["elos", str(account)]))
     if myElo < 100:
@@ -47,6 +64,7 @@ def getMyElo():
     return myElo
 
 def setMyElo(elo):
+    """set User Elo"""
     account = getAccount()
     myElo = send(("accounts", ["elos", str(account)], elo))
     if myElo < 100:
@@ -54,6 +72,7 @@ def setMyElo(elo):
     return myElo
 
 def getElo(account):
+    """get elo of an account"""
     sock = connect()
 
     sock.send(int(1).to_bytes(4, "little", signed=True))
@@ -62,12 +81,6 @@ def getElo(account):
     other = int.from_bytes(sock.recv(4), "little", signed=True)
     return other
 
-
-def reset():
-    send(("accounts", ["accountId"], -10))
-    send(("connect4", ["game_counter", "tie"], 0))
-    send(("connect4", ["game_counter", "lose"],0))
-    send(("connect4", ["game_counter", "win"], 0))
 
 def sendFull(data, win):
     if win == 1:

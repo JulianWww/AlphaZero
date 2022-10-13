@@ -6,6 +6,7 @@
 
 namespace AlphaZero {
 	namespace ai {
+    // class containing game data to avoid using tuples
 		struct gameOutput
 		{
 			std::unordered_map<Agent*, int> map;
@@ -13,13 +14,17 @@ namespace AlphaZero {
 			gameOutput(Agent*, Agent*);
 			void updateValue(Agent*);
 		};
-
+      // run training loop consisting of loading and setting up everything, generating data, training, and tourney
 		void train(int);
+
+      // play games between players
 		void playGames(gameOutput* output, Agent* agent1, Agent* agent2, Memory* memory, int probMoves, int Epochs, char RunId[], int goesFist = 0, bool log = false);
 
+      // create threads that run the playGames function
 		std::unordered_map<Agent*, int> playGames_inThreads(Game::Game* game, Agent* agent1, Agent* agend2, Memory* memory, int probMoves, int Epochs, int Threads, char RunId[], int goesFirst = 0, bool log = false);
 	}
 	namespace test {
+    // run testing Game
 		void playGame(std::shared_ptr<Game::Game> game, std::shared_ptr<ai::Agent> player1, std::shared_ptr<ai::Agent>player2, int goesFirst=0);
 	}
 }

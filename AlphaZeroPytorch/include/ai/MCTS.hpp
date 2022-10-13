@@ -24,41 +24,65 @@ namespace AlphaZero {
 		public: float W = 0;
 			  // the win probability
 		public: float Q = 0;
+
+      // node pointing from
 		public: Node* outNode;
+
+      // node pointing to
 		public: Node* inNode;
+
 		public: Edge(Node* outNode, Node* inNode, int action, float p);
 		public: Edge();
+
+      // call N++
 		public: void traverse();
 		};
 
 		class Node {
-			// mutex locking the during insersion of edges and also used as the child edges mutex
-		//public: std::mutex lock;
+       
+       // pointer to the asociated game state
 		public: std::shared_ptr<Game::GameState> state;
+
+      // hashmap of actions to edges
 		public: std::unordered_map<int, Edge> edges;
 		public: Node(std::shared_ptr<Game::GameState>);
+
+      // returns edges.size() == 0
 		public: bool isLeaf();
+
+     // add an edge tot the Node
 		public: void addEdge(int id, Edge& edge);
 		};
 
 		std::vector<float> getQ(Node*);
 
 		class MCTS {
-			// mutex keeping corrupion within the Tree from occuring when new nodes are added
-		// public: std::mutex NodeInsersionMutex;
-			// mutex keeping corrupion of the MCTSIter variable
-		// public: std::mutex MCTSIterMutex;
+      // iteration counter
 		public: unsigned short MCTSIter = 0;
+
+      // hash map containing the nodes using their states id's as keys
 		private: std::unordered_map<IDType, std::unique_ptr<Node>> MCTS_tree;
 
-			   // add 1 to MCTSIter within a mutex
+      // MCTSIter ++
 		public: void addMCTSIter();
 		public: MCTS();
+
+      // configurational constant cpuct;
 		public: float cpuct = cpuct_;
+
+      // find leaf node from root node using the selection descriped in the paper
 		public: std::pair <Node*, std::list<Edge*>> moveToLeaf(Node*);
+
+      // update all traversed edges
 		public: void backFill(std::list<Edge*>&, Node* leaf, float val);
+
+      // get node by ID hash
 		public: Node* getNode(IDType);
+
+      // add a node if necaray and call getNode;
 		public: Node* addNode(std::shared_ptr<Game::GameState> state);
+
+      // reset to original state;
 		public: void reset();
 		};
 	}
@@ -76,9 +100,7 @@ inline std::vector<float> AlphaZero::ai::getQ(Node* node)
 
 inline void AlphaZero::ai::MCTS::addMCTSIter()
 {
-	// this->MCTSIterMutex.lock();
 	MCTSIter++;
-	// this->MCTSIterMutex.unlock();
 }
 
 inline bool AlphaZero::ai::Node::isLeaf()
@@ -88,9 +110,7 @@ inline bool AlphaZero::ai::Node::isLeaf()
 
 inline void AlphaZero::ai::Node::addEdge(int id, Edge& edge)
 {
-	// this->lock.lock();
 	this->edges.insert({ id, edge });
-	// this->lock.unlock();
 }
 
 inline AlphaZero::ai::MCTS::MCTS(){}
@@ -99,18 +119,14 @@ inline AlphaZero::ai::Node* AlphaZero::ai::MCTS::addNode(std::shared_ptr<Game::G
 {
 	if (this->MCTS_tree.count(state->id()) == 0) {
 
-		// this->NodeInsersionMutex.lock();
 		this->MCTS_tree.insert({ state->id(), std::make_unique<Node>(state)});
-		// this->NodeInsersionMutex.unlock();
 	}
 	return this->getNode(state->id());
 }
 
 inline void AlphaZero::ai::MCTS::reset()
 {	
-	// this->NodeInsersionMutex.lock();
 	this->MCTS_tree.clear();
-	// this->NodeInsersionMutex.unlock();
 }
 
 inline AlphaZero::ai::Node* AlphaZero::ai::MCTS::getNode(IDType key)
@@ -121,7 +137,5 @@ inline AlphaZero::ai::Node* AlphaZero::ai::MCTS::getNode(IDType key)
 
 inline void AlphaZero::ai::Edge::traverse()
 {
-	// this->inNode->lock.lock();
 	this->N++;
-	// this->inNode->lock.unlock();
 }

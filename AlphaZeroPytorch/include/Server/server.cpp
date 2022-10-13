@@ -11,8 +11,7 @@
 
 std::shared_ptr<spdlog::logger> logger = debug::log::createLogger("ServerLogger", "logs/c++/Server.log");
 
-std::vector<char*> devices = { DEVICES };
-std::shared_ptr<AlphaZero::ai::Agent> agent = std::make_shared<AlphaZero::ai::Agent>(devices);
+std::shared_ptr<AlphaZero::ai::Agent> agent = std::make_shared<AlphaZero::ai::Agent>(DEVICE);
 
 inline void AlphaZero::Server::TCPServer::evaluate(sockpp::tcp_socket& sock) {
 	ssize_t n;

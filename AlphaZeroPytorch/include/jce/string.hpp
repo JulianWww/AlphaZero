@@ -5,6 +5,8 @@ namespace jce
 {
     namespace consoleUtils
     {
+        // render a progress bar to screen, copied from the JCE reposetory to avoid adding it as a library dependency
+        // JCE: https://github.com/JulianWww/JCE
         void render_progress_bar(float progress, bool persistand = false);
     }
 }

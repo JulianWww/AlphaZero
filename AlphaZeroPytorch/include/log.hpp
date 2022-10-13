@@ -25,6 +25,7 @@
 namespace debug {
 #if ProfileLogger
 	namespace Profiler {
+     // Profiler used to calculate the time spent on all action categories (see printout)
 		class MCTSProfiler {
 		private: utils::Timer timer;
 		public: std::unordered_map<unsigned int, double> times;
@@ -43,26 +44,37 @@ namespace debug {
 	};
 #endif
 	namespace log {
+    // create new Logger
 		std::shared_ptr<spdlog::logger> createLogger(const char* name, const char* file);
+
+    // write vectors to logger
 		template<typename T>
 		void logVector(std::shared_ptr<spdlog::logger> logger, std::vector<T>, char out[]);
 		void logVector(std::shared_ptr<spdlog::logger> logger, std::vector<int>);
 		void logVector(std::shared_ptr<spdlog::logger> logger, std::vector<float>);
 
+      // logger used for loss
 		class lossLogger
 		{
 		public: lossLogger();
 		public: lossLogger(const char file[]);
-
+      // list of losses by batch
 		protected: std::vector<std::vector<std::pair<float, float>>> vals;
 
+      // add a Value to the logger
 		public: void addValue(const float val, const float poly);
 		public: void addValue(const std::pair<float, float>& val);
+      // create new bacth and switch writing position
 		public: void newBatch();
+
+      // save logger to file
 		public: void save(const char file[]);
 
+      // custom index opperation used to index using pairs
 		public: std::pair<float, float> operator[](std::pair<size_t, size_t> idx) const;
+      // normal overloat to not overwrite
 		public: std::vector<std::pair<float, float>> operator[](size_t idx) const;
+      // compare for testing
 		public: bool operator==(const lossLogger&);
 		};
 

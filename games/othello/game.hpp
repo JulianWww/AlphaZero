@@ -1,6 +1,6 @@
 #pragma once
 /*
-this is the alpha Zero game for Orthello
+see the game file in AlphaZeroPytorch/include/game but modified for Orthello, the functions are self-explanatory
 */
 
 #include <iostream>

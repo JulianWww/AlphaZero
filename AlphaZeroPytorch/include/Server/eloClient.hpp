@@ -12,11 +12,16 @@ namespace AlphaZero
 {
 	namespace elo
 	{
+    // class used to communicate with the python elo data server,
 		class eloClient
 		{
+      // update the elo rating using the traditional method
 		public: int send(int agent1, int agent2, int win) const;
+      // set the elo rating of an agent
 		public: int setElo(int agent1, int eloRating) const;
+      // get the elo rating of a certian agent
 		public: int getElo(int agent1) const;
+      // get the agent with the closest elo
 		public: int getAgentWithClosestElo(int eloVal) const;
 		};
 	}

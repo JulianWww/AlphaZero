@@ -8,7 +8,7 @@
 #include <thread>
 #include "makeFiles.hpp"
 
-
+// load everything and start training
 int main(int argc, char ** argv)
 {
 	/*std::ofstream out("out.txt");
@@ -27,11 +27,7 @@ int main(int argc, char ** argv)
 	{
 		std::cout << "\33[1;31mWarning: cuDNN is unavailable, consider using a CUDA enabled GPU\33[0m" << std::endl;
 	}
-	std::vector<char*> devices = { DEVICES };
-	for (auto const& device : devices)
-	{
-		std::cout << device << ", ";
-	}
+  std::cout << "running on" << DEVICE << std::endl;
 
 	std::cout << std::endl << "started training" << std::endl;
 	createFolders();

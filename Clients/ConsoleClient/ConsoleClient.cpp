@@ -5,7 +5,7 @@
 #include <agent.hpp>
 
 using namespace std;
-
+// play a game betwean two agents
 void playGame(std::shared_ptr<Agents::Agent>agent1, std::shared_ptr<Agents::Agent>agent2, std::shared_ptr<AlphaZero::Game::Game>game)
 {
 	while (!game->state->done)
@@ -26,6 +26,7 @@ void playGame(std::shared_ptr<Agents::Agent>agent1, std::shared_ptr<Agents::Agen
 	}
 }
 
+// call the play game function
 int main()
 {
 	auto game = std::make_shared<AlphaZero::Game::Game>();
