@@ -3,7 +3,8 @@ from json import dump as json_dump
 from config import PATH, GAMES
 
 def createFileIfNecesary(filename, content):
-  """create a file in dat if necesary"""
+  """create a file in data if necesary"""
+  os.mkdir(os.path.join(PATH, "data"))
   filename = os.path.join("data", filename)
   _createFileIfNecesary(filename, content)
 
