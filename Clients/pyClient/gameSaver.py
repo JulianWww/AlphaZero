@@ -13,7 +13,7 @@ class DummyClient():
         return out
 
 def getIPData():
-  return json_loads(wget("https://wandhoven.ddns.net/code/AlphaZero").content)
+  return json_loads(wget("https://wandhoven.ddns.net/code/AlphaZero.json").content)
 
 def getDataIp():
   """get Ip of the data server"""
