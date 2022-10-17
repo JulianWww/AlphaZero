@@ -4,7 +4,10 @@ from config import PATH, GAMES
 
 def createFileIfNecesary(filename, content):
   """create a file in data if necesary"""
-  os.mkdir(os.path.join(PATH, "data"))
+  try:
+  	os.mkdir(os.path.join(PATH, "data"))
+  except:
+  	pass
   filename = os.path.join("data", filename)
   _createFileIfNecesary(filename, content)
 

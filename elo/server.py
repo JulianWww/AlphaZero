@@ -154,4 +154,5 @@ if __name__ == "__main__":
     while True:
         try:
             server = Server()
-        except: pass
+        except Exception as e: 
+        	print(e)
