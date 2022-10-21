@@ -91,7 +91,7 @@ class Server:
 
         if data[0] == -1:
             closest = None
-            idx = list(self.agents.keys())[0]
+            idx = -1
             for _idx, agent in self.agents.items():
                 if (_idx > 0):
                     if closest is None:
@@ -152,7 +152,4 @@ class Server:
 if __name__ == "__main__":
     setup()
     while True:
-        try:
             server = Server()
-        except Exception as e: 
-        	print(e)

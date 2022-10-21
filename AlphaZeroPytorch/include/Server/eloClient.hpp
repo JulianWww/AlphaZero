@@ -6,7 +6,7 @@
 
 
 #define ELO_PORT 2551
-#define ELO_IP "wandhoven.ddns.net"
+#define ELO_IP "localhost"
 
 namespace AlphaZero
 {
