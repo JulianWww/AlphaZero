@@ -1,7 +1,6 @@
 ﻿// ConsoleClient.cpp : Defines the entry point for the application.
 //
 
-#include "ConsoleClient.h"
 #include <agent.hpp>
 
 using namespace std;
