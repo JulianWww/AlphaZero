@@ -1,9 +1,15 @@
-﻿# CMakeList.txt : Top-level CMake project file, do global configuration
-# and include sub-projects here.
-#
+project(AlphaZeroConsoleClient)
+
+set (CMAKE_CXX_STANDARD 23)
 cmake_minimum_required (VERSION 3.8)
 
-project ("AlphaZeroPytorch")
+file(GLOB Files
+	"scr/*"
+    "inlcude/*"
+)
 
-# Include sub-projects.
-add_subdirectory ("AlphaZeroPytorch")
+find_library(sockpp_location sockpp "/" REQUIRED)
+
+add_executable (ConsoleClient "ConsoleClient.cpp" ${Files})
+target_link_libraries(ConsoleClient PRIVATE ${sockpp_location})
+target_include_directories(ConsoleClient PUBLIC "include/")
