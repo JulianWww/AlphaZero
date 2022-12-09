@@ -18,7 +18,7 @@ $ cmake .. & make
 In order to train the AI use the ``train`` excecutable provided by AlphaZeroPytorch
 ### Run Tests
 In order to run the test suite use the ``runTest`` excecutable provided by AlphaZeroPytorch
-### Run Ai server
+### Run AI Server
 In order to run the test suite use the ``runServer`` excecutable provided by AlphaZeroPytorch
 
 ### Build elo Ratings
