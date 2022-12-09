@@ -9,10 +9,6 @@ Build and Install the following libraries according to there installation instru
 * Pytorch will automatically be installed
 
 ```
-$ git clone https://github.com/JulianWww/AlphaZero
-$ cd AlphaZero/AlphaZeroPytorch
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make
+$ git clone https://github.com/JulianWww/AlphaZero && cd AlphaZero/AlphaZeroPytorch && mkdir build && cd build
+$ cmake .. & make
 ```
