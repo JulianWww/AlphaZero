@@ -5,7 +5,7 @@ Server baised alpha Zero server and client.
 Build and Install the following libraries according to there installation instructuions provided in there README.md
 * [spdlog](https://github.com/gabime/spdlog#Install)
 * [sockpp](https://github.com/fpagliughi/sockpp#Building-the-Library)
-* Optionally install CUDA 11.3+
+* Optionally install CUDA 11.3+ (if installed cuDNN is also required)
 * Pytorch will automatically be installed
 
 ```
