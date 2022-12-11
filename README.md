@@ -12,6 +12,7 @@ Build and Install the following libraries according to there installation instru
 $ git clone https://github.com/JulianWww/AlphaZero && cd AlphaZero/AlphaZeroPytorch && mkdir build && cd build
 $ cmake .. & make
 ```
+before compiling switch branch to the ``working`` branch. (main is broken at the moment)
 
 ## Available Programs
 ### Training the AI
