@@ -6,13 +6,14 @@ Build and Install the following libraries according to there installation instru
 * [spdlog](https://github.com/gabime/spdlog#Install)
 * [sockpp](https://github.com/fpagliughi/sockpp#Building-the-Library)
 * Optionally install CUDA 11.3+ (if installed cuDNN is also required)
-* Pytorch will automatically be installed
+* download and extract pytorch from https://pytorch.org/
 
+* Clone this reposetory and switch to the working branch as main is currently broken.
+* Compile code in ``AlphaZeroPytorch`` using ``cmake``. like so
 ```
-$ git clone https://github.com/JulianWww/AlphaZero && cd AlphaZero/AlphaZeroPytorch && mkdir build && cd build
-$ cmake .. & make
+cmake /your/AlphaZeroPytorch/Path -DCMAKE_PREFIX_PATH=your/pytorch/path
 ```
-before compiling switch branch to the ``working`` branch. (main is broken at the moment)
+* build with cmake
 
 ## Available Programs
 ### Training the AI
