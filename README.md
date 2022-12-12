@@ -8,6 +8,8 @@ Build and Install the following libraries according to there installation instru
 * Optionally install CUDA 11.3+ (if installed cuDNN is also required)
 * download and extract pytorch from https://pytorch.org/
 
+Then compile as follows
+
 * Clone this reposetory and switch to the working branch as main is currently broken.
 * Compile code in ``AlphaZeroPytorch`` using ``cmake``. like so
 ```
