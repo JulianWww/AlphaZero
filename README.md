@@ -27,3 +27,9 @@ In order to run the test suite use the ``runServer`` excecutable provided by Alp
 
 ### Build elo Ratings
 In order to build the elo ratings of the various agens use the ``eloRaiting`` excecutable provided by AlphaZeroPytorch note that the elo server must be running. It is located in the ``elo`` directory and can be run with ```python3 server.py```
+
+## Running the Client
+We recomend using the ``pyClient`` located inside the ``Clients`` folder as the other two are ether console only ore designed for IOS. In order to run the pyClient navigate into ``Clients/pyClient`` and run the ``main.py`` file with python3.
+
+Note:
+``pyClient`` requires both ``PIL`` and ``tkinter``
