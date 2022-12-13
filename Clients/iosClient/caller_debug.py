@@ -1,3 +1,5 @@
+#debug version of the caller
+
 import requests
-code = requests.get("https://github.com/JulianWww/AlphaZero/blob/main/Clients/iosClient/connect4IOS.py").content
+code = requests.get("https://raw.githubusercontent.com/JulianWww/AlphaZero/main/Clients/iosClient/connect4IOS_d.py").content
 exec(code)

@@ -13,5 +13,11 @@ int main(int argc, char ** argv)
 	saver.load("test.bin");
 	saver.ConsoleReplay(0);
 #endif
+#if LossLogger
+	debug::log::lossLogger loss("logs/games/loss.bin");
+	std::ofstream out("logs/games/loss.json");
+	loss.render(out);
+	out.close();
+#endif
 	return 1;
 }

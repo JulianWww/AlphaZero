@@ -7,7 +7,7 @@ from time import time, sleep
 import pickle
 from tkinter import simpledialog
 from requests import get as wget
-import gameSaver
+from gameSaver import getAiIp
 
 
 def render(agents, game):
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     doReplay = False
     replayer = GameReplayAgent("win", 3, "connect4")
     while True:
-        ip = wget("http://wandhoven.ddns.net/code/AlphaZero/connect4ServerIP.txt").content
+        ip = getAiIp()
         game = Game()
         gui = GUI(game.board, game, replayer if doReplay else None)
         client =  gui if doReplay else RemoteClient(ip, Game.port)

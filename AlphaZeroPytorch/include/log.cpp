@@ -54,6 +54,35 @@ void debug::log::lossLogger::save(const char file[])
 	out.close();
 }
 
+void debug::log::lossLogger::render(std::ostream& out) {
+	bool first = true;
+	out << "[";
+	for (std::vector<std::pair<float, float>> set : this->vals) {
+		if (set.size() > 0) {
+			if (first) {
+				first = false;
+			}
+			else {
+				out << ",";
+			}
+			out << "\n\t[";
+
+			bool lossFirst = true;
+			for (std::pair<float, float> loss : set) {
+				if (lossFirst) {
+					lossFirst = false;
+				}
+				else {
+					out << ",";
+				}
+				out << "\n\t\t[" << loss.first << ", " << loss.second << "]";
+			}
+			out << "\n\t]";
+		}
+	}
+	out << "\n]\n";
+}
+
 bool debug::log::lossLogger::operator==(const lossLogger& other)
 {
 	if (other.vals.size() == this->vals.size())

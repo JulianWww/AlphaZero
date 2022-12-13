@@ -43,7 +43,7 @@ file(GLOB TEST_SOURCE
 
 # Add source to this project's executable.
 add_executable (train "AlphaZeroPytorch.cpp" "AlphaZeroPytorch.h" ${SOURCES_Files} ${HEADER_Files})
-add_executable (GameReplayer "Replay.cpp" "include/game/game.cpp" "include/config.cpp")
+add_executable (GameReplayer "Replay.cpp" "include/game/game.cpp" "include/config.cpp" "include/log.cpp")
 add_executable (runTest "test.cpp" ${TEST_SOURCE} ${SOURCES_Files})
 add_executable (runServer "runServer.cpp" ${SOURCES_Files} ${SERVER_Files})
 add_executable (convert "convertToJceFormat.cpp" "include/ai/modelWorker.cpp" "${OUTER_Files}")

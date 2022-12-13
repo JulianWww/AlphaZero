@@ -352,6 +352,7 @@ AlphaZeroPytorch/CMakeLists.txt
 AlphaZeroPytorch/CMakeSettings.json
 AlphaZeroPytorch/out/build/x64-Debug/.ninja_deps
 AlphaZeroPytorch/out/*
+AlphaZeroPytorch/build/
 *.exe
 *.exp
 *.lib
@@ -375,6 +376,8 @@ Clients/ConsoleClient/out/*
 AlphaZeroPytorch/enc_temp_folder/f8108be5203dc8f8b0301f5c9e7e152d/model.hpp
 *.p
 *.jce
+Alpha
 elo/elos.json
 elo/elos.json
 test/linearRegression.py
+AlphaZeroPytorch/.vscode/settings.json

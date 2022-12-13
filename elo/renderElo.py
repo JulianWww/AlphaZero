@@ -1,3 +1,5 @@
+"""Render the elos.json file"""
+
 import json
 import matplotlib.pyplot as plt
 import numpy as np
@@ -5,7 +7,12 @@ import numpy as np
 deltaElo = 105
 
 with open("elos.json", "r") as file:
-    vals = json.load(file)
+    tmp = json.load(file)
+
+vals = {}
+for key, elo in tmp:
+  if key >= 0:
+    vals[key] = elo
 
 elos = np.array([x for x in vals.values()])
 expected = [100 + deltaElo * int(idx) for idx in vals.keys()]

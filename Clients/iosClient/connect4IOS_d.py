@@ -1,3 +1,5 @@
+# debug version of connect4IOS.py
+
 import scene, socket, requests, pickle
 from random import getrandbits
 from copy import copy
@@ -283,7 +285,7 @@ class Connect4GUI(scene.Scene):
 			sprite.size = (size, size)
 		
 	def renderPieces(self, state):
-		for x in range(7):
+    for x in range(7):
 			for y in range(6):
 				if (state[game.encodeAction(x,y)] != self.lastState[game.encodeAction(x,y)]):
 					xPos, yPos = self.getPiecePos(x, y)

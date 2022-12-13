@@ -18,6 +18,7 @@
 #endif
 #include <stdio.h>
 #include <chrono>
+#include <iostream>
 #if (MainLogger || MCTSLogger || MemoryLogger || ProfileLogger || ModelLogger || LossLogger)
 
 
@@ -64,6 +65,7 @@ namespace debug {
 		public: std::pair<float, float> operator[](std::pair<size_t, size_t> idx) const;
 		public: std::vector<std::pair<float, float>> operator[](size_t idx) const;
 		public: bool operator==(const lossLogger&);
+		public: void render(std::ostream& out);
 		};
 
 #if MainLogger

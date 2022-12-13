@@ -1,7 +1,4 @@
 #pragma once
-/*
-this is the alpha Zero game for tick tack toe
-*/
 
 #include <iostream>
 #include <vector>
@@ -11,6 +8,8 @@ this is the alpha Zero game for tick tack toe
 #include <unordered_map>
 #include <bitset>
 #include <unordered_set>
+
+// reduced version of the game.hpp class in AlphaZeroPytorch/include/ai/game
 
 #define input_shape_x 6
 #define input_shape_y 7

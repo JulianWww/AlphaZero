@@ -2,6 +2,7 @@ def getElo(agent1, agent2):
     return 1/(1+10**((agent2.elo - agent1.elo)/400))
 
 class Score:
+    """simple score counter"""
     def __init__(self):
         self.score = 0
 
@@ -15,6 +16,7 @@ class Score:
         pass
 
 class PredictedScores:
+    """score prediction using elo forward function"""
     def __init__(self):
         self.score = 0
 
