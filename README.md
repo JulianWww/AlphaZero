@@ -32,4 +32,4 @@ In order to build the elo ratings of the various agens use the ``eloRaiting`` ex
 We recomend using the ``pyClient`` located inside the ``Clients`` folder as the other two are ether console only or designed for IOS. In order to run the pyClient navigate into ``Clients/pyClient`` and run the ``main.py`` file with python3.
 
 Note:
-``pyClient`` requires both ``PIL`` and ``tkinter``
+``pyClient`` requires both ``PIL`` (With ``TkImage``) and ``tkinter``.
