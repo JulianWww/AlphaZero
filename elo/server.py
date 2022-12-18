@@ -21,7 +21,10 @@ class Server:
             sock = self.serverSock.accept()[0]
             data = Server.getData(sock)
             if (data[0] == 1):
-                self.update_elo(data[1], sock)
+            	try:
+                	self.update_elo(data[1], sock)
+            	except Exception as e:
+                	print(e)
             elif (data[0] == 2):
                 out = pickle.dumps(self.update_data(data[1]))
 

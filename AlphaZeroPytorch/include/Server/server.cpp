@@ -31,7 +31,8 @@ inline void AlphaZero::Server::TCPServer::evaluate(sockpp::tcp_socket& sock) {
 	}
 	catch (...)
 	{
-		agent->model->load_current();
+		std::cout << "playing current model effectivly 106" << std::endl;
+		agent->model->load_version(106);
 	}
 
 	auto actionData = agent->getAction(state, false);

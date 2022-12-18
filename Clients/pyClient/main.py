@@ -46,7 +46,7 @@ def run(game, agent1, agent2, gui):
 
 def getAgents(agent1, agent2, game):
     """get dict mapping player actions id's to agents"""
-    val = getrandbits(1)*2-1
+    val = -1
     out = {
         +val: agent1,
         -val: agent2
